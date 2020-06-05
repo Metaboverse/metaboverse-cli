@@ -47,8 +47,8 @@ def test():
 
     args_dict = {'output': '/Users/jordan/Desktop/'}
     output_file = "/Users/jordan/Desktop/test.json"
-    species_id = "HSA"
-    network_url = "/Users/jordan/Desktop/HSA_metaboverse_db.pickle"
+    species_id = "SCE"
+    network_url = "/Users/jordan/Desktop/SCE_metaboverse_db.pickle"
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
 
@@ -709,11 +709,17 @@ def map_attributes(
     data_renamed = data.copy()
     #data_renamed = data.rename(index=name_reference)
     data_renamed = data_renamed.loc[data_renamed.index.dropna()]
+    d_cols = data_renamed.columns
+    data_renamed[d_cols] = data_renamed[d_cols].apply(
+        pd.to_numeric, errors='coerce')
     data_max = abs(data_renamed).max().max()
 
     stats_renamed = stats.copy()
     #stats_renamed = stats.rename(index=name_reference)
     stats_renamed = stats_renamed.loc[stats_renamed.index.dropna()]
+    s_cols = stats_renamed.columns
+    stats_renamed[s_cols] = stats_renamed[s_cols].apply(
+        pd.to_numeric, errors='coerce')
     stats_logged = -1 * np.log10(stats_renamed + 1e-100)
 
     stats_max = abs(stats_logged).max().max()
