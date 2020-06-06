@@ -41,6 +41,7 @@ from arguments import parse_arguments
 from preprocess.__main__ import __main__ as preprocess
 from curate.__main__ import __main__ as curate
 from analyze.__main__ import __main__ as analyze
+from mapper.__main__ import __main__ as mapper
 from utils import progress_feed, update_session
 
 def check_dependencies():
@@ -100,10 +101,10 @@ def main(
         args,
         __version__)
 
-    if args_dict['cmd'] == 'preprocess':
+    if args_dict['cmd'] == 'metaboliteMapper':
 
-        print('Preprocessing ' + args_dict['type'] + ' dataset...')
-        preprocess(args_dict)
+        print('Generating metabolite mapper...')
+        mapper(args_dict)
         sys.stdout.flush()
         sys.exit(1)
 

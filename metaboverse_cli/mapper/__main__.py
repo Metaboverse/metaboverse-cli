@@ -171,12 +171,12 @@ def parse_hmdb_synonyms(
     return hmdb_dictionary, display_dictionary, mapping_dictionary
 
 def __main__(
-        output_dir):
+        args_dict):
     """Build metabolite name mapping dictionary
     """
 
     hmdb_dictionary, display_dictionary, mapping_dictionary = parse_hmdb_synonyms(
-        output_dir=output_dir
+        output_dir=args_dict['output']
     )
 
     mapping_db = {
@@ -187,7 +187,7 @@ def __main__(
 
     print('Writing database to file...')
     write_database(
-        output=output_dir,
+        output=args_dict['output'],
         file='metabolite_mapping.pickle',
         database=mapping_db
     )

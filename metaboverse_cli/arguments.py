@@ -111,6 +111,21 @@ def parse_arguments(
     # Add sub-parsers
     subparser = parser.add_subparsers(dest = 'cmd')
 
+    # metaboliteMapper parser
+    mapper_parser = subparser.add_parser(
+        'metaboliteMapper',
+        description = 'Curate metabolite mapper',
+        add_help = False)
+
+    # Curate required arguments
+    mapper_reqs = mapper_parser.add_argument_group('required arguments')
+    mapper_reqs.add_argument(
+        '-o', '--output',
+        help = 'Path to output directory (default: current working directory)',
+        metavar = '<path>',
+        type = str,
+        required = True)
+
     # Curate parser
     curate_parser = subparser.add_parser(
         'curate',
