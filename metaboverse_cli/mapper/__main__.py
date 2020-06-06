@@ -25,60 +25,6 @@ import pickle
 import xml.etree.ElementTree as et
 import pandas as pd
 
-def test():
-
-    file_url = "/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_data/metabolomics_mct1_timecourse.txt"
-    file = pd.read_csv(file_url, sep='\t', index_col=0)
-    file.index.name = None
-    _idx = file.index.tolist()
-    ignore_enantiomers = True
-
-    node_dict = {}
-    for index, row in file.iterrows():
-        node_dict[index] = {}
-        node_dict[index]['values'] = row
-        node_dict[index]['mapping_synonyms'] = []
-        node_dict[index]['display_synonyms'] = []
-        node_dict[index]['chebi_ids'] = set()
-        _i = ''.join(str(c).lower() for c in index if c.isalnum()).lower()
-
-        try:
-            __i = mapping_db['mapping_dictionary'][_i]
-            node_dict[index]['mapping_synonyms'] = mapping_db['hmdb_dictionary'][__i]
-            node_dict[index]['display_synonyms'] = mapping_db['display_dictionary'][__i]
-        except:
-
-            try:
-                # remove last letter
-                __i = mapping_db['mapping_dictionary'][_i[:-1]]
-                node_dict[index]['mapping_synonyms'] = mapping_db['hmdb_dictionary'][__i]
-                node_dict[index]['display_synonyms'] = mapping_db['display_dictionary'][__i]
-            except:
-                if _i[0] == 'd' or _i[0] == 'l' and ignore_enantiomers == True:
-                    try:
-                        __i = mapping_db['mapping_dictionary'][_i[1:]]
-                        node_dict[index]['mapping_synonyms'] = mapping_db['hmdb_dictionary'][__i]
-                        node_dict[index]['display_synonyms'] = mapping_db['display_dictionary'][__i]
-                    except:
-                        print("Unable to map: ", index)
-
-                else:
-                    print("Unable to map: ", index)
-
-    chebi_mapper = {**mapping_db['chebi_dictionary'], **mapping_db['uniprot_metabolites']}
-
-    for k, v in node_dict.items():
-
-        if k in chebi_mapper:
-            node_dict[k]['chebi_ids'].add(chebi_mapper[k])
-
-
-        for s in node_dict[k]['mapping_synonyms']:
-            if s in chebi_mapper:
-                node_dict[k]['chebi_ids'].add(chebi_mapper[s])
-
-        node_dict[k]['chebi_ids'] = list(node_dict[k]['chebi_ids'])
-
 def write_database(
         output,
         file,
