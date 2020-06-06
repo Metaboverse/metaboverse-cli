@@ -31,7 +31,6 @@ from __init__ import __version__
 from __init__ import __dependencies__
 from utils import check_directories
 from utils import check_curate
-from utils import check_analyze
 from utils import argument_checks
 
 __path__  =  os.path.dirname(os.path.realpath(__file__))
@@ -44,9 +43,9 @@ description_table  =  """\
     'metaboverse sub-module_name --help'
     Sub-module descriptions:
         +-----------------------+--------------------------------------------+
-        |    preprocess         |   Preprocess a dataframe                   |
+        |   metaboliteMapper    |   Process a metabolite mapper database     |
         +-----------------------+--------------------------------------------+
-        |    curate             |   Curate network with optional user data   |
+        |   curate              |   Curate network with optional user data   |
         +-----------------------+--------------------------------------------+
 """
 
@@ -61,7 +60,8 @@ def check_arguments(
     # Run sub-module specific checks
     if args_dict['cmd'] == 'curate':
         check_curate(args_dict)
-
+    elif args_dict['cmd'] == 'metaboliteMapper':
+        pass
     else:
         raise Exception('Invalid sub-module selected')
 

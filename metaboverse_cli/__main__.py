@@ -38,7 +38,6 @@ import matplotlib
 from __init__ import __version__
 from __init__ import __dependencies__
 from arguments import parse_arguments
-from preprocess.__main__ import __main__ as preprocess
 from curate.__main__ import __main__ as curate
 from analyze.__main__ import __main__ as analyze
 from mapper.__main__ import __main__ as mapper
