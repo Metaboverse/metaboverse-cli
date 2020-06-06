@@ -22,8 +22,6 @@ from __future__ import print_function
 """
 import os
 import pickle
-import xml.etree.ElementTree as et
-import pandas as pd
 
 from metaboverse_cli.mapper.__main__ import __main__ as mapper
 
@@ -33,7 +31,20 @@ mapper(
     args_dict)
 
 # Check
+mapper_url = os.path.abspath("./metaboverse_cli/mapper/test") + '/metabolite_mapping.pickle'
+with open(mapper_url, 'rb') as mapper_file:
+    mapper = pickle.load(mapper_file)
 
+assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'metabolite mapper failed to generate dictionaries'
+
+key0 = list(mapper['hmdb_dictionary'].keys())[0]
+assert type(mapper['hmdb_dictionary'][key0]) == list, 'HMDB dictionary improperly formatted'
+
+key1 = list(mapper['display_dictionary'].keys())[0]
+assert type(mapper['display_dictionary'][key1]) == list, 'Display dictionary improperly formatted'
+
+key2 = list(mapper['mapping_dictionary'].keys())[0]
+assert type(mapper['mapping_dictionary'][key2]) == str, 'Mapping dictionary improperly formatted'
 
 # Clean
 os.system(
