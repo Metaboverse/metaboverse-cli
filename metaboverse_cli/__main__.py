@@ -32,7 +32,6 @@ import pickle
 import sklearn
 import argparse
 import matplotlib
-import sysconfig
 
 """Import internal dependencies
 """

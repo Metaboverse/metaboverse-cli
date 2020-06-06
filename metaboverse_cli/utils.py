@@ -68,6 +68,9 @@ def update_session(
         with open(session_file, 'w') as outfile:
             json.dump(session, outfile)
 
+    else:
+        print("File at " + str(session_file) + " does not exist.")
+
 """JS progress feed
 """
 def progress_feed(
@@ -87,31 +90,8 @@ def progress_feed(
 
                 with open(feed_file, 'w') as outfile:
                     json.dump(data, outfile)
-
-"""Print out progress bar for long steps
-"""
-def progress_bar(
-        counter,
-        total,
-        status=''):
-
-    bar_len = 60
-    filled_len = int(round(bar_len * counter / float(total)))
-
-    percents = round(100.0 * counter / float(total), 1)
-    bar = '=' * filled_len + '-' * (bar_len - filled_len)
-
-    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
-    sys.stdout.flush()
-
-"""Print number of records read in
-"""
-def progress_counter(
-        counter,
-        status=''):
-
-    sys.stdout.write('    %s %s\r' % (counter, status))
-    sys.stdout.flush()
+    else:
+        print('Could not access local variables during progress_feed() update.')
 
 """Check directory formatting
 """
@@ -172,53 +152,6 @@ def check_curate(
     if should_exit == True:
         sys.exit(1)
 
-"""Check preprocess arguments
-"""
-def check_preprocess(
-        args_dict):
-
-    print('Preprocess sub-module argument checks coming soon...')
-
-"""Check analysis arguments
-"""
-def check_analyze(
-        args_dict):
-
-    print('Analyze sub-module argument checks coming soon...')
-
-"""Make log file for metaboverse module
-"""
-def generate_log(
-        args_dict):
-
-    if 'experiment' in args_dict \
-    and args_dict['experiment'] != None:
-        args_dict['log'] = ' >> ' + str(args_dict['output']) + str(args_dict['experiment']) + '.log 2>&1'
-        args_dict['log_file'] = str(args_dict['output']) + str(args_dict['experiment']) + '.log'
-
-    else:
-        cdt = datetime.datetime.now()
-        args_dict['experiment'] = (
-            str(args_dict['cmd'])
-            + '_' + str(cdt.year)
-            + '_' + str(cdt.month)
-            + '_' + str(cdt.day)
-            + '_' + str(cdt.hour)
-            + 'h_' + str(cdt.minute)
-            + 'm_' + str(cdt.second)
-            + 's')
-        args_dict['log'] = (
-            ' >> '
-            + str(args_dict['output'])
-            + str(args_dict['experiment'])
-            + '.log 2>&1')
-        args_dict['log_file'] = (
-            str(args_dict['output'])
-            + str(args_dict['experiment'])
-            + '.log')
-
-    return args_dict
-
 """Run general checks on arguments
 Not sub-module-specific
 """
@@ -250,64 +183,3 @@ def argument_checks(
             pass
 
     return args_dict
-
-"""Multiprocess array of data
-"""
-def get_cores(
-        args_dict):
-
-    # Set number chunks and processors
-    if 'max_processors' in args_dict \
-    and args_dict['max_processors'] != None \
-    and isinstance(args_dict['max_processors'], int) \
-    and args_dict['max_processors'] <= cpu_count():
-        cores = int(args_dict['max_processors'])
-
-    elif 'max_processors' in args_dict \
-    and args_dict['max_processors'] == None:
-        cores = cpu_count() # Number of CPU cores on your system
-
-    elif 'max_processors' in args_dict \
-    and args_dict['max_processors'] != None \
-    and args_dict['max_processors'] < 1:
-        print('Warning: Indicated less than 1 CPU, setting to 1')
-        cores = 1
-
-    else:
-        print('No multiprocessing capabilities specified, setting to 1')
-        cores = 1
-
-    return cores
-
-def run_chunks(
-        func,
-        chunks,
-        cores):
-
-    # Remove any empty dataframes
-    chunks = [x for x in chunks if x is not None]
-
-    # Initialize workers
-    pool = Pool(cores)
-
-    # Run function on chunks
-    chunks = pool.map(func, chunks)
-    pool.close()
-    pool.join()
-    gc.collect()
-
-    return chunks
-
-def split_dictionary(
-        data,
-        cores):
-
-    i = itertools.cycle(range(cores))
-
-    split = [dict() for _ in range(cores)]
-
-    for key, value in data.items():
-
-        split[next(i)][key] = value
-
-    return split

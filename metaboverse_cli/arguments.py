@@ -62,12 +62,6 @@ def check_arguments(
     if args_dict['cmd'] == 'curate':
         check_curate(args_dict)
 
-    elif args_dict['cmd'] == 'preprocess':
-        check_preprocess(args_dict)
-
-    elif args_dict['cmd'] == 'analyze':
-        check_analyze(args_dict)
-
     else:
         raise Exception('Invalid sub-module selected')
 
@@ -76,7 +70,9 @@ def check_arguments(
     or args_dict['output'].lower() == 'none':
         args_dict['output'] = args_dict['output_file'].rsplit('/', 1)[0] + '/'
 
-
+    args_dict['output'] = check_directories(
+        input=args_dict['output'],
+        argument='output')
 
     # Print out user commands to log file
     print('Metaboverse version: ' + str(__version__))
@@ -114,33 +110,6 @@ def parse_arguments(
 
     # Add sub-parsers
     subparser = parser.add_subparsers(dest = 'cmd')
-
-    # Preprocess parser
-    preprocess_parser = subparser.add_parser(
-        'preprocess',
-        description = 'Preprocess a dataframe',
-        add_help = False)
-
-    # Curate required arguments
-    preprocess_reqs = preprocess_parser.add_argument_group('required arguments')
-    preprocess_reqs.add_argument(
-        '-d', '--data',
-        help = 'Path and filename of dataset -- refer to documentation for details on formatting',
-        metavar = '<path/filename>',
-        type = str,
-        required = True)
-    preprocess_reqs.add_argument(
-        '-m', '--metadata',
-        help = 'Path and filename of metadata -- refer to documentation for details on formatting',
-        metavar = '<path/filename>',
-        type = str,
-        required = True)
-    preprocess_reqs.add_argument(
-        '-t', '--type',
-        help = 'Omics type (options: transcriptomics, proteomics, metabolomics)',
-        metavar = '<transcriptomics/proteomics/metabolomics>',
-        type = str,
-        required = True)
 
     # Curate parser
     curate_parser = subparser.add_parser(
