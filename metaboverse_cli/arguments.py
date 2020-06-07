@@ -229,7 +229,7 @@ def parse_arguments(
         type = str,
         required = False)
     curate_opts.add_argument(
-        '--blacklist',
+        '--blocklist',
         help = 'Comma separated list of names for metabolites, etc., to ignore in the analysis and visualization.',
         metavar = 'H+, H2O, etc...',
         type = str,

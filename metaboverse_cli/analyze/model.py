@@ -865,7 +865,7 @@ def output_graph(
         max_stat,
         categories,
         labels,
-        blacklist,
+        blocklist,
         metadata,
         unmapped):
     """Output graph and necessary metadata
@@ -884,7 +884,7 @@ def output_graph(
     data['max_stat'] = max_stat
     data['categories'] = categories
     data['labels'] = labels
-    data['blacklist'] = blacklist
+    data['blocklist'] = blocklist
     data['metadata'] = metadata
     data['unmapped'] = unmapped
 
@@ -1331,7 +1331,7 @@ def __main__(
         max_stat=max_stat,
         categories=categories,
         labels=args_dict['labels'],
-        blacklist=args_dict['blacklist'],
+        blocklist=args_dict['blocklist'],
         metadata=args_dict,
         unmapped=unmapped)
     print('Graphing complete.')

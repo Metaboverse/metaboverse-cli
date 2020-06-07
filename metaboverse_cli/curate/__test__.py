@@ -22,7 +22,27 @@ import os
 
 """Curation/Utils
 """
-from metaboverse_cli import __main__ as curate
+
+from curate.load_reactions_db import __main__ as load_reactions
+
+from curate.__main__ import parse_table, \
+                                            parse_complexes, \
+                                            parse_ensembl_synonyms, \
+                                            parse_uniprot_synonyms, \
+                                            parse_chebi_synonyms, \
+                                            reference_complex_species, \
+                                            get_reactome_version, \
+                                            write_database, \
+                                            add_genes
+
+
+
+
+
+from metaboverse_cli.curate.load_reactions_db import __main__ as load_reactions
+from curate.load_complexes_db import __main__ as load_complexes
+
+
 
 
 # test __main__() -- functional test
