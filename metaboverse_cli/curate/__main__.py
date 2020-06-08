@@ -34,12 +34,21 @@ try:
     from curate.load_complexes_db import __main__ as load_complexes
     from utils import progress_feed
 except:
-    from metaboverse_cli.curate.load_reactions_db \
-        import __main__ as load_reactions
-    from metaboverse_cli.curate.load_complexes_db \
-        import __main__ as load_complexes
-    from metaboverse_cli.utils import progress_feed
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/load_reactions_db.py"))
+    load_reactions = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(load_reactions)
+    load_reactions = load_reactions.__main__
 
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/load_complexes_db.py"))
+    load_complexes = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(load_complexes)
+    load_complexes = load_complexes.__main__
+
+    spec = importlib.util.spec_from_file_location("progress_feed", os.path.abspath("./metaboverse_cli/utils.py"))
+    progress_feed = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(progress_feed)
+    progress_feed = progress_feed.progress_feed
 
 def test():
 
