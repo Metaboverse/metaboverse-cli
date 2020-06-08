@@ -30,7 +30,10 @@ import xml.etree.ElementTree as et
 
 """Import internal dependencies
 """
-from utils import progress_feed
+try:
+    from utils import progress_feed
+except:
+    from metaboverse_cli.utils import progress_feed
 
 """Global variables
 """

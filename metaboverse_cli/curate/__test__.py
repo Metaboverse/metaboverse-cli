@@ -18,14 +18,17 @@ Metaboverse:
 """
 from __future__ import print_function
 
+"""Import dependencies
+"""
 import os
+import pickle
+import pandas as pd
+import xml.etree.ElementTree as et
 
 """Curation/Utils
 """
-
-from curate.load_reactions_db import __main__ as load_reactions
-
-from curate.__main__ import parse_table, \
+from metaboverse_cli.curate.__main__ import __main__ as curate
+from metaboverse_cli.curate.__main__ import parse_table, \
                                             parse_complexes, \
                                             parse_ensembl_synonyms, \
                                             parse_uniprot_synonyms, \
@@ -34,29 +37,275 @@ from curate.__main__ import parse_table, \
                                             get_reactome_version, \
                                             write_database, \
                                             add_genes
-
-
-
-
-
 from metaboverse_cli.curate.load_reactions_db import __main__ as load_reactions
-from curate.load_complexes_db import __main__ as load_complexes
-
-
-
+from metaboverse_cli.curate.load_complexes_db import __main__ as load_complexes
+from metaboverse_cli.curate.fetch_species import __main__ as fetch_species
+from metaboverse_cli.curate.utils import get_table
+from metaboverse_cli.curate.utils import unpack_table
 
 # test __main__() -- functional test
 args_dict = {
-    'species': 'SCE',
-    'output': os.path.abspath("./tests/test_data")}
+    'species_id': 'SCE',
+    'output': os.path.abspath("./metaboverse_cli/curate/test") + '/'}
+args_dict = curate(
+    args_dict=args_dict)
+network_file = args_dict['output'] + 'SCE_metaboverse_db.pickle'
+with open(network_file, 'rb') as network_file:
+    reactome_database = pickle.load(network_file)
+assert type(reactome_database) == dict, "curate module failed"
+os.remove(args_dict['output'] + 'SCE_metaboverse_db.pickle')
 
-curate(
+# load_reactions_db.py
+pathway_database, reaction_database, species_database, \
+name_database, compartment_dictionary, \
+components_database = load_reactions(
+    species_id=args_dict['species_id'],
+    output_dir=args_dict['output'],
     args_dict=args_dict)
 
-with open(args_dict['output'] + 'SCE_metaboverse_db.pickle', 'rb') as network_file:
-    reactome_database = pickle.load(network_file)
+assert type(pathway_database) == dict, "load_reactions_db.py failed"
+assert type(pathway_database[list(pathway_database.keys())[0]]) == dict, "load_reactions_db.py failed"
 
-assert reactome_database['master_reference']['R-ALL-389536'] == 'CO2', 'Unable to extract element from master reference'
-assert reactome_database['pathways']['R-HSA-2562578']['reactions']['R-HSA-2562541']['name'] == 'TLR4-induced ripoptosome assembly', 'Unable to extract reaction name'
+assert type(reaction_database) == dict, "load_reactions_db.py failed"
+assert type(reaction_database[list(reaction_database.keys())[0]]) == dict, "load_reactions_db.py failed"
 
-os.remove(args_dict['output'] + 'SCE_metaboverse_db.pickle')
+assert type(species_database) == dict, "load_reactions_db.py failed"
+assert type(species_database[list(species_database.keys())[0]]) == str, "load_reactions_db.py failed"
+
+assert type(name_database) == dict, "load_reactions_db.py failed"
+assert type(name_database[list(name_database.keys())[0]]) == str, "load_reactions_db.py failed"
+
+assert type(compartment_dictionary) == dict, "load_reactions_db.py failed"
+assert type(compartment_dictionary[list(compartment_dictionary.keys())[0]]) == str, "load_reactions_db.py failed"
+
+assert type(components_database) == dict, "load_reactions_db.py failed"
+assert type(components_database[list(components_database.keys())[0]]) == dict, "load_reactions_db.py failed"
+
+# load_complexes_db.py
+d = load_complexes(
+    output_dir=args_dict['output'])
+assert type(d['complex_participants']) == pd.DataFrame, "load_complexes_db.py failed"
+assert type(d['complex_pathway']) == pd.DataFrame, "load_complexes_db.py failed"
+
+# fetch_species.py
+organisms = fetch_species()
+assert type(organisms) == list, "fetch_species.py failed"
+
+# write_database()
+args_dict = {
+    'output': os.path.abspath("./metaboverse_cli/curate/test") + '/',
+    'file': 'test.pickle'}
+database = {
+    'chebi_reference': {
+        'R-HSA-0000': {
+            'analyte_id': 'R-ANA-1017',
+            'source_id': '0017',
+            'other': None
+        }
+    },
+    'uniprot_reference': {
+        'R-HSA-0000': {
+            'analyte_id': 'R-ANA-1015',
+            'source_id': '0015',
+            'other': None
+        }
+    },
+    'ensembl_reference': {
+        'R-HSA-0001': {
+            'analyte_id': 'R-ANA-1014',
+            'source_id': '0014',
+            'other': None
+        }
+    },
+    'ncbi_reference': {
+        'R-HSA-0000': {
+            'analyte_id': 'R-ANA-1013',
+            'source_id': '0013',
+            'other': None
+        }
+    },
+    'mirbase_reference': {
+        'R-HSA-0000': {
+            'analyte_id': 'R-ANA-1012',
+            'source_id': '0012',
+            'other': None
+        }
+    }
+}
+write_database(
+    output=args_dict['output'],
+    file=args_dict['file'],
+    database=database)
+
+assert os.path.exists(args_dict['output'] + args_dict['file']) == True, 'Failed to write database to pickle file'
+os.remove(args_dict['output'] + args_dict['file'])
+
+# unpack_table()
+url = 'https://reactome.org/download/current/'
+test_file = 'models2pathways.tsv'
+file = unpack_table(
+        url + test_file,
+        output_dir=args_dict['output'])
+assert file == args_dict['output'] + test_file, 'unpack_table() failed'
+os.remove(args_dict['output'] + test_file)
+
+# get_table()
+url = 'https://reactome.org/download/current/'
+test_file = 'models2pathways.tsv'
+table = get_table(
+    args_dict['output'],
+    url + test_file,
+    column_names=[
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7'],
+    organism='Homo sapiens',
+    organism_key='7') # Key for testing purposes only
+assert 'Homo sapiens' in table['7'].tolist(), 'Problem getting table download'
+os.remove(args_dict['output'] + test_file)
+
+# parse_table()
+def run_checks(
+        ref_dict):
+
+    if ref_dict['R-ALL-00000']['analyte_id'] != 'R-ALL-00000' \
+    or ref_dict['R-ALL-00000']['reaction_id'] != 'R-HSA-00000' \
+    or ref_dict['R-ALL-00000']['reaction_name'] != 'fake_reaction' \
+    or ref_dict['R-ALL-00000']['analyte'] != 'fake_molecule' \
+    or ref_dict['R-ALL-00000']['compartment'] != 'organelle':
+        return False
+
+    else:
+        return True
+data_1 = [
+    ['analyte_id', 'analyte_name', 'reaction_id', 'reaction_name', 'source_id', 'extra_column'],
+    ['R-ALL-00000', 'fake_molecule [organelle]', 'R-HSA-00000', 'fake_reaction', '0101', '????']
+]
+table = pd.DataFrame(data_1, columns=data_1[0])
+table = table.drop(0, axis=0)
+reference = {
+    'this_one': table,
+    'not_this_one': False}
+ref_dict = parse_table(
+        reference=reference,
+        key='this_one')
+assert run_checks(ref_dict) == True, 'Problem parsing Reactome table'
+
+# Test unpacking of a reaction file
+from metaboverse_cli.curate.load_reactions_db import get_pathways, \
+                                                    get_database, \
+                                                    get_metadata, \
+                                                    add_reaction, \
+                                                    add_reaction_components, \
+                                                    add_names, \
+                                                    add_alternative_names, \
+                                                    check_chebi, \
+                                                    add_species, \
+                                                    process_components
+
+species_id = 'HSA'
+path = args_dict['output']
+file = 'R-HSA-realtest.sbml'
+test_db = args_dict['output'] + file
+smbl_namespace = '{{http://www.sbml.org/sbml/level{0}/version{1}/core}}'
+rdf_namespace = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
+bqbiol_namespace = '{http://biomodels.net/biology-qualifiers/}'
+smbl_level = '3'
+smbl_version = '1'
+
+path_list = get_pathways(
+    species_id=species_id,
+    pathways_dir=path)
+assert path_list == ['R-HSA-realtest'], 'get_pathways() failed'
+
+contents = get_database(
+    pathways_dir=path,
+    pathway_name=path_list[0])
+assert type(contents) == et.Element, 'get_database() failed'
+
+pathway_database, reaction_database, species_database, \
+name_database, compartment_database, compartment_dictionary, \
+components_database = process_components(
+    output_dir=args_dict['output'],
+    pathways_dir=args_dict['output'],
+    pathways_list=path_list,
+    species_id=species_id,
+    args_dict=None,
+    smbl_namespace=smbl_namespace,
+    bqbiol_namespace=bqbiol_namespace,
+    rdf_namespace=rdf_namespace)
+
+assert 'R-HSA-realtest' in pathway_database.keys(), 'process_components() failed'
+assert pathway_database['R-HSA-realtest']['id'] == 'pathway_168268', 'process_components() failed'
+assert pathway_database['R-HSA-realtest']['reactome'] == 'R-HSA-realtest', 'process_components() failed'
+assert pathway_database['R-HSA-realtest']['name'] == 'Virus Assembly and Release', 'process_components() failed'
+assert len(pathway_database['R-HSA-realtest']['reactions']) == 21, 'process_components() failed'
+truth_d = set([
+    'reaction_168884',
+    'reaction_168875',
+    'reaction_168882',
+    'reaction_195733',
+    'reaction_169919',
+    'reaction_195739',
+    'reaction_168894',
+    'reaction_168870',
+    'reaction_168871',
+    'reaction_195734',
+    'reaction_168858',
+    'reaction_168862',
+    'reaction_168895',
+    'reaction_168860',
+    'reaction_195726',
+    'reaction_169921',
+    'reaction_195926',
+    'reaction_195730',
+    'reaction_168869',
+    'reaction_188544',
+    'reaction_169847'])
+assert set(pathway_database['R-HSA-realtest']['reactions']) == truth_d, 'process_components() failed'
+
+assert reaction_database['reaction_195733']['compartment'] == 'compartment_17957', 'process_components() failed'
+assert reaction_database['reaction_195733']['id'] == 'reaction_195733', 'process_components() failed'
+assert reaction_database['reaction_195733']['name'] == 'M2 protein synthesis', 'process_components() failed'
+assert reaction_database['reaction_195733']['reversible'] == 'false', 'process_components() failed'
+assert type(reaction_database['reaction_195733']['notes']) == str, 'process_components() failed'
+assert reaction_database['reaction_195733']['reactants'] == [], 'process_components() failed'
+assert reaction_database['reaction_195733']['products'] == ['species_195756'], 'process_components() failed'
+assert reaction_database['reaction_195733']['modifiers'] == [], 'process_components() failed'
+assert reaction_database['reaction_168870']['reactants'] == ['species_195945'], 'process_components() failed'
+assert reaction_database['reaction_168870']['products'] == ['species_195941'], 'process_components() failed'
+assert reaction_database['reaction_168870']['modifiers'] == [['species_195915', 'catalyst']], 'process_components() failed'
+
+assert species_database['species_195752'] == 'NP', 'process_components() failed'
+assert species_database['species_195915'] == 'NA', 'process_components() failed'
+
+assert name_database['NP'] == 'species_195752', 'process_components() failed'
+assert name_database['NA'] == 'species_195915', 'process_components() failed'
+
+assert compartment_database['species_195752'] == 'compartment_876', 'process_components() failed'
+assert compartment_database['species_195915'] == 'compartment_984', 'process_components() failed'
+
+assert compartment_dictionary['compartment_876'] == 'plasma membrane', 'process_components() failed'
+assert compartment_dictionary['compartment_984'] == 'extracellular region', 'process_components() failed'
+
+assert components_database['species_195752']['id'] == 'species_195752', 'process_components() failed'
+assert components_database['species_195752']['reactome_id'] == 'R-FLU-195752', 'process_components() failed'
+assert components_database['species_195752']['name'] == 'NP', 'process_components() failed'
+assert components_database['species_195752']['is'] == 'P03466', 'process_components() failed'
+assert components_database['species_195752']['hasPart'] == [], 'process_components() failed'
+assert components_database['species_195752']['type'] == 'protein_component', 'process_components() failed'
+assert components_database['species_195752']['compartment'] == 'compartment_876', 'process_components() failed'
+assert set(components_database['species_195941']['hasPart']) == set([
+    'P03466',
+    'P03428',
+    'P03433',
+    'P03431',
+    'P03485',
+    'P03508',
+    'P03468',
+    'P03452',
+    'P06821']), 'process_components() failed'

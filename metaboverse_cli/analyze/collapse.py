@@ -21,8 +21,11 @@ from __future__ import print_function
 
 """Import dependencies
 """
-from analyze.utils import convert_rgba
-
+try:
+    from analyze.utils import convert_rgba
+except:
+    from metaboverse_cli.analyze.utils import convert_rgba
+    
 def generate_updated_dictionary(
         original_database,
         update_dictionary,

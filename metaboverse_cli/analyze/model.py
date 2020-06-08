@@ -38,10 +38,16 @@ pmap = matplotlib.cm.get_cmap('Reds')
 
 """Import internal dependencies
 """
-from analyze.collapse import collapse_nodes
-from analyze.collapse import generate_updated_dictionary
-from analyze.utils import convert_rgba
-from utils import progress_feed
+try:
+    from analyze.collapse import collapse_nodes
+    from analyze.collapse import generate_updated_dictionary
+    from analyze.utils import convert_rgba
+    from utils import progress_feed
+except:
+    from metaboverse_cli.analyze.collapse import collapse_nodes
+    from metaboverse_cli.analyze.collapse import generate_updated_dictionary
+    from metaboverse_cli.analyze.utils import convert_rgba
+    from metaboverse_cli.utils import progress_feed
 
 def test():
 

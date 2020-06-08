@@ -25,7 +25,10 @@ import pandas as pd
 
 """Import internal dependencies
 """
-from curate.utils import get_table
+try:
+    from curate.utils import get_table
+except:
+    from metaboverse_cli.curate.utils import get_table
 
 """Get tables
 """

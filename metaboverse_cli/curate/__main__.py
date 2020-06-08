@@ -29,9 +29,17 @@ import pandas as pd
 
 """Import internal dependencies
 """
-from curate.load_reactions_db import __main__ as load_reactions
-from curate.load_complexes_db import __main__ as load_complexes
-from utils import progress_feed
+try:
+    from curate.load_reactions_db import __main__ as load_reactions
+    from curate.load_complexes_db import __main__ as load_complexes
+    from utils import progress_feed
+except:
+    from metaboverse_cli.curate.load_reactions_db \
+        import __main__ as load_reactions
+    from metaboverse_cli.curate.load_complexes_db \
+        import __main__ as load_complexes
+    from metaboverse_cli.utils import progress_feed
+
 
 def test():
 

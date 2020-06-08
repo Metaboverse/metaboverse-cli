@@ -23,9 +23,6 @@ from __future__ import print_function
 import re
 from urllib.request import Request, urlopen
 
-"""Import internal dependencies
-"""
-
 """Set globals
 """
 search_string_start = 'title=\"'
@@ -36,14 +33,10 @@ avoid_string_start_3 = 'title=\"Back to Top'
 stop_string = 'No entries found for this species'
 url = 'https://www.reactome.org/content/schema/objects/Species?page='
 
-"""
-"""
 def fetch_species():
 
     page_number = 1
     organisms = []
-
-    # Check reactome release version
     while page_number != 0:
 
         req = Request(
@@ -75,12 +68,11 @@ def fetch_species():
 
         page_number += 1
 
+    organisms = [x for x in organisms if '<i class=' not in x]
+
     return organisms
 
-"""
-"""
+
 def __main__():
-
     organisms = fetch_species()
-
     return organisms

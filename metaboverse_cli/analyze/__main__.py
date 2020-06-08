@@ -25,9 +25,14 @@ import pandas as pd
 
 """Import internal dependencies
 """
-from analyze.prepare_data import __main__ as prepare_data
-from analyze.model import __main__ as model
-from utils import progress_feed
+try:
+    from analyze.prepare_data import __main__ as prepare_data
+    from analyze.model import __main__ as model
+    from utils import progress_feed
+except:
+    from metaboverse_cli.analyze.prepare_data import __main__ as prepare_data
+    from metaboverse_cli.analyze.model import __main__ as model
+    from metaboverse_cli.utils import progress_feed
 
 def test():
 
