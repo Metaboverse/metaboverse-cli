@@ -28,7 +28,6 @@ from textwrap import dedent
 """Import internal dependencies
 """
 from __init__ import __version__
-from __init__ import __dependencies__
 from utils import check_directories
 from utils import check_curate
 from utils import argument_checks
