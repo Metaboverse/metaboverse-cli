@@ -27,13 +27,14 @@ try:
     from metaboverse_cli.mapper.__main__ import __main__ as mapper
 except:
     import importlib
-    importlib.import_module('metaboverse_cli.mapper.__main__')
-
-
-
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
+    mapper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mapper)
+    mapper.__main__
 # Run
 args_dict = {'output': os.path.abspath("./metaboverse_cli/mapper/test") + '/'}
-mapper(
+mapper.__main__(
     args_dict)
 
 # Check
