@@ -37,7 +37,7 @@ setup(
     description = 'A toolkit for navigating and analyzing biological networks',
     author = 'Jordan A. Berg',
     author_email = 'jordan.berg@biochem.utah.edu',
-    url = 'https://github.com/Metaboverse/Metaboverse',
+    url = 'https://github.com/Metaboverse/metaboverse-cli',
     packages = ['metaboverse_cli'],
     exclude= [
         'metaboverse_cli/test',
