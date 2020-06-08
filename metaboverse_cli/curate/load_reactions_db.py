@@ -33,11 +33,7 @@ import xml.etree.ElementTree as et
 try:
     from utils import progress_feed
 except:
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("progress_feed", os.path.abspath("./metaboverse_cli/utils.py"))
-    progress_feed = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(progress_feed)
-    progress_feed = progress_feed.progress_feed
+    from metaboverse_cli.utils import progress_feed
 
 """Global variables
 """

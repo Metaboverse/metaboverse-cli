@@ -28,11 +28,7 @@ import pandas as pd
 try:
     from curate.utils import get_table
 except:
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("get_table", os.path.abspath("./metaboverse_cli/curate/utils.py"))
-    get_table = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(get_table)
-    get_table = get_table.get_table
+    from metaboverse_cli.curate.utils import get_table
 
 """Get tables
 """

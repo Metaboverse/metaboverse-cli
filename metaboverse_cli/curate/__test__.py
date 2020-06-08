@@ -27,53 +27,79 @@ import xml.etree.ElementTree as et
 
 """Curation/Utils
 """
-import importlib.util
-spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/__main__.py"))
-curate = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(curate)
+try:
+    from metaboverse_cli.curate import __main__ as curate
+    from metaboverse_cli.curate.__main__ import parse_table, \
+                                                parse_complexes, \
+                                                parse_ensembl_synonyms, \
+                                                parse_uniprot_synonyms, \
+                                                parse_chebi_synonyms, \
+                                                reference_complex_species, \
+                                                get_reactome_version, \
+                                                write_database, \
+                                                add_genes
+    from metaboverse_cli.curate.load_reactions_db \
+        import __main__ as load_reactions
+    from metaboverse_cli.curate.load_complexes_db \
+        import __main__ as load_complexes
+    from metaboverse_cli.curate.fetch_species import __main__ as fetch_species
+    from metaboverse_cli.curate.utils import get_table
+    from metaboverse_cli.curate.utils import unpack_table
+    from metaboverse_cli.curate.load_reactions_db import get_pathways, \
+                                                    get_database, \
+                                                    get_metadata, \
+                                                    add_reaction, \
+                                                    add_reaction_components, \
+                                                    add_names, \
+                                                    add_alternative_names, \
+                                                    check_chebi, \
+                                                    add_species, \
+                                                    process_components
 
-spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/load_reactions_db.py"))
-load_reactions = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(load_reactions)
 
-spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/load_complexes_db.py"))
-load_complexes = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(load_complexes)
-
-spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/fetch_species.py"))
-fetch_species = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(fetch_species)
-
-spec = importlib.util.spec_from_file_location("get_table", os.path.abspath("./metaboverse_cli/curate/utils.py"))
-get_table = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(get_table)
-
-spec = importlib.util.spec_from_file_location("unpack_table", os.path.abspath("./metaboverse_cli/curate/utils.py"))
-unpack_table = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(unpack_table)
-
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/curate/load_reactions_db.py"))
-load_reactions_db = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(load_reactions_db)
+except:
+    from curate import __main__ as curate
+    from curate.__main__ import parse_table, \
+                                                parse_complexes, \
+                                                parse_ensembl_synonyms, \
+                                                parse_uniprot_synonyms, \
+                                                parse_chebi_synonyms, \
+                                                reference_complex_species, \
+                                                get_reactome_version, \
+                                                write_database, \
+                                                add_genes
+    from curate.load_reactions_db import __main__ as load_reactions
+    from curate.load_complexes_db import __main__ as load_complexes
+    from curate.fetch_species import __main__ as fetch_species
+    from curate.utils import get_table
+    from curate.utils import unpack_table
+    from curate.load_reactions_db import get_pathways, \
+                                        get_database, \
+                                        get_metadata, \
+                                        add_reaction, \
+                                        add_reaction_components, \
+                                        add_names, \
+                                        add_alternative_names, \
+                                        check_chebi, \
+                                        add_species, \
+                                        process_components
 
 # test __main__() -- functional test
 args_dict = {
     'species_id': 'SCE',
     'output': os.path.abspath("./metaboverse_cli/curate/test") + '/'}
-"""
-args_dict = curate.__main__(
+args_dict = curate(
     args_dict=args_dict)
 network_file = args_dict['output'] + 'SCE_metaboverse_db.pickle'
 with open(network_file, 'rb') as network_file:
     reactome_database = pickle.load(network_file)
 assert type(reactome_database) == dict, "curate module failed"
 os.remove(args_dict['output'] + 'SCE_metaboverse_db.pickle')
-"""
 
 # load_reactions_db.py
 pathway_database, reaction_database, species_database, \
 name_database, compartment_dictionary, \
-components_database = load_reactions.__main__(
+components_database = load_reactions(
     species_id=args_dict['species_id'],
     output_dir=args_dict['output'],
     args_dict=args_dict)
@@ -97,13 +123,13 @@ assert type(components_database) == dict, "load_reactions_db.py failed"
 assert type(components_database[list(components_database.keys())[0]]) == dict, "load_reactions_db.py failed"
 
 # load_complexes_db.py
-d = load_complexes.__main__(
+d = load_complexes(
     output_dir=args_dict['output'])
 assert type(d['complex_participants']) == pd.DataFrame, "load_complexes_db.py failed"
 assert type(d['complex_pathway']) == pd.DataFrame, "load_complexes_db.py failed"
 
 # fetch_species.py
-organisms = fetch_species.__main__()
+organisms = fetch_species()
 assert type(organisms) == list, "fetch_species.py failed"
 
 # write_database()
@@ -147,7 +173,7 @@ database = {
         }
     }
 }
-curate.write_database(
+write_database(
     output=args_dict['output'],
     file=args_dict['file'],
     database=database)
@@ -158,7 +184,7 @@ os.remove(args_dict['output'] + args_dict['file'])
 # unpack_table()
 url = 'https://reactome.org/download/current/'
 test_file = 'models2pathways.tsv'
-file = unpack_table.unpack_table(
+file = unpack_table(
         url + test_file,
         output_dir=args_dict['output'])
 assert file == args_dict['output'] + test_file, 'unpack_table() failed'
@@ -167,7 +193,7 @@ os.remove(args_dict['output'] + test_file)
 # get_table()
 url = 'https://reactome.org/download/current/'
 test_file = 'models2pathways.tsv'
-table = get_table.get_table(
+table = get_table(
     args_dict['output'],
     url + test_file,
     column_names=[
@@ -205,7 +231,7 @@ table = table.drop(0, axis=0)
 reference = {
     'this_one': table,
     'not_this_one': False}
-ref_dict = curate.parse_table(
+ref_dict = parse_table(
         reference=reference,
         key='this_one')
 assert run_checks(ref_dict) == True, 'Problem parsing Reactome table'
@@ -221,19 +247,19 @@ bqbiol_namespace = '{http://biomodels.net/biology-qualifiers/}'
 smbl_level = '3'
 smbl_version = '1'
 
-path_list = load_reactions_db.get_pathways(
+path_list = get_pathways(
     species_id=species_id,
     pathways_dir=path)
 assert path_list == ['R-HSA-realtest'], 'get_pathways() failed'
 
-contents = load_reactions_db.get_database(
+contents = get_database(
     pathways_dir=path,
     pathway_name=path_list[0])
 assert type(contents) == et.Element, 'get_database() failed'
 
 pathway_database, reaction_database, species_database, \
 name_database, compartment_database, compartment_dictionary, \
-components_database = load_reactions_db.process_components(
+components_database = process_components(
     output_dir=args_dict['output'],
     pathways_dir=args_dict['output'],
     pathways_list=path_list,
