@@ -108,8 +108,8 @@ args_dict = {
 args_dict = argument_checks(
     args_dict=args_dict)
 assert args_dict == {
-    'output': '/Users/jordan/Desktop/metaboverse-cli/metaboverse_cli/test/',
+    'output': os.path.abspath("./metaboverse_cli/test") + '/',
     'species_id': 'SCE',
-    'progress_log': '/Users/jordan/Desktop/metaboverse-cli/metaboverse_cli/test/progress_data.json',
-    'session_data': '/Users/jordan/Desktop/metaboverse-cli/metaboverse_cli/test/session_data.json',
+    'progress_log': os.path.abspath("./metaboverse_cli/test") + '/progress_data.json',
+    'session_data': os.path.abspath("./metaboverse_cli/test") + '/session_data.json',
     'cmd': 'BAD'}, 'argument_checks() failed'
