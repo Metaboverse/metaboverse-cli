@@ -39,7 +39,12 @@ setup(
     author_email = 'jordan.berg@biochem.utah.edu',
     url = 'https://github.com/Metaboverse/Metaboverse',
     packages = ['metaboverse_cli'],
-    exclude= ['test','docs'],
+    exclude= [
+        'metaboverse_cli/test',
+        'metaboverse_cli/mapper/test',
+        'metaboverse_cli/curate/test',
+        'metaboverse_cli/analyze/test',
+        'docs'],
     package_dir = {'metaboverse_cli': '.'},
     license = 'GPL-3.0',
     zip_safe = False,
