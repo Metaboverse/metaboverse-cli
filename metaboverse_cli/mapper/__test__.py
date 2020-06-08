@@ -26,7 +26,10 @@ import pickle
 try:
     from metaboverse_cli.mapper.__main__ import __main__ as mapper
 except:
-    from mapper.__main__ import __main__ as mapper
+    import importlib
+    importlib.import_module('metaboverse_cli.mapper.__main__')
+
+
 
 # Run
 args_dict = {'output': os.path.abspath("./metaboverse_cli/mapper/test") + '/'}
