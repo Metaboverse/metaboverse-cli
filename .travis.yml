@@ -8,15 +8,14 @@ dist: xenial
 
 before_install:
 - echo -e "machine github.com\n  login $GITHUB_TOKEN" > ~/.netrc
+- cd metaboverse-cli
 
 install:
-- hash -d pip 
+- hash -d pip
 - pip install -r requirements.txt
 - pip install codecov
 - pip install .
 - python setup.py install
-
-before_script:
 
 script:
 - coverage run metaboverse_cli/__test__.py
