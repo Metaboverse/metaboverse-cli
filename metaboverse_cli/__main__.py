@@ -36,7 +36,6 @@ import matplotlib
 """Import internal dependencies
 """
 from __init__ import __version__
-from __init__ import __dependencies__
 from arguments import parse_arguments
 from curate.__main__ import __main__ as curate
 from analyze.__main__ import __main__ as analyze
