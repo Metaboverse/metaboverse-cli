@@ -5,7 +5,7 @@ A Biological and Metabolic Networks Analysis Platform
 `WARNING: This repository is currently under development. When the software is complete and stable enough for beta testing, the beta tag will be removed.`   
 To receive updates, join our mailing list by emailing `metaboverse@gmail.com`
 
-[![Build Status](https://travis-ci.org/Metaboverse/Metaboverse.svg?branch=master)](https://travis-ci.org/Metaboverse/Metaboverse)
+[![Build Status](https://travis-ci.org/Metaboverse/metaboverse-cli.svg?branch=master)](https://travis-ci.org/Metaboverse/metaboverse-cli)
 [![Documentation Status](https://readthedocs.org/projects/metaboverse/badge/?version=latest)](https://metaboverse.readthedocs.io/en/latest/?badge=latest)
 
 ## What does Metaboverse do?
