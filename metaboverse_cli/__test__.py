@@ -23,13 +23,20 @@ import json
 """Main/Utils
 """
 # Functions to test
-from metaboverse_cli.utils import update_session, \
-                                    progress_feed, \
-                                    check_directories, \
-                                    check_files, \
-                                    check_curate, \
-                                    argument_checks
-
+try:
+    from metaboverse_cli.utils import update_session, \
+                                        progress_feed, \
+                                        check_directories, \
+                                        check_files, \
+                                        check_curate, \
+                                        argument_checks
+except:
+    from utils import update_session, \
+                        progress_feed, \
+                        check_directories, \
+                        check_files, \
+                        check_curate, \
+                        argument_checks
 # update_session()
 session_file = os.path.abspath("./metaboverse_cli/test/session_data.json")
 update_session(
