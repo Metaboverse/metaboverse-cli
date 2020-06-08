@@ -23,8 +23,11 @@ from __future__ import print_function
 import os
 import pickle
 
-from metaboverse_cli.mapper.__main__ import __main__ as mapper
-
+try:
+    from metaboverse_cli.mapper.__main__ import __main__ as mapper
+except:
+    from mapper.__main__ import __main__ as mapper
+    
 # Run
 args_dict = {'output': os.path.abspath("./metaboverse_cli/mapper/test") + '/'}
 mapper(

@@ -27,21 +27,62 @@ import xml.etree.ElementTree as et
 
 """Curation/Utils
 """
-from metaboverse_cli.curate.__main__ import __main__ as curate
-from metaboverse_cli.curate.__main__ import parse_table, \
-                                            parse_complexes, \
-                                            parse_ensembl_synonyms, \
-                                            parse_uniprot_synonyms, \
-                                            parse_chebi_synonyms, \
-                                            reference_complex_species, \
-                                            get_reactome_version, \
-                                            write_database, \
-                                            add_genes
-from metaboverse_cli.curate.load_reactions_db import __main__ as load_reactions
-from metaboverse_cli.curate.load_complexes_db import __main__ as load_complexes
-from metaboverse_cli.curate.fetch_species import __main__ as fetch_species
-from metaboverse_cli.curate.utils import get_table
-from metaboverse_cli.curate.utils import unpack_table
+try:
+    from metaboverse_cli.curate.__main__ import __main__ as curate
+    from metaboverse_cli.curate.__main__ import parse_table, \
+                                                parse_complexes, \
+                                                parse_ensembl_synonyms, \
+                                                parse_uniprot_synonyms, \
+                                                parse_chebi_synonyms, \
+                                                reference_complex_species, \
+                                                get_reactome_version, \
+                                                write_database, \
+                                                add_genes
+    from metaboverse_cli.curate.load_reactions_db \
+        import __main__ as load_reactions
+    from metaboverse_cli.curate.load_complexes_db \
+        import __main__ as load_complexes
+    from metaboverse_cli.curate.fetch_species import __main__ as fetch_species
+    from metaboverse_cli.curate.utils import get_table
+    from metaboverse_cli.curate.utils import unpack_table
+    from metaboverse_cli.curate.load_reactions_db import get_pathways, \
+                                                    get_database, \
+                                                    get_metadata, \
+                                                    add_reaction, \
+                                                    add_reaction_components, \
+                                                    add_names, \
+                                                    add_alternative_names, \
+                                                    check_chebi, \
+                                                    add_species, \
+                                                    process_components
+
+
+except:
+    from curate.__main__ import __main__ as curate
+    from curate.__main__ import parse_table, \
+                                                parse_complexes, \
+                                                parse_ensembl_synonyms, \
+                                                parse_uniprot_synonyms, \
+                                                parse_chebi_synonyms, \
+                                                reference_complex_species, \
+                                                get_reactome_version, \
+                                                write_database, \
+                                                add_genes
+    from curate.load_reactions_db import __main__ as load_reactions
+    from curate.load_complexes_db import __main__ as load_complexes
+    from curate.fetch_species import __main__ as fetch_species
+    from curate.utils import get_table
+    from curate.utils import unpack_table
+    from curate.load_reactions_db import get_pathways, \
+                                        get_database, \
+                                        get_metadata, \
+                                        add_reaction, \
+                                        add_reaction_components, \
+                                        add_names, \
+                                        add_alternative_names, \
+                                        check_chebi, \
+                                        add_species, \
+                                        process_components
 
 # test __main__() -- functional test
 args_dict = {
@@ -196,17 +237,6 @@ ref_dict = parse_table(
 assert run_checks(ref_dict) == True, 'Problem parsing Reactome table'
 
 # Test unpacking of a reaction file
-from metaboverse_cli.curate.load_reactions_db import get_pathways, \
-                                                    get_database, \
-                                                    get_metadata, \
-                                                    add_reaction, \
-                                                    add_reaction_components, \
-                                                    add_names, \
-                                                    add_alternative_names, \
-                                                    check_chebi, \
-                                                    add_species, \
-                                                    process_components
-
 species_id = 'HSA'
 path = args_dict['output']
 file = 'R-HSA-realtest.sbml'
