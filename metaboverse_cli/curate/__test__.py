@@ -28,7 +28,7 @@ import xml.etree.ElementTree as et
 """Curation/Utils
 """
 try:
-    from metaboverse_cli.curate.__main__ import __main__ as curate
+    from metaboverse_cli.curate import __main__ as curate
     from metaboverse_cli.curate.__main__ import parse_table, \
                                                 parse_complexes, \
                                                 parse_ensembl_synonyms, \
@@ -58,7 +58,7 @@ try:
 
 
 except:
-    from curate.__main__ import __main__ as curate
+    from curate import __main__ as curate
     from curate.__main__ import parse_table, \
                                                 parse_complexes, \
                                                 parse_ensembl_synonyms, \
