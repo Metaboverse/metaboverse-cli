@@ -24,7 +24,12 @@ from __future__ import print_function
 try:
     from analyze.utils import convert_rgba
 except:
-    from metaboverse_cli.analyze.utils import convert_rgba
+    import os
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("convert_rgba", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
+    convert_rgba = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(convert_rgba)
+    convert_rgba = convert_rgba.convert_rgba
 
 def generate_updated_dictionary(
         original_database,

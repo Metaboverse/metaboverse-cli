@@ -30,10 +30,23 @@ try:
     from analyze.model import __main__ as model
     from utils import progress_feed
 except:
-    from metaboverse_cli.analyze.prepare_data import __main__ as prepare_data
-    from metaboverse_cli.analyze.model import __main__ as model
-    from metaboverse_cli.utils import progress_feed
+    import os
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
+    prepare_data = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(prepare_data)
+    prepare_data = prepare_data.__main__
 
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/analyze/model.py"))
+    model = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(model)
+    model = model.__main__
+
+    spec = importlib.util.spec_from_file_location("progress_feed", os.path.abspath("./metaboverse_cli/utils.py"))
+    progress_feed = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(progress_feed)
+    progress_feed = progress_feed.progress_feed
+    
 def test():
 
     args_dict = {

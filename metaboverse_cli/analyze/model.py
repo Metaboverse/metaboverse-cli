@@ -44,10 +44,22 @@ try:
     from analyze.utils import convert_rgba
     from utils import progress_feed
 except:
-    from metaboverse_cli.analyze.collapse import collapse_nodes
-    from metaboverse_cli.analyze.collapse import generate_updated_dictionary
-    from metaboverse_cli.analyze.utils import convert_rgba
-    from metaboverse_cli.utils import progress_feed
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
+    collapse = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(collapse)
+    collapse_nodes = collapse.collapse_nodes
+    generate_updated_dictionary = collapse.generate_updated_dictionary
+
+    spec = importlib.util.spec_from_file_location("convert_rgba", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
+    convert_rgba = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(convert_rgba)
+    convert_rgba = convert_rgba.convert_rgba
+
+    spec = importlib.util.spec_from_file_location("progress_feed", os.path.abspath("./metaboverse_cli/utils.py"))
+    progress_feed = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(progress_feed)
+    progress_feed = progress_feed.progress_feed
 
 def test():
 
