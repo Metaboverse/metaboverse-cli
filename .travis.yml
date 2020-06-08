@@ -6,14 +6,8 @@ python:
   - 3.8
 dist: xenial
 
-addons:
-  apt:
-    packages:
-    - openvpn
-
 before_install:
 - echo -e "machine github.com\n  login $GITHUB_TOKEN" > ~/.netrc
-- sudo openvpn path/to/conf.ovpn &>>openvpn-client.log &
 
 install:
 - hash -d pip

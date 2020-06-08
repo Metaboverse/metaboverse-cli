@@ -60,6 +60,7 @@ spec.loader.exec_module(load_reactions_db)
 args_dict = {
     'species_id': 'SCE',
     'output': os.path.abspath("./metaboverse_cli/curate/test") + '/'}
+"""
 args_dict = curate.__main__(
     args_dict=args_dict)
 network_file = args_dict['output'] + 'SCE_metaboverse_db.pickle'
@@ -67,6 +68,7 @@ with open(network_file, 'rb') as network_file:
     reactome_database = pickle.load(network_file)
 assert type(reactome_database) == dict, "curate module failed"
 os.remove(args_dict['output'] + 'SCE_metaboverse_db.pickle')
+"""
 
 # load_reactions_db.py
 pathway_database, reaction_database, species_database, \
