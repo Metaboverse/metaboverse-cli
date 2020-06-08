@@ -18,10 +18,10 @@ install:
 before_script:
 
 script:
-- coverage run metaboverse_cl/__test__.py
-- coverage run metaboverse_cl/mapper/__test__.py
-- coverage run metaboverse_cl/curate/__test__.py
-- coverage run metaboverse_cl/analyze/__test__.py
+- coverage run metaboverse_cli/__test__.py
+- coverage run metaboverse_cli/mapper/__test__.py
+- coverage run metaboverse_cli/curate/__test__.py
+- coverage run metaboverse_cli/analyze/__test__.py
 
 #after_success:
 #- codecov
