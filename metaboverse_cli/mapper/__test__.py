@@ -23,15 +23,11 @@ from __future__ import print_function
 import os
 import pickle
 
-try:
-    from metaboverse_cli.mapper.__main__ import __main__ as mapper
-except:
-    import importlib
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
-    mapper = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mapper)
-    mapper.__main__
+import importlib.util
+spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
+mapper = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mapper)
+
 # Run
 args_dict = {'output': os.path.abspath("./metaboverse_cli/mapper/test") + '/'}
 mapper.__main__(
