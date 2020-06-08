@@ -23,12 +23,12 @@ from setuptools import setup
 import re
 import os
 
-"""Import internal dependencies
-"""
-from __init__ import __version__
-from __init__ import __dependencies__
-
 __path__  =  os.path.dirname(os.path.realpath(__file__)) + '/'
+
+"""Get version"""
+with open(str(__path__) + 'metaboverse_cli/__init__.py', 'r') as fd:
+    __version__ = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
 
 """Setup arguments"""
 setup(
@@ -37,20 +37,28 @@ setup(
     description = 'A toolkit for navigating and analyzing biological networks',
     author = 'Jordan A. Berg',
     author_email = 'jordan.berg@biochem.utah.edu',
-    url = 'https://github.com/j-berg/Metaboverse',
-    packages = ['metaboverse'],
-    exclude= ['tests','docs','recipes'],
-    package_dir = {'metaboverse': '.'},
+    url = 'https://github.com/Metaboverse/Metaboverse',
+    packages = ['metaboverse_cli'],
+    exclude= ['test','docs'],
+    package_dir = {'metaboverse_cli': '.'},
     license = 'GPL-3.0',
     zip_safe = False,
-    install_requires = __dependencies__,
+    install_requires = [
+            'pandas',
+            'numpy',
+            'scipy',
+            'scikit-learn',
+            'matplotlib<3.0.0,>=2.1.1',
+            'networkx'
+
+        ],
     entry_points={
         "console_scripts": [
-            "metaboverse = app.python.__main__:main"
+            "metaboverse = metaboverse_cli.__main__:main"
             ]
         },
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bio-Informatics'
         ]
