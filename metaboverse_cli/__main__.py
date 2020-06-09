@@ -136,7 +136,7 @@ def main(
 
         print('Generating metabolite mapper...')
         mapper(args_dict)
-        sys.stdout.flush()
+        #sys.stdout.flush()
         sys.exit(1)
 
     # Run metaboverse-curate
@@ -172,19 +172,30 @@ def main(
                     key='database_url',
                     value=args_dict['output_file'])
 
-
             print('Skipping organism network modeling as one was provided by' \
             + ' the user...')
-            sys.stdout.flush()
+            #sys.stdout.flush()
         else:
             print('Curating network model...')
+            if 'model_file' in args_dict \
+            and str(args_dict['model_file']) == 'None':
+                args_dict['model_file'] = args_dict['output'] \
+                    + args_dict['species_id'] \
+                    + '_metaboverse_db.pickle'
+
             args_dict['network'] = args_dict['model_file']
             args_dict = curate(args_dict)
-            sys.stdout.flush()
+            #sys.stdout.flush()
 
         print('Curating data onto the network model...')
+        if 'output_file' in args_dict \
+        and str(args_dict['output_file'])== 'None':
+            args_dict['output_file'] = args_dict['output'] \
+                + args_dict['species_id'] \
+                + '_global_reactions.json'
+
         analyze(args_dict)
-        sys.stdout.flush()
+        #sys.stdout.flush()
         sys.exit(1)
 
     # Print some error messaging
@@ -192,7 +203,7 @@ def main(
         raise Exception('Invalid sub-module selected')
 
     # Exit
-    sys.stdout.flush()
+    #sys.stdout.flush()
 
 """Run main
 """

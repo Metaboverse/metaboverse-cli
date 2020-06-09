@@ -46,7 +46,7 @@ except:
     progress_feed = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(progress_feed)
     progress_feed = progress_feed.progress_feed
-    
+
 def test():
 
     args_dict = {
@@ -114,6 +114,11 @@ def __main__(
         stats = pd.DataFrame()
         stats['NoSample'] = [0,0,0]
         stats.index = ['dummy_index1', 'dummy_index2', 'dummy_index3']
+
+        unmapped = {
+            'transcriptomics_unmapped': [],
+            'proteomics_unmapped': []
+        }
 
         progress_feed(args_dict, "model", 3)
         flag_data = True

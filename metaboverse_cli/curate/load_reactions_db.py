@@ -56,7 +56,6 @@ def test():
     species_id = 'HSA'
     args_dict = None
 
-
 def unpack_pathways(
         output_dir,
         url='https://reactome.org/download/current/all_species.3.1.sbml.tgz'):
