@@ -35,12 +35,45 @@ import matplotlib
 
 """Import internal dependencies
 """
-from __init__ import __version__
-from arguments import parse_arguments
-from curate.__main__ import __main__ as curate
-from analyze.__main__ import __main__ as analyze
-from mapper.__main__ import __main__ as mapper
-from utils import progress_feed, update_session
+try:
+    from __init__ import __version__
+    from arguments import parse_arguments
+    from curate.__main__ import __main__ as curate
+    from analyze.__main__ import __main__ as analyze
+    from mapper.__main__ import __main__ as mapper
+    from utils import progress_feed, update_session
+except:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("__version__", os.path.abspath("./metaboverse_cli/__init__.py"))
+    version = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(version)
+    __version__ = version.__version__
+
+    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/arguments.py"))
+    arguments = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(arguments)
+    parse_arguments = arguments.parse_arguments
+
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/__main__.py"))
+    curate = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(curate)
+    curate = curate.__main__
+
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
+    analyze = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(analyze)
+    analyze = analyze.__main__
+
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
+    mapper = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mapper)
+    mapper = mapper.__main__
+
+    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils)
+    progress_feed = utils.progress_feed
+    update_session = utils.update_session
 
 def check_dependencies():
 

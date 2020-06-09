@@ -79,7 +79,7 @@ def progress_feed(
         amount=1):
 
     if args_dict != None:
-        if 'progress_log' in args_dict:
+        if 'progress_log' in args_dict and args_dict['progress_log'] != None:
             feed_file = args_dict['progress_log']
 
             if os.path.exists(feed_file) and process != None:

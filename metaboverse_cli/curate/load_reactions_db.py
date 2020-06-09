@@ -74,7 +74,7 @@ def unpack_pathways(
     if os.path.exists(pathways_dir):
         shutil.rmtree(pathways_dir)
     os.makedirs(pathways_dir)
-    os.system('tar -zxvf ' + file + ' -C ' + pathways_dir)
+    os.system('tar -zxf ' + file + ' -C ' + pathways_dir)
     try:
         os.remove(file)
     except:
