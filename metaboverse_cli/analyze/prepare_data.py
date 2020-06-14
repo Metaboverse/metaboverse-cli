@@ -24,28 +24,6 @@ import os
 import sys
 import pandas as pd
 
-def test():
-
-    def read_network(
-            network_url):
-        """Read in network from previous curation module
-        - was provided as a URL to the file and saved to args_dict['network'] in "curate" sub-module
-        """
-        import pickle
-        with open(network_url, 'rb') as network_file:
-            network = pickle.load(network_file)
-
-        return network
-
-    network = read_network(
-        network_url='/Users/jordan/Desktop/metaboverse_data/databases/SCE_metaboverse_db.pickle')
-
-    #network['uniprot_synonyms']
-
-    transcriptomics_url='/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_data/transcriptomics_mct1_12hr.txt'
-    proteomics_url='/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_data/proteomics_mct1_12hr.txt'
-    metabolomics_url='/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_data/metabolomics_mct1_timecourse.txt'
-
 def read_data(
         url,
         delimiter='\t'):
@@ -455,9 +433,16 @@ def __main__(
     stats = catenate_data(
         array=stats_array)
 
-    unmapped = {
-        'transcriptomics_unmapped': transcriptomics_unmapped.index.tolist(),
-        'proteomics_unmapped': proteomics_unmapped.index.tolist()
-    }
+    unmapped = {}
+    try:
+        unmapped['transcriptomics_unmapped'] = \
+            transcriptomics_unmapped.index.tolist()
+    except:
+        unmapped['transcriptomics_unmapped'] = []
+    try:
+        unmapped['proteomics_unmapped'] = \
+            proteomics_unmapped.index.tolist()
+    except:
+        unmapped['proteomics_unmapped'] = []
 
     return data, stats, unmapped
