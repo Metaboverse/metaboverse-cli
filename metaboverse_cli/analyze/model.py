@@ -1147,11 +1147,18 @@ def make_motif_reaction_dictionary(
             comps = k.split('_reaction_')
             comps = [x.replace('reaction_','') for x in comps]
 
+            unity_paths = []
             for y in comps:
                 _rxn = 'reaction_' + y
                 _paths = simp_dict[_rxn]
-                for z in _paths:
-                    motif_reaction_dictionary[k].append(z)
+                unity_paths.append(_paths)
+
+            # For collapsed reactions, only include pathways that all
+            # component reactions are a member of
+            result = set(unity_paths[0])
+            for u in unity_paths[1:]:
+                result.intersection_update(set(u))
+            motif_reaction_dictionary[k].append(list(result))
 
     return motif_reaction_dictionary
 
