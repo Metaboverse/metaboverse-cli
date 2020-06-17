@@ -6,3 +6,4 @@
 metaboverse_cli/metaboverse-mac
 metaboverse_cli/dist
 metaboverse_cli/build
+metaboverse_cli/analyze/test/*pickle

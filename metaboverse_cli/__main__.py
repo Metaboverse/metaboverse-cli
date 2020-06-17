@@ -152,9 +152,12 @@ def main(
             with open(args_dict['organism_curation'], 'rb') as network_file:
                 network = pickle.load(network_file)
                 args_dict['species_id'] = network['species_id']
-                args_dict['output_file'] = args_dict['output'] \
-                    + args_dict['species_id'] \
-                    + '_global_reactions.json'
+                if args_dict['output_file'] == None \
+                or args_dict['output_file'] == "None" \
+                or args_dict['output_file'] == "find":
+                    args_dict['output_file'] = args_dict['output'] \
+                        + args_dict['species_id'] \
+                        + '_global_reactions.json'
                 args_dict['network'] = args_dict['organism_curation']
 
                 # add variables back to session data json file
@@ -171,10 +174,9 @@ def main(
                     session_file=session_file,
                     key='database_url',
                     value=args_dict['output_file'])
-
             print('Skipping organism network modeling as one was provided by' \
             + ' the user...')
-            #sys.stdout.flush()
+
         else:
             print('Curating network model...')
             if 'model_file' in args_dict \
@@ -189,7 +191,7 @@ def main(
 
         print('Curating data onto the network model...')
         if 'output_file' in args_dict \
-        and str(args_dict['output_file'])== 'None':
+        and str(args_dict['output_file']) == 'None':
             args_dict['output_file'] = args_dict['output'] \
                 + args_dict['species_id'] \
                 + '_global_reactions.json'
