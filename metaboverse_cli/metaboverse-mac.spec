@@ -7,7 +7,7 @@ block_cipher = None
 
 a = Analysis(
             ['__main__.py'],
-             pathex=['/Users/jordan/Desktop/Metaboverse/app/python'],
+             pathex=[],
              binaries=[],
              datas=[],
              hiddenimports=[],
