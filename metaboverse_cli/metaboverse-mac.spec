@@ -4,7 +4,6 @@ sys.setrecursionlimit(5000)
 
 block_cipher = None
 
-
 a = Analysis(
             ['__main__.py'],
              pathex=[],
