@@ -64,9 +64,9 @@ except:
 def test():
 
     args_dict = {'output': '/Users/jordan/Desktop/'}
-    output_file = "/Users/jordan/Desktop/test.json"
-    species_id = "SCE"
-    network_url = "/Users/jordan/Desktop/SCE_metaboverse_db.pickle"
+    output_file = "/Users/jordan/Desktop/testHSA.json"
+    species_id = "HSA"
+    network_url = "/Users/jordan/Desktop/HSA_metaboverse_db.pickle"
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
 
@@ -1290,11 +1290,19 @@ def __main__(
         broadcast_genes=broadcast_genes)
     progress_feed(args_dict, "graph", 10)
 
+    # Remove disease reactions that are "defective" from reaction collapse
+    no_defective_reactions = {}
+    for key in network['reaction_database'].keys():
+        rxn_name = network['reaction_database'][key]['name'].lower()
+        if 'defective' not in rxn_name \
+        and 'mutant' not in rxn_name:
+            no_defective_reactions[key] = network['reaction_database'][key]
+
     print('Compiling collapsed reaction reference...')
     # Collapse reactions
     G, updated_reactions, changed_reactions, removed_reaction = collapse_nodes(
         graph=G,
-        reaction_dictionary=network['reaction_database'],
+        reaction_dictionary=no_defective_reactions,
         samples=len(categories),
         collapse_with_modifiers=args_dict['collapse_with_modifiers'])
     updated_pathway_dictionary = generate_updated_dictionary(
