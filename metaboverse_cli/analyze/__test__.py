@@ -128,4 +128,36 @@ except KeyError:
 try:
     data.loc['ENST00000318066']
 except KeyError:
-    raise Exception('__main__() from prepare_data.py failed') 
+    raise Exception('__main__() from prepare_data.py failed')
+
+
+"""utils.py
+"""
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
+utils = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(utils)
+file_path = utils.file_path
+check_suffix = utils.check_suffix
+add_data = utils.add_data
+convert_rgba = utils.convert_rgba
+
+# file_path()
+file = "./metaboverse_cli/analyze/utils.py"
+assert file_path(file) == os.path.abspath(file), 'file_path() failed'
+
+# check_suffix()
+assert check_suffix('file.txt') == '\t', 'check_suffix() failed'
+
+# add_data()
+df = add_data(transcriptomics_url)
+assert type(df) == pd.DataFrame, 'add_data() failed'
+
+# convert_rgba()
+n = 2
+reaction_color = (0.75, 0.75, 0.75, 1)
+missing_color = (1, 1, 1, 1)
+color1 = [reaction_color for x in range(n)]
+assert convert_rgba(color1) == [(191,191,191,1),(191,191,191,1)], 'convert_rgba() failed'
+n = 1
+color2 = [missing_color for x in range(n)]
+assert convert_rgba(color2) == [(255,255,255,1)], 'convert_rgba() failed'

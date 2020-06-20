@@ -41,6 +41,7 @@ https://metaboverse.readthedocs.io/en/latest
 ## Getting started
 
 ### Requirements
+- Python 3.6 or greater
 - An internet connection for network curation
 - The Metaboverse app
 
