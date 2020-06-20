@@ -26,10 +26,11 @@ import pandas as pd
 import xml.etree.ElementTree as et
 import networkx as nx
 import numpy as np
+import importlib.util
 
 """prepare_data.py
 """
-import importlib.util
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
 prepare_data = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(prepare_data)
 read_data = prepare_data.read_data
@@ -635,3 +636,44 @@ mapper = make_metabolite_synonym_dictionary(
     output_dir=test_args['output']
 )
 assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'make_metabolite_synonym_dictionary() failed'
+
+"""collapse.py
+"""
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
+collapse = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(collapse)
+generate_updated_dictionary = collapse.generate_updated_dictionary
+find_values = collapse.find_values
+add_collapsed_components = collapse.add_collapsed_components
+collapse_nodes = collapse.collapse_nodes
+
+G_collapse = G.copy()
+"""
+# generate_updated_dictionary()
+updated_pathway_dictionary = generate_updated_dictionary(
+    original_database,
+    update_dictionary,
+    removed_reaction)
+
+# find_values()
+eval_items = find_values(
+    graph,
+    reaction_dictionary,
+    neighbor,
+    current_inputs,
+    collapse_with_modifiers)
+
+# add_collapsed_components()
+graph = add_collapsed_components(
+    graph,
+    rxn,
+    ref,
+    samples)
+
+# collapse_nodes()
+graph, updated_reactions, changed_reactions, removed_reaction = collapse_nodes(
+    graph,
+    reaction_dictionary,
+    samples,
+    collapse_with_modifiers)
+"""
