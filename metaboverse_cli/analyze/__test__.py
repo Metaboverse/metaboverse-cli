@@ -24,11 +24,12 @@ import os
 import pickle
 import pandas as pd
 import xml.etree.ElementTree as et
+import networkx as nx
+import numpy as np
 
 """prepare_data.py
 """
 import importlib.util
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
 prepare_data = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(prepare_data)
 read_data = prepare_data.read_data
@@ -161,3 +162,476 @@ assert convert_rgba(color1) == [(191,191,191,1),(191,191,191,1)], 'convert_rgba(
 n = 1
 color2 = [missing_color for x in range(n)]
 assert convert_rgba(color2) == [(255,255,255,1)], 'convert_rgba() failed'
+
+"""model.py
+"""
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/model.py"))
+model = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(model)
+name_graph = model.name_graph
+build_graph = model.build_graph
+process_reactions = model.process_reactions
+add_node_edge = model.add_node_edge
+check_complexes = model.check_complexes
+uniprot_ensembl_reference = model.uniprot_ensembl_reference
+parse_attributes = model.parse_attributes
+map_attributes = model.map_attributes
+extract_value = model.extract_value
+output_graph = model.output_graph
+compile_pathway_degree = model.compile_pathway_degree
+compile_node_degrees = model.compile_node_degrees
+remove_nulls = model.remove_nulls
+infer_protein_values = model.infer_protein_values
+infer_protein_stats = model.infer_protein_stats
+broadcast_values = model.broadcast_values
+make_motif_reaction_dictionary = model.make_motif_reaction_dictionary
+make_metabolite_synonym_dictionary = model.make_metabolite_synonym_dictionary
+
+G = nx.DiGraph()
+G.add_node('A')
+G.nodes()['A']['name'] = 'A'
+G.nodes()['A']['map_id'] = 'a'
+G.nodes()['A']['type'] = 'reactant'
+G.nodes()['A']['sub_type'] = 'gene'
+G.nodes()['A']['complex'] = 'false'
+G.nodes()['A']['values'] = [5]
+G.nodes()['A']['stats'] = [0.5]
+G.add_node('B')
+G.nodes()['B']['name'] = 'B'
+G.nodes()['B']['map_id'] = 'b'
+G.nodes()['B']['type'] = 'reaction'
+G.nodes()['B']['sub_type'] = 'reaction'
+G.nodes()['B']['complex'] = 'false'
+G.nodes()['B']['values'] = [None]
+G.nodes()['B']['stats'] = [None]
+G.add_node('C')
+G.nodes()['C']['name'] = 'C'
+G.nodes()['C']['map_id'] = 'c'
+G.nodes()['C']['type'] = 'product'
+G.nodes()['C']['sub_type'] = 'product'
+G.nodes()['C']['complex'] = 'true'
+G.nodes()['C']['values'] = [None]
+G.nodes()['C']['stats'] = [None]
+G.add_node('D')
+G.nodes()['D']['name'] = 'D'
+G.nodes()['D']['map_id'] = 'd'
+G.nodes()['D']['type'] = 'complex_component'
+G.nodes()['D']['sub_type'] = 'protein_component'
+G.nodes()['D']['complex'] = 'false'
+G.nodes()['D']['values'] = [None]
+G.nodes()['D']['stats'] = [None]
+G.add_node('E')
+G.nodes()['E']['name'] = 'E'
+G.nodes()['E']['map_id'] = 'e'
+G.nodes()['E']['type'] = 'complex_component'
+G.nodes()['E']['sub_type'] = 'protein_component'
+G.nodes()['E']['complex'] = 'false'
+G.nodes()['E']['values'] = [9]
+G.nodes()['E']['stats'] = [.9]
+G.add_edges_from([
+    ('A', 'B')])
+G.add_edges_from([
+    ('B', 'C')])
+G.add_edges_from([
+    ('C', 'A')])
+G.add_edges_from([
+    ('A', 'D')])
+G.add_edges_from([
+    ('C', 'E')])
+
+net_test = {
+    'reaction_database': {
+        'reaction_1': {
+            'compartment': 'compartment_1',
+            'id': 'reaction_1',
+            'name': 'test reaction',
+            'reversible': 'true',
+            'notes': 'This is a test',
+            'reactants': ['species_1', 'species_2'],
+            'products': ['species_3'],
+            'modifiers': [['species_4', 'catalyst']]
+        },
+        'reaction_2': {
+            'compartment': 'compartment_1',
+            'id': 'reaction_2',
+            'name': 'test reaction 2',
+            'reversible': 'true',
+            'notes': 'This is a test 2',
+            'reactants': ['species_5', 'species_6'],
+            'products': ['species_7'],
+            'modifiers': [['species_8', 'inhibitor']]
+        }
+    },
+    'pathway_database': {
+        'R-HSA-1': {
+            'id': 'pathway_1',
+            'reactome': 'R-HSA-1',
+            'name': 'Test pathway',
+            'reactions': ['reaction_1', 'reaction_2']
+        },
+        'R-HSA-2': {
+            'id': 'pathway_2',
+            'reactome': 'R-HSA-2',
+            'name': 'Test pathway',
+            'reactions': ['reaction_1', 'reaction_2','reaction_3', 'reaction_4']
+        }
+    }
+}
+
+test_args = {
+    'output': os.path.abspath("./metaboverse_cli/analyze/test"),
+    'output_file': os.path.abspath("./metaboverse_cli/analyze/test/test.json"),
+    'bad_output_file': os.path.abspath("./metaboverse_cli/analyze/test/") + '/',
+    'species_id': "HSA",
+    'network': network_url
+}
+
+# name_graph()
+name = name_graph(
+    output_file=test_args['output_file'],
+    species_id=test_args['species_id']
+)
+assert name == test_args['output_file'], 'name_graph() failed'
+name = name_graph(
+    output_file=test_args['bad_output_file'],
+    species_id=test_args['species_id']
+)
+assert name == test_args['bad_output_file'] + test_args['species_id'] + '_global_reactions.json', 'name_graph() failed'
+
+# build_graph()
+net_copy = net_test.copy()
+gg1, net_copy, pathway_database = build_graph(
+    network=net_copy['reaction_database'],
+    pathway_database=net_copy['pathway_database'],
+    species_reference={},
+    name_reference={},
+    protein_reference={},
+    chebi_mapper={},
+    uniprot_reference={},
+    complexes={},
+    species_id={},
+    gene_reference={},
+    compartment_reference={'compartment_1':'hello'},
+    component_database={
+        'species_1':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_2':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_3':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_4':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_5':{'is':'gene1', 'name':'geneA', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_6':{'is':'gene2', 'name':'geneB', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_7':{'is':'gene3', 'name':'geneC', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_8':{'is':'gene4', 'name':'geneD', 'compartment':'none', 'type':'gene', 'hasPart':[]}
+    }
+)
+assert list(gg1.nodes()) == [
+    'reaction_1',
+    'species_1',
+    'species_2',
+    'species_3',
+    'species_4',
+    'reaction_2',
+    'species_5',
+    'species_6',
+    'species_7',
+    'species_8'], 'build_graph() failed'
+
+# process_reactions()
+net_copy = net_test['reaction_database'].copy()
+gg2 = nx.DiGraph()
+key_hash = set()
+remove_keys = []
+gg2, net_copy, key_hash, remove_keys = process_reactions(
+    graph=gg2,
+    reactome_id='reaction_2',
+    network=net_copy,
+    species_reference={},
+    name_reference={},
+    protein_reference={},
+    chebi_mapper={},
+    uniprot_reference={},
+    complex_reference={},
+    species_id={},
+    gene_reference={},
+    compartment_reference={'compartment_1':'hello'},
+    component_database={
+        'species_5':{'is':'gene1', 'name':'geneA', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_6':{'is':'gene2', 'name':'geneB', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_7':{'is':'gene3', 'name':'geneC', 'compartment':'none', 'type':'gene', 'hasPart':[]},
+        'species_8':{'is':'gene4', 'name':'geneD', 'compartment':'none', 'type':'gene', 'hasPart':[]}
+    },
+    key_hash=key_hash,
+    remove_keys=remove_keys)
+try:
+    gg2.nodes()['reaction_2']
+    gg2.nodes()['species_5']
+    gg2.edges()[('species_5', 'reaction_2')]
+    gg2.edges()[('species_6', 'reaction_2')]
+    gg2.edges()[('reaction_2', 'species_7')]
+except:
+    raise Exception('process_reactions() failed')
+
+# add_node_edge()
+G_add = G.copy()
+G_add = add_node_edge(
+    graph=G_add,
+    id='thisisnew',
+    map_id='mapper',
+    name='test',
+    compartment='none',
+    reaction_membership='C',
+    type='complex_component',
+    sub_type='none',
+    reversible='false',
+    complex_reference={},
+    species_reference={},
+    name_reference={},
+    protein_reference={},
+    compartment_reference={})
+try:
+    G_add.nodes()['thisisnew']
+    G_add.edges()[('thisisnew', 'C')]
+except:
+    raise Exception('add_node_edge() failed')
+
+# check_complexes()
+G_complex = G.copy()
+G_complex, add_components = check_complexes(
+        species_id='HSA',
+        graph=G_complex,
+        id='E',
+        complex_reference={'E':['x', 'y', 'z']},
+        species_reference={''},
+        name_reference={},
+        protein_reference={},
+        chebi_mapper={},
+        uniprot_reference={},
+        gene_reference={},
+        component_database={'E':{'hasPart':['x', 'y', 'z']}},
+        compartment_reference={})
+try:
+    G_complex.nodes()['x']
+    G_complex.edges()[('x', 'E')]
+    G_complex.edges()[('y', 'E')]
+    G_complex.edges()[('z', 'E')]
+except:
+    raise Exception('check_complexes() failed')
+
+# uniprot_ensembl_reference()
+uni_ref = {'A':'B', 'E':'F'}
+ens_ref = {'B':'D'}
+ref_test = uniprot_ensembl_reference(
+    uniprot_reference=uni_ref,
+    ensembl_reference=ens_ref)
+assert ref_test == {'A':'D'}, 'uniprot_ensembl_reference() failed'
+
+# compile_pathway_degree()
+s_p = compile_pathway_degree(
+    pathways=net_test['pathway_database'],
+    scale_factor=2
+)
+assert len(list(s_p.keys())) == 1, 'compile_pathway_degree() failed'
+
+# compile_node_degrees()
+d_d = {
+    'A':3,
+    'B':2,
+    'C':3,
+    'D':1,
+    'E':1
+}
+degree_dictionary = compile_node_degrees(
+    graph=G)
+assert degree_dictionary == d_d, 'compile_node_degrees() failed'
+
+# parse_attributes()
+G_map = G.copy()
+data = pd.DataFrame()
+data[0] = [1, 3, 5]
+data.index = ['A', 'C', 'e']
+stats = pd.DataFrame()
+stats[0] = [.1, .3, .5]
+stats.index = ['A', 'C', 'e']
+
+data_dict, chebi_synonyms, non_mappers1 = parse_attributes(
+    dataframe=data,
+    name_reference={
+        'A': 'A',
+        'B': 'B',
+        'C': 'C',
+        'D': 'D',
+        'e': 'E',
+    },
+    chebi_mapper={
+        'A': 'A',
+        'B': 'B',
+        'C': 'C',
+        'D': 'D',
+        'e': 'E',
+    },
+    metabolite_mapper={
+        'A': 'A',
+        'B': 'B',
+        'C': 'C',
+        'D': 'D',
+        'e': 'E',
+    },
+    ignore_enantiomers=True)
+assert data_dict == {'A': [1], 'C': [3], 'E': [5]}, 'parse_attributes() failed'
+
+# map_attributes()
+G_mapped, data_max, stats_max, non_mappers = map_attributes(
+    graph = G_map,
+    data=data,
+    stats=stats,
+    name_reference={
+        'A': 'A',
+        'B': 'B',
+        'C': 'C',
+        'D': 'D',
+        'e': 'E',
+    },
+    degree_dictionary=degree_dictionary,
+    chebi_mapper={
+        'A': 'A',
+        'B': 'B',
+        'C': 'C',
+        'D': 'D',
+        'e': 'e',
+    },
+    metabolite_mapper={
+        'A': 'A',
+        'B': 'B',
+        'C': 'C',
+        'D': 'D',
+        'e': 'e',
+    })
+assert data_max == 5, 'map_attributes() failed'
+assert stats_max == 1.0, 'map_attributes() failed'
+assert non_mappers == [set()], 'map_attributes() failed'
+assert G_mapped.nodes()['A']['values'] == [1], 'map_attributes() failed'
+assert G_mapped.nodes()['A']['stats'] == [0.1], 'map_attributes() failed'
+assert G_mapped.nodes()['B']['values'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['B']['stats'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['C']['values'] == [3], 'map_attributes() failed'
+assert G_mapped.nodes()['C']['stats'] == [0.3], 'map_attributes() failed'
+assert G_mapped.nodes()['D']['values'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['D']['stats'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['E']['values'] == [5], 'map_attributes() failed'
+assert G_mapped.nodes()['E']['stats'] == [0.5], 'map_attributes() failed'
+
+# extract_value()
+v_e = [(0.0, 0.0, 0.3, 1.0),
+ (1.0, 0.9921568627450981, 0.9921568627450981, 1.0),
+ (0.5, 0.0, 0.0, 1.0)]
+_v = extract_value(
+        value_array=[-5,0,5],
+        max_value=5,
+        type="value")
+assert v_e == _v, 'extract_value() failed'
+s_e = [(0.403921568627451, 0.0, 0.05098039215686274, 1.0),
+ (0.9882352941176471, 0.6664975009611688, 0.5547558631295655, 1.0),
+ (1.0, 0.9607843137254902, 0.9411764705882353, 1.0)]
+_s = extract_value(
+        value_array=[0,0.5,1],
+        max_value=1,
+        type="stat")
+assert s_e == _s, 'extract_value() failed'
+
+# output_graph()
+output_graph(
+    graph=G,
+    output_name=test_args['output_file'],
+    pathway_dictionary={},
+    collapsed_pathway_dictionary={},
+    super_pathways={},
+    reaction_dictionary={},
+    collapsed_reaction_dictionary={},
+    motif_reaction_dictionary={},
+    mod_collapsed_pathways={},
+    degree_dictionary={},
+    max_value=5,
+    max_stat=1,
+    categories=[0],
+    labels=['OO'],
+    blocklist=[],
+    metadata={},
+    unmapped={})
+if os.path.exists(test_args['output_file']):
+    os.system('rm ' + str(test_args['output_file']))
+else:
+    raise Exception('output_graph() failed')
+
+# remove_nulls()
+vals1 = [[None, 1, 6, None]]
+assert remove_nulls(vals1) == [], 'remove_nulls() failed'
+vals2 = [[None, 1, 6, None], [1,2,3]]
+assert remove_nulls(vals2) == [[1,2,3]], 'remove_nulls() failed'
+
+# infer_protein_values()
+vals = [[1],[2],[3],[3],[4]]
+length = 1
+assert infer_protein_values(vals, length) == [13 / 5], 'infer_protein_values() failed'
+
+# infer_protein_stats()
+assert infer_protein_stats(vals, length) == [4], 'infer_protein_stats() failed'
+
+# broadcast_values()
+G_update = G.copy()
+G_update = broadcast_values(
+    graph=G_update,
+    categories=[0],
+    max_value=100,
+    max_stat=1,
+    broadcast_genes=True)
+assert G_update.nodes()['A'] == G.nodes()['A'], 'broadcast_values() failed'
+assert G_update.nodes()['B'] == G.nodes()['B'], 'broadcast_values() failed'
+assert G_update.nodes()['E'] == G.nodes()['E'], 'broadcast_values() failed'
+assert G_update.nodes()['C']['values'] == [9.0], 'broadcast_values() failed'
+assert G_update.nodes()['D']['stats'] == [0.5], 'broadcast_values() failed'
+
+# make_motif_reaction_dictionary()
+updated_reactions = {
+    'reaction_1_reaction_3': {
+        'collapsed': 'true',
+        'collapsed_reactions': ['reaction_1', 'reaction_3'],
+        'compartment': 'compartment_1',
+        'id': 'reaction_1_reaction_3',
+        'name': 'test reaction',
+        'reversible': 'true',
+        'notes': 'This is a test',
+        'reactants': ['species_1', 'species_2'],
+        'products': ['species_3'],
+        'modifiers': [['species_4', 'catalyst']],
+        'additional_components': ['ENST1']
+    },
+    'reaction_2': {
+        'compartment': 'compartment_1',
+        'id': 'reaction_2',
+        'name': 'test reaction 2',
+        'reversible': 'true',
+        'notes': 'This is a test 2',
+        'reactants': ['species_5', 'species_6'],
+        'products': ['species_7'],
+        'modifiers': [['species_8', 'inhibitor']]
+    }
+}
+updated_pathway_dictionary = {
+    'R-HSA-1': {
+        'id': 'pathway_1',
+        'reactome': 'R-HSA-1',
+        'name': 'Test pathway',
+        'reactions': ['reaction_1_reaction_3', 'reaction_2']
+    }
+}
+mot_dic = make_motif_reaction_dictionary(
+    network=net_test,
+    updated_reactions=updated_reactions,
+    updated_pathway_dictionary=updated_pathway_dictionary)
+assert mot_dic == {'reaction_1_reaction_3': ['pathway_1'], 'reaction_2': ['pathway_1']}, 'make_motif_reaction_dictionary() failed'
+
+# make_metabolite_synonym_dictionary()
+mapper = make_metabolite_synonym_dictionary(
+    network=network,
+    output_dir=test_args['output']
+)
+assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'make_metabolite_synonym_dictionary() failed'

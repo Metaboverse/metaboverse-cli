@@ -66,7 +66,7 @@ def test():
     args_dict = {'output': '/Users/jordan/Desktop/'}
     output_file = "/Users/jordan/Desktop/testHSA.json"
     species_id = "HSA"
-    network_url = "/Users/jordan/Desktop/HSA_metaboverse_db.pickle"
+    network_url = "/Users/jordan/Desktop/metaboverse-cli/metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle"
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
 
