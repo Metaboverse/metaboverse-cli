@@ -1167,8 +1167,6 @@ def make_metabolite_synonym_dictionary(
         output_dir,
         ref_url='https://sourceforge.net/projects/metaboverse/files/utils/metabolite_mapping.pickle.zip/download'):
 
-    output_dir = '/Users/jordan/Desktop/'
-
     print("Downloading metabolite mapper...")
     os.system('curl -L ' + ref_url + ' -o ' + output_dir + 'metabolite_mapping.pickle.zip')
     print("Unzipping metabolite mapper...")
