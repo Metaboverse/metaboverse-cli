@@ -42,7 +42,7 @@ catenate_data = prepare_data.catenate_data
 __main__ = prepare_data.__main__
 
 network_url = os.path.abspath(
-    "./metaboverse_cli/analyze/test/SCE_metaboverse_db_10_06_2020.pickle")
+    "./metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle")
 with open(network_url, 'rb') as network_file:
     network = pickle.load(network_file)
 
@@ -69,9 +69,13 @@ t_mapped, t_unmapped = format_data(
 assert t_mapped.shape[0] >= t_unmapped.shape[0], "format_data()"
 assert t_mapped.shape[1] == 2, "format_data()"
 assert t_unmapped.shape[1] == 2, "format_data()"
-
-# format_metabolomics()
-# Currently unused in script
+assert transcriptomics_df.loc['GCN1'][0] == t_mapped.loc['ENST00000300648'][0], 'format_data() failed'
+try:
+    t_mapped.loc['GCN1']
+except KeyError:
+    pass
+else:
+    raise Exception('format_data() failed')
 
 # output_unmapped()
 output_unmapped(
@@ -86,26 +90,42 @@ assert _s.shape[1] == 1, "extract_data()"
 
 # broadcast_transcriptomics()
 # How is this mapped gene vs protein in graphing?
-
 _p, _p_stats = broadcast_transcriptomics(
     transcriptomics=_v,
     transcriptomics_stats=_s,
     gene_dictionary=network['ensembl_synonyms'],
     protein_dictionary=network['uniprot_synonyms'])
+assert _v.loc['ENST00000300648'][0] == _p.loc['Q92616'][0], 'broadcast_transcriptomics() failed'
 
+# copy_columns()
+data_col, stat_col = copy_columns(_v, _s, 6)
+assert len(_v.columns.tolist()) == 1, 'copy_columns() failed'
+assert len(data_col.columns.tolist()) == 6, 'copy_columns() failed'
+assert data_col[0].values.all() == data_col[5].values.all(), 'copy_columns() failed'
+assert stat_col[0].values.all() == stat_col[3].values.all(), 'copy_columns() failed'
 
+# catenate_data()
+concat_df = catenate_data([_v, _p])
+assert concat_df.shape > _v.shape and concat_df.shape > _p.shape, 'catenate_data() failed'
 
-
-
-
-_v.loc['PEX14']
-
-_p.loc['PEX14']
-
-
-
-
-_v.tail(20)
-
-
-_p
+# Test main()
+data, stats, unmapped = __main__(
+    network=network,
+    transcriptomics_url=transcriptomics_url,
+    proteomics_url=proteomics_url,
+    metabolomics_url=metabolomics_url)
+assert data.shape > _v.shape, '__main__() from prepare_data.py failed'
+try:
+    data.loc['UBE2N']
+except KeyError:
+    pass
+else:
+    raise Exception('__main__() from prepare_data.py failed')
+try:
+    data.loc['P61088']
+except KeyError:
+    raise Exception('__main__() from prepare_data.py failed')
+try:
+    data.loc['ENST00000318066']
+except KeyError:
+    raise Exception('__main__() from prepare_data.py failed') 

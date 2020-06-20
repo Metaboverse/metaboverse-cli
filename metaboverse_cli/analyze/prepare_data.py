@@ -228,25 +228,19 @@ def broadcast_transcriptomics(
     proteomics = transcriptomics.copy()
     proteomics_stats = transcriptomics_stats.copy()
 
-    ensembl_dict = {}
-    for x in gene_dictionary.keys():
-        ensembl_dict[gene_dictionary[x]] = x
+    uniprot_dict = {}
+    for x in protein_dictionary.keys():
+        uniprot_dict[protein_dictionary[x]] = x
 
     proteomics.index = proteomics.index.to_series().replace(
-        ensembl_dict)
+        gene_dictionary)
     proteomics_stats.index = proteomics_stats.index.to_series().replace(
-        ensembl_dict)
+        gene_dictionary)
 
     proteomics.index = proteomics.index.to_series().replace(
-        protein_dictionary)
+        uniprot_dict)
     proteomics_stats.index = proteomics_stats.index.to_series().replace(
-        protein_dictionary)
-
-    reference_ids = list(protein_dictionary.values())
-    proteomics = proteomics[
-        proteomics.index.isin(reference_ids)]
-    proteomics_stats = proteomics_stats[
-        proteomics_stats.index.isin(reference_ids)]
+        uniprot_dict)
 
     return proteomics, proteomics_stats
 
@@ -257,14 +251,17 @@ def copy_columns(
     """Copy data columns for every time point provided by the user
     """
 
+    data_c = data.copy()
+    stats_c = stats.copy()
+
     counter = 1
 
     while counter < _max:
-        data[counter] = data[0]
-        stats[counter] = stats[0]
+        data_c[counter] = data_c[0]
+        stats_c[counter] = stats_c[0]
         counter += 1
 
-    return data, stats
+    return data_c, stats_c
 
 def catenate_data(
         array):
@@ -409,6 +406,8 @@ def __main__(
                 stats=metabolomics_stats,
                 _max=_max)
 
+    elif sum(lengths) == 3 and len(list(set(lengths))) == 1:
+        pass
     else:
         print("When providing multi-omic timecourse data with unequals times, other omics types must match the maximum number of time points or must only provide one time point.")
 

@@ -4,6 +4,7 @@
 *__pycache__*
 .DS_Store
 metaboverse_cli/metaboverse-mac
+metaboverse_cli/metaboverse-linux
+metaboverse_cli/metaboverse-win.exe
 metaboverse_cli/dist
 metaboverse_cli/build
-metaboverse_cli/analyze/test/*pickle
