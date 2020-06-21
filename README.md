@@ -3,19 +3,11 @@
 [![Build Status](https://travis-ci.org/Metaboverse/metaboverse-cli.svg?branch=master)](https://travis-ci.org/Metaboverse/metaboverse-cli)
 [![Documentation Status](https://readthedocs.org/projects/metaboverse/badge/?version=latest)](https://metaboverse.readthedocs.io/en/latest/?badge=latest)
 
-A Metabolic Networks Analysis Platform
-
 ## Using Metaboverse
-To use the Metaboverse app, please visit:
-```
-https://github.com/Metaboverse/Metaboverse
-```
+To use the Metaboverse app, please click [here](https://github.com/Metaboverse/Metaboverse)
 
 ## What does Metaboverse do?
-A current draft of the manuscript describing Metaboverse can be found here:
-```
-https://github.com/Metaboverse/manuscript/blob/master/output/manuscript.pdf
-```
+A current draft of the manuscript describing Metaboverse can be found [here](https://github.com/Metaboverse/manuscript/blob/master/output/manuscript.pdf)
 
 ### Requirements
 - Python 3.6 or greater
