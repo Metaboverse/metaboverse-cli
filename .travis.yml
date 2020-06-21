@@ -17,9 +17,9 @@ install:
 
 script:
 - coverage run metaboverse_cli/__test__.py
-# - coverage run metaboverse_cli/mapper/__test__.py # can't run due to travis memory limit
 - coverage run metaboverse_cli/curate/__test__.py
 - coverage run metaboverse_cli/analyze/__test__.py
+# - coverage run metaboverse_cli/mapper/__test__.py # can't run due to travis memory limit
 
 #after_success:
 #- codecov
