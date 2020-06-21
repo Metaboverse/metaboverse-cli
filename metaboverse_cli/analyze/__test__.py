@@ -633,7 +633,7 @@ assert mot_dic == {'reaction_1_reaction_3': ['pathway_1'], 'reaction_2': ['pathw
 # make_metabolite_synonym_dictionary()
 mapper = make_metabolite_synonym_dictionary(
     network=network,
-    output_dir=test_args['output']
+    output_dir=test_args['output'] + '/'
 )
 assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'make_metabolite_synonym_dictionary() failed'
 
@@ -643,37 +643,364 @@ spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse
 collapse = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(collapse)
 generate_updated_dictionary = collapse.generate_updated_dictionary
-find_values = collapse.find_values
-add_collapsed_components = collapse.add_collapsed_components
 collapse_nodes = collapse.collapse_nodes
 
-G_collapse = G.copy()
-"""
-# generate_updated_dictionary()
-updated_pathway_dictionary = generate_updated_dictionary(
-    original_database,
-    update_dictionary,
-    removed_reaction)
+G_collapse = nx.DiGraph()
+G_collapse.add_node('N1')
+G_collapse.nodes()['N1']['values'] = [5]
+G_collapse.nodes()['N1']['stats'] = [0.5]
+G_collapse.add_node('N2')
+G_collapse.nodes()['N2']['values'] = [5]
+G_collapse.nodes()['N2']['stats'] = [0.5]
+G_collapse.add_node('N3')
+G_collapse.nodes()['N3']['values'] = [5]
+G_collapse.nodes()['N3']['stats'] = [0.5]
+G_collapse.add_node('N4')
+G_collapse.nodes()['N4']['values'] = [None]
+G_collapse.nodes()['N4']['stats'] = [None]
+G_collapse.add_node('N5')
+G_collapse.nodes()['N5']['values'] = [None]
+G_collapse.nodes()['N5']['stats'] = [None]
+G_collapse.add_node('N6')
+G_collapse.nodes()['N6']['values'] = [5]
+G_collapse.nodes()['N6']['stats'] = [0.5]
+G_collapse.add_node('N7')
+G_collapse.nodes()['N7']['values'] = [None]
+G_collapse.nodes()['N7']['stats'] = [None]
+G_collapse.add_node('N8')
+G_collapse.nodes()['N8']['values'] = [None]
+G_collapse.nodes()['N8']['stats'] = [None]
+G_collapse.add_node('N29')
+G_collapse.nodes()['N29']['values'] = [None]
+G_collapse.nodes()['N29']['stats'] = [None]
+G_collapse.add_node('N30')
+G_collapse.nodes()['N30']['values'] = [None]
+G_collapse.nodes()['N30']['stats'] = [None]
+G_collapse.add_node('N9')
+G_collapse.nodes()['N9']['values'] = [5]
+G_collapse.nodes()['N9']['stats'] = [0.5]
+G_collapse.add_node('N10')
+G_collapse.nodes()['N10']['values'] = [None]
+G_collapse.nodes()['N10']['stats'] = [None]
+G_collapse.add_node('N11')
+G_collapse.nodes()['N11']['values'] = [None]
+G_collapse.nodes()['N11']['stats'] = [None]
+G_collapse.add_node('N12')
+G_collapse.nodes()['N12']['values'] = [5]
+G_collapse.nodes()['N12']['stats'] = [0.5]
+G_collapse.add_node('N13')
+G_collapse.nodes()['N13']['values'] = [5]
+G_collapse.nodes()['N13']['stats'] = [0.5]
+G_collapse.add_node('N14')
+G_collapse.nodes()['N14']['values'] = [None]
+G_collapse.nodes()['N14']['stats'] = [None]
+G_collapse.add_node('N15')
+G_collapse.nodes()['N15']['values'] = [None]
+G_collapse.nodes()['N15']['stats'] = [None]
+G_collapse.add_node('N16')
+G_collapse.nodes()['N16']['values'] = [None]
+G_collapse.nodes()['N16']['stats'] = [None]
+G_collapse.add_node('N17')
+G_collapse.nodes()['N17']['values'] = [None]
+G_collapse.nodes()['N17']['stats'] = [None]
+G_collapse.add_node('N18')
+G_collapse.nodes()['N18']['values'] = [None]
+G_collapse.nodes()['N18']['stats'] = [None]
+G_collapse.add_node('N19')
+G_collapse.nodes()['N19']['values'] = [5]
+G_collapse.nodes()['N19']['stats'] = [0.5]
+G_collapse.add_node('N20')
+G_collapse.nodes()['N20']['values'] = [None]
+G_collapse.nodes()['N20']['stats'] = [None]
+G_collapse.add_node('N21')
+G_collapse.nodes()['N21']['values'] = [5]
+G_collapse.nodes()['N21']['stats'] = [0.5]
+G_collapse.add_node('N22')
+G_collapse.nodes()['N22']['values'] = [None]
+G_collapse.nodes()['N22']['stats'] = [None]
+G_collapse.add_node('N23')
+G_collapse.nodes()['N23']['values'] = [None]
+G_collapse.nodes()['N23']['stats'] = [None]
+G_collapse.add_node('N24')
+G_collapse.nodes()['N24']['values'] = [None]
+G_collapse.nodes()['N24']['stats'] = [None]
+G_collapse.add_node('N25')
+G_collapse.nodes()['N25']['values'] = [5]
+G_collapse.nodes()['N25']['stats'] = [0.5]
+G_collapse.add_node('N26')
+G_collapse.nodes()['N26']['values'] = [None]
+G_collapse.nodes()['N26']['stats'] = [None]
+G_collapse.add_node('N27')
+G_collapse.nodes()['N27']['values'] = [None]
+G_collapse.nodes()['N27']['stats'] = [None]
+G_collapse.add_node('N28')
+G_collapse.nodes()['N28']['values'] = [None]
+G_collapse.nodes()['N28']['stats'] = [None]
+G_collapse.add_node('N100')
+G_collapse.nodes()['N100']['values'] = [5]
+G_collapse.nodes()['N100']['stats'] = [0.5]
 
-# find_values()
-eval_items = find_values(
-    graph,
-    reaction_dictionary,
-    neighbor,
-    current_inputs,
-    collapse_with_modifiers)
-
-# add_collapsed_components()
-graph = add_collapsed_components(
-    graph,
-    rxn,
-    ref,
-    samples)
+collapser_database = {
+    'R1': {
+        'compartment':'none',
+        'id':'R1',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N1'],
+        'products':['N2'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R2': {
+        'compartment':'none',
+        'id':'R2',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N3'],
+        'products':['N4', 'N5'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R3': {
+        'compartment':'none',
+        'id':'R3',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N4', 'N5'],
+        'products':['N6'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R4': {
+        'compartment':'none',
+        'id':'R4',
+        'reactome':'Re4',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N7'],
+        'products':['N8'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R5': {
+        'compartment':'none',
+        'id':'R5',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N9'],
+        'products':['N10'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R6': {
+        'compartment':'none',
+        'id':'R6',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N10'],
+        'products':['N11'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R7': {
+        'compartment':'none',
+        'id':'R7',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N11'],
+        'products':['N12'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R8': {
+        'compartment':'none',
+        'id':'R8',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N13'],
+        'products':['N14', 'N15'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R9': {
+        'compartment':'none',
+        'id':'R9',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N14', 'N15'],
+        'products':['N16', 'N17', 'N18'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R10': {
+        'compartment':'none',
+        'id':'R10',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N16', 'N17', 'N18'],
+        'products':['N19', 'N20'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R11': {
+        'compartment':'none',
+        'id':'R11',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N21'],
+        'products':['N22'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R12': {
+        'compartment':'none',
+        'id':'R12',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N22'],
+        'products':['N23'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R13': {
+        'compartment':'none',
+        'id':'R13',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N23'],
+        'products':['N24'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R14': {
+        'compartment':'none',
+        'id':'R14',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N25'],
+        'products':['N26', 'N27'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R15': {
+        'compartment':'none',
+        'id':'R15',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N26', 'N27'],
+        'products':['N28'],
+        'modifiers':[['N100', 'inhibitor'], ['N100', 'catalyst']],
+        'additional_components':[]
+    },
+    'R16': {
+        'compartment':'none',
+        'id':'R16',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N8'],
+        'products':['N29'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R17': {
+        'compartment':'none',
+        'id':'R17',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N29'],
+        'products':['N30'],
+        'modifiers':[],
+        'additional_components':[]
+    }
+}
 
 # collapse_nodes()
-graph, updated_reactions, changed_reactions, removed_reaction = collapse_nodes(
-    graph,
-    reaction_dictionary,
-    samples,
-    collapse_with_modifiers)
-"""
+G_coll1 = G_collapse.copy()
+G_coll1, updated_rxns1, changed_rxns1, removed_rxn1 = collapse_nodes(
+    graph=G_coll1,
+    reaction_dictionary=collapser_database,
+    samples=1,
+    collapse_with_modifiers=False)
+
+final_reactions1 = [
+    'R1',
+    'R2_R3',
+    'R4',
+    'R5_R6_R7',
+    'R8_R9_R10',
+    'R11',
+    'R12',
+    'R13',
+    'R14',
+    'R15',
+    'R16',
+    'R17'
+]
+assert list(updated_rxns1.keys()) == final_reactions1, 'collapse_nodes() failed'
+
+G_coll2 = G_collapse.copy()
+G_coll2, updated_rxns2, changed_rxns2, removed_rxn2 = collapse_nodes(
+    graph=G_coll2,
+    reaction_dictionary=collapser_database,
+    samples=1,
+    collapse_with_modifiers=True)
+final_reactions2 = [
+    'R1',
+    'R2_R3',
+    'R4',
+    'R5_R6_R7',
+    'R8_R9_R10',
+    'R11',
+    'R12',
+    'R13',
+    'R14_R15',
+    'R16',
+    'R17'
+]
+assert list(updated_rxns2.keys()) == final_reactions2, 'collapse_nodes() failed'
+
+# generate_updated_dictionary()
+pathway_database = {
+    'P1': {
+        'reactome':'Re1',
+        'id':'P1',
+        'name':'React1',
+        'reactions':['R1','R2','R3','R4']
+    },
+    'P2': {
+        'reactome':'Re2',
+        'id':'P2',
+        'name':'React2',
+        'reactions':['R5','R6','R7','R8','R9','R10','R11','R12','R13',]
+    },
+    'P3': {
+        'reactome':'Re3',
+        'id':'P3',
+        'name':'React3',
+        'reactions':['R14','R15','R16','R17']
+    }
+}
+updated_pathway_dictionary = generate_updated_dictionary(
+    original_database=pathway_database,
+    update_dictionary=changed_rxns1,
+    removed_reaction=removed_rxn1)
+assert updated_pathway_dictionary['Re1']['reactions'] == ['R1','R2_R3','R4'], 'generate_updated_dictionary() failed'
+assert updated_pathway_dictionary['Re2']['reactions'] == ['R5_R6_R7','R8_R9_R10','R11','R12','R13'], 'generate_updated_dictionary() failed'
+assert updated_pathway_dictionary['Re3']['reactions'] == ['R14','R15','R16','R17'], 'generate_updated_dictionary() failed'

@@ -291,10 +291,15 @@ def collapse_nodes(
                 neighbor_modifiers = (
                     reaction_dictionary[neighbor_key]['modifiers'])
 
-                # If the current reaction's neighbors inputs or outputs match,
-                # append that reaction to the current reaction's neighbors list
+                # Account for no modifiers in matching
+                if len(real_modifiers) == 0:
+                    real_modifiers = 'impossible1'
+                if len(neighbor_modifiers) == 0:
+                    neighbor_modifiers = 'impossible2'
 
-                ### Testing: Making sure the reaction inputs and outputs are not identical
+                # If the current reaction's neighbors inputs or outputs match,
+                # append that reaction to the current reaction's neighbors
+                # list                  
                 if (real_reactants == neighbor_reactants \
                         or real_reactants == neighbor_products) \
                         and real_reactants + real_products != \
