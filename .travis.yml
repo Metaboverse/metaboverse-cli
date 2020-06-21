@@ -21,17 +21,7 @@ script:
 - coverage run metaboverse_cli/curate/__test__.py
 - bash <(curl -s https://codecov.io/bash) -cF python
 - coverage run metaboverse_cli/analyze/__test__.py
-# - coverage run metaboverse_cli/mapper/__test__.py # can't run due to travis memory limit
 - bash <(curl -s https://codecov.io/bash) -cF python
+# - coverage run metaboverse_cli/mapper/__test__.py # can't run due to travis memory limit
 
 after_success:
-
-
-#deploy:
-#  provider: pypi
-#  user: j-berg
-#  password:
-#    secure:
-#  skip_existing: true
-#  on:
-#    tags: true
