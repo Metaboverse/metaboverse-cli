@@ -5,16 +5,16 @@ sys.setrecursionlimit(5000)
 block_cipher = None
 
 a = Analysis(
-            ['__main__.py'],
-             pathex=['.'],
+            ['metaboverse_cli/__main__.py'],
+             pathex=['metaboverse_cli/'],
              binaries=[],
              datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
              excludes=[
-              'test/',
-              '__test__.py'
+              'metaboverse_cli/test/',
+              'metaboverse_cli/__test__.py'
              ],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
@@ -28,7 +28,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='metaboverse-win',
+          name='metaboverse-mac',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
