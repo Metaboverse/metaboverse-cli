@@ -377,6 +377,8 @@ def __main__(
     ]:
         if x != 0:
             lengths.append(x)
+        else:
+            lengths.append(1)
 
     if sum(lengths) != 3 and len(list(set(lengths))) == 2:
 
@@ -406,7 +408,7 @@ def __main__(
                 stats=metabolomics_stats,
                 _max=_max)
 
-    elif sum(lengths) == 3 and len(list(set(lengths))) == 1:
+    elif len(list(set(lengths))) == 1:
         pass
     else:
         print("When providing multi-omic timecourse data with unequals times, other omics types must match the maximum number of time points or must only provide one time point.")
