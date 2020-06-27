@@ -70,6 +70,13 @@ def test():
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
 
+    network_url = "/Users/jordan/Desktop/MMU_metaboverse_db.pickle"
+    with open(network_url, 'rb') as network_file:
+        network = pickle.load(network_file)
+
+    data = pd.read_csv('~/Desktop/data.tsv', sep='\t', index_col=0)
+    stats = pd.read_csv('~/Desktop/stats.tsv', sep='\t', index_col=0)
+
 """Graph utils
 """
 def name_graph(
@@ -635,70 +642,69 @@ def parse_attributes(
     for index, row in dataframe.iterrows():
         dataframe_dict[index] = {
             'values': list(row),
+            'type': '',
             'mapping_synonyms': [],
             'display_synonyms': [],
-            'chebi_ids': set()
+            'all_ids': set()
         }
 
         if index in name_reference.keys():
-            dataframe_dict[index]['mapping_synonyms'] = [index, name_reference[index]]
-            dataframe_dict[index]['display_synonyms'] = [index, name_reference[index]]
+            dataframe_dict[index]['type'] = 'enzyme'
+            dataframe_dict[index]['mapping_synonyms'] = \
+                [index, name_reference[index]]
+            dataframe_dict[index]['display_synonyms'] = \
+                [index, name_reference[index]]
 
             dataframe_dict[name_reference[index]] = {
                 'values': list(row),
-                'mapping_synonyms': [],
-                'display_synonyms': [],
-                'chebi_ids': set()
+                'type': 'enzyme',
+                'mapping_synonyms': [index, name_reference[index]],
+                'display_synonyms': [index, name_reference[index]],
+                'all_ids': set()
             }
-            dataframe_dict[name_reference[index]]['mapping_synonyms'] = [index, name_reference[index]]
-            dataframe_dict[name_reference[index]]['display_synonyms'] = [index, name_reference[index]]
 
         else:
             _i = ''.join(c.lower() for c in str(index) if c.isalnum())
 
             try:
                 __i = metabolite_mapper['mapping_dictionary'][_i]
+                dataframe_dict[index]['type'] = 'metabolite'
                 dataframe_dict[index]['mapping_synonyms'] = \
                     metabolite_mapper['hmdb_dictionary'][__i]
                 dataframe_dict[index]['display_synonyms'] = \
                     metabolite_mapper['display_dictionary'][__i]
             except:
-
-                try:
-                    # remove last letter
-                    __i = metabolite_mapper['mapping_dictionary'][_i[:-1]]
-                    dataframe_dict[index]['mapping_synonyms'] = \
-                        metabolite_mapper['hmdb_dictionary'][__i]
-                    dataframe_dict[index]['display_synonyms'] = \
-                        metabolite_mapper['display_dictionary'][__i]
-                except:
-                    if _i[0] == 'd' or _i[0] == 'l' and ignore_enantiomers == True:
-                        try:
-                            __i = metabolite_mapper['mapping_dictionary'][_i[1:]]
-                            dataframe_dict[index]['mapping_synonyms'] = \
-                                metabolite_mapper['hmdb_dictionary'][__i]
-                            dataframe_dict[index]['display_synonyms'] = \
-                                metabolite_mapper['display_dictionary'][__i]
-                        except:
-                            non_mappers.append(index)
-
-                    else:
+                if _i[0] == 'd' or _i[0] == 'l' and ignore_enantiomers == True:
+                    try:
+                        __i = metabolite_mapper['mapping_dictionary'][_i[1:]]
+                        dataframe_dict[index]['type'] = 'metabolite'
+                        dataframe_dict[index]['mapping_synonyms'] = \
+                            metabolite_mapper['hmdb_dictionary'][__i]
+                        dataframe_dict[index]['display_synonyms'] = \
+                            metabolite_mapper['display_dictionary'][__i]
+                    except:
                         non_mappers.append(index)
+
+                else:
+                    non_mappers.append(index)
 
     dataframe_mapper = {}
     chebi_synonyms = {}
     for k, v in dataframe_dict.items():
 
         if k in chebi_mapper:
-            dataframe_dict[k]['chebi_ids'].add(chebi_mapper[k])
+            dataframe_dict[k]['all_ids'].add(chebi_mapper[k])
 
         for s in dataframe_dict[k]['mapping_synonyms']:
             if s in chebi_mapper:
-                dataframe_dict[k]['chebi_ids'].add(chebi_mapper[s])
+                dataframe_dict[k]['all_ids'].add(chebi_mapper[s])
             else:
-                dataframe_dict[k]['chebi_ids'].add(s)
-        for id in list(dataframe_dict[k]['chebi_ids']):
-            dataframe_mapper[id] = dataframe_dict[k]['values']
+                dataframe_dict[k]['all_ids'].add(s)
+        for id in list(dataframe_dict[k]['all_ids']):
+            dataframe_mapper[id] = {
+                'values': dataframe_dict[k]['values'],
+                'type': dataframe_dict[k]['type']
+            }
             chebi_synonyms[id] = dataframe_dict[k]['display_synonyms']
 
     return dataframe_mapper, chebi_synonyms, non_mappers
@@ -756,7 +762,7 @@ def map_attributes(
         metabolite_mapper=metabolite_mapper,
         ignore_enantiomers=True)
 
-    non_mappers = [set(non_mappers1 + non_mappers2)]
+    non_mappers = list(set(non_mappers1 + non_mappers2))
 
     data_renamed = None
     stats_renamed = None
@@ -792,38 +798,71 @@ def map_attributes(
         elif map_id in set(data_dict.keys()) \
         and map_id in set(stats_dict.keys()) \
         and map_id != 'none':
-            graph.nodes()[x]['values'] = data_dict[map_id]
-            graph.nodes()[x]['values_rgba'] = extract_value(
-                value_array=data_dict[map_id],
-                max_value=data_max)
-            graph.nodes()[x]['values_js'] = convert_rgba(
-                rgba_tuples=graph.nodes()[x]['values_rgba'])
 
-            graph.nodes()[x]['stats'] = stats_dict[map_id]
-            graph.nodes()[x]['stats_rgba'] = extract_value(
-                value_array=stats_dict[map_id],
-                max_value=stats_max,
-                type="stats")
-            graph.nodes()[x]['stats_js'] = convert_rgba(
-                rgba_tuples=graph.nodes()[x]['stats_rgba'])
+            if (data_dict[map_id]['type'] == 'metabolite' \
+            and graph.nodes()[x]['sub_type'] == 'metabolite_component') \
+            or (data_dict[map_id]['type'] != 'metabolite' \
+            and graph.nodes()[x]['sub_type'] != 'metabolite_component'):
+                graph.nodes()[x]['values'] = data_dict[map_id]['values']
+                graph.nodes()[x]['values_rgba'] = extract_value(
+                    value_array=data_dict[map_id]['values'],
+                    max_value=data_max)
+                graph.nodes()[x]['values_js'] = convert_rgba(
+                    rgba_tuples=graph.nodes()[x]['values_rgba'])
+
+                graph.nodes()[x]['stats'] = stats_dict[map_id]['values']
+                graph.nodes()[x]['stats_rgba'] = extract_value(
+                    value_array=stats_dict[map_id]['values'],
+                    max_value=stats_max,
+                    type="stats")
+                graph.nodes()[x]['stats_js'] = convert_rgba(
+                    rgba_tuples=graph.nodes()[x]['stats_rgba'])
+            else:
+                colors = [missing_color for x in range(n)]
+
+                graph.nodes()[x]['values'] = [None for x in range(n)]
+                graph.nodes()[x]['values_rgba'] = colors
+                graph.nodes()[x]['values_js'] = convert_rgba(
+                    rgba_tuples=colors)
+
+                graph.nodes()[x]['stats'] = [None for x in range(n)]
+                graph.nodes()[x]['stats_rgba'] = colors
+                graph.nodes()[x]['stats_js'] = convert_rgba(
+                    rgba_tuples=colors)
 
         elif backup_mapper in set(data_dict.keys()) \
         and backup_mapper in set(stats_dict.keys()) \
         and backup_mapper != 'none':
-            graph.nodes()[x]['values'] = data_dict[backup_mapper]
-            graph.nodes()[x]['values_rgba'] = extract_value(
-                value_array=data_dict[backup_mapper],
-                max_value=data_max)
-            graph.nodes()[x]['values_js'] = convert_rgba(
-                rgba_tuples=graph.nodes()[x]['values_rgba'])
+            if (data_dict[backup_mapper]['type'] == 'metabolite' \
+            and graph.nodes()[x]['sub_type'] == 'metabolite_component') \
+            or (data_dict[backup_mapper]['type'] != 'metabolite' \
+            and graph.nodes()[x]['sub_type'] != 'metabolite_component'):
+                graph.nodes()[x]['values'] = data_dict[backup_mapper]['values']
+                graph.nodes()[x]['values_rgba'] = extract_value(
+                    value_array=data_dict[backup_mapper]['values'],
+                    max_value=data_max)
+                graph.nodes()[x]['values_js'] = convert_rgba(
+                    rgba_tuples=graph.nodes()[x]['values_rgba'])
 
-            graph.nodes()[x]['stats'] = stats_dict[backup_mapper]
-            graph.nodes()[x]['stats_rgba'] = extract_value(
-                value_array=stats_dict[backup_mapper],
-                max_value=stats_max,
-                type="stats")
-            graph.nodes()[x]['stats_js'] = convert_rgba(
-                rgba_tuples=graph.nodes()[x]['stats_rgba'])
+                graph.nodes()[x]['stats'] = stats_dict[backup_mapper]['values']
+                graph.nodes()[x]['stats_rgba'] = extract_value(
+                    value_array=stats_dict[backup_mapper]['values'],
+                    max_value=stats_max,
+                    type="stats")
+                graph.nodes()[x]['stats_js'] = convert_rgba(
+                    rgba_tuples=graph.nodes()[x]['stats_rgba'])
+            else:
+                colors = [missing_color for x in range(n)]
+
+                graph.nodes()[x]['values'] = [None for x in range(n)]
+                graph.nodes()[x]['values_rgba'] = colors
+                graph.nodes()[x]['values_js'] = convert_rgba(
+                    rgba_tuples=colors)
+
+                graph.nodes()[x]['stats'] = [None for x in range(n)]
+                graph.nodes()[x]['stats_rgba'] = colors
+                graph.nodes()[x]['stats_js'] = convert_rgba(
+                    rgba_tuples=colors)
 
         else:
             colors = [missing_color for x in range(n)]
@@ -1245,9 +1284,13 @@ def __main__(
 
     name_reference = {}
     for k, v in network['ensembl_synonyms'].items():
+        if 'phospho-' in k:
+            k = k.replace('phospho-', '')
         name_reference[v] = k
         name_reference[k] = k
     for k, v in network['uniprot_synonyms'].items():
+        if 'phospho-' in k:
+            k = k.replace('phospho-', '')
         name_reference[v] = k
         name_reference[k] = k
 

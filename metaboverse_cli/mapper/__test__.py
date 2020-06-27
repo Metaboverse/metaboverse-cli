@@ -53,3 +53,5 @@ assert type(mapper['mapping_dictionary'][key2]) == str, 'Mapping dictionary impr
 os.system(
     'rm '
     + os.path.abspath("./metaboverse_cli/mapper/test") + '/metabolite_mapping.pickle')
+
+print('Tests completed')

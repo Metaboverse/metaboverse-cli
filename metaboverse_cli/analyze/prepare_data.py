@@ -66,7 +66,6 @@ def format_data(
     data_output.index = data_output.index.to_series().replace(reference)
     data_unmapped = data_output.copy()
 
-    #data_output = data_output[data_output.index.isin(reference_ids)]
     data_unmapped = data_unmapped[~data_unmapped.index.isin(reference_ids)]
 
     return data_output, data_unmapped
@@ -307,8 +306,10 @@ def __main__(
             url=transcriptomics_url)
         e_sym = {}
         for k, v in network['ensembl_synonyms'].items():
-            e_sym[v] = k
-            e_sym[k] = k
+            if 'phospho-' in k:
+                k = k.replace('phospho-', '')
+            e_sym[v.upper()] = k
+            e_sym[k.upper()] = k
         transcriptomics, transcriptomics_unmapped = format_data(
             data=transcriptomics,
             reference=e_sym)
@@ -328,8 +329,10 @@ def __main__(
             url=proteomics_url)
         u_sym = {}
         for k, v in network['uniprot_synonyms'].items():
-            u_sym[v] = k
-            u_sym[k] = k
+            if 'phospho-' in k:
+                k = k.replace('phospho-', '')
+            u_sym[v.upper()] = k
+            u_sym[k.upper()] = k
         proteomics, proteomics_unmapped = format_data(
             data=proteomics,
             reference=u_sym)
@@ -447,3 +450,16 @@ def __main__(
         unmapped['proteomics_unmapped'] = []
 
     return data, stats, unmapped
+
+def test():
+
+    import pickle
+    network_url = "/Users/jordan/Desktop/MMU_metaboverse_db.pickle"
+    with open(network_url, 'rb') as network_file:
+        network = pickle.load(network_file)
+    transcriptomics_url = "/Users/jordan/Desktop/D18_D9_RNA.txt"
+    proteomics_url = 'None'
+    metabolomics_url = "/Users/jordan/Desktop/d18.d9.log2fc.ttest.txt"
+
+    data.to_csv('~/Desktop/data.tsv', sep='\t')
+    stats.to_csv('~/Desktop/stats.tsv', sep='\t')

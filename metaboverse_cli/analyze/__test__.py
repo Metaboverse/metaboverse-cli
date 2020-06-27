@@ -1004,3 +1004,5 @@ updated_pathway_dictionary = generate_updated_dictionary(
 assert updated_pathway_dictionary['Re1']['reactions'] == ['R1','R2_R3','R4'], 'generate_updated_dictionary() failed'
 assert updated_pathway_dictionary['Re2']['reactions'] == ['R5_R6_R7','R8_R9_R10','R11','R12','R13'], 'generate_updated_dictionary() failed'
 assert updated_pathway_dictionary['Re3']['reactions'] == ['R14','R15','R16','R17'], 'generate_updated_dictionary() failed'
+
+print('Tests completed')

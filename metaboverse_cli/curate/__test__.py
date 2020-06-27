@@ -313,3 +313,5 @@ assert set(components_database['species_195941']['hasPart']) == set([
     'P03468',
     'P03452',
     'P06821']), 'process_components() failed'
+
+print('Tests completed')
