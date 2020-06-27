@@ -477,7 +477,14 @@ data_dict, chebi_synonyms, non_mappers1 = parse_attributes(
         'e': 'E',
     },
     ignore_enantiomers=True)
-assert data_dict == {'A': [1], 'C': [3], 'E': [5]}, 'parse_attributes() failed'
+
+data_dict
+
+assert data_dict == {
+    'A': {'values': [1], 'type': 'enzyme'},
+    'C': {'values': [3], 'type': 'enzyme'},
+    'E': {'values': [5], 'type': 'enzyme'}
+}, 'parse_attributes() failed'
 
 # map_attributes()
 G_mapped, data_max, stats_max, non_mappers = map_attributes(
@@ -506,9 +513,13 @@ G_mapped, data_max, stats_max, non_mappers = map_attributes(
         'D': 'D',
         'e': 'e',
     })
+
+
+non_mappers
+
 assert data_max == 5, 'map_attributes() failed'
 assert stats_max == 1.0, 'map_attributes() failed'
-assert non_mappers == [set()], 'map_attributes() failed'
+assert non_mappers == [], 'map_attributes() failed'
 assert G_mapped.nodes()['A']['values'] == [1], 'map_attributes() failed'
 assert G_mapped.nodes()['A']['stats'] == [0.1], 'map_attributes() failed'
 assert G_mapped.nodes()['B']['values'] == [None], 'map_attributes() failed'
