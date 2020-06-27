@@ -113,3 +113,5 @@ assert args_dict == {
     'progress_log': os.path.abspath("./metaboverse_cli/test") + '/progress_data.json',
     'session_data': os.path.abspath("./metaboverse_cli/test") + '/session_data.json',
     'cmd': 'BAD'}, 'argument_checks() failed'
+
+print('Tests completed')

@@ -88,7 +88,7 @@ def check_arguments(
         argument='output')
 
     # Print out user commands to log file
-    print('Metaboverse version: ' + str(__version__))
+    print('Metaboverse-CLI version: ' + str(__version__))
     print('======================\nUser commands summary:\n======================')
 
     for key, value in args_dict.items():
