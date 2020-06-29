@@ -65,11 +65,17 @@ def unpack_table(
         url,
         output_dir='./'):
 
+    read_dir = output_dir
     if output_dir[-1] != '/':
         output_dir = output_dir + '/'
 
+    if ' ' in output_dir \
+    and '\ ' not in output_dir:
+        output_dir = output_dir.replace(' ', '\ ')
+
     file = output_dir + url.split('/')[-1]
+    read_file = read_dir + url.split('/')[-1]
 
     os.system('curl -L ' + url + ' -o ' + file)
 
-    return file
+    return read_file

@@ -1202,19 +1202,24 @@ def make_motif_reaction_dictionary(
     return motif_reaction_dictionary
 
 def make_metabolite_synonym_dictionary(
-        network,
         output_dir,
         ref_url='https://sourceforge.net/projects/metaboverse/files/utils/metabolite_mapping.pickle.zip/download'):
 
     print("Downloading metabolite mapper...")
+    # remove non-escaped whitespace
+    read_file = output_dir
+    if ' ' in output_dir \
+    and '\ ' not in output_dir:
+        output_dir = output_dir.replace(' ', '\ ')
+
     os.system('curl -L ' + ref_url + ' -o ' + output_dir + 'metabolite_mapping.pickle.zip')
     print("Unzipping metabolite mapper...")
-    os.system('unzip ' + output_dir + 'metabolite_mapping.pickle.zip -d ' + output_dir)
+    os.system('unzip -o ' + output_dir + 'metabolite_mapping.pickle.zip -d ' + output_dir)
     print("Parsing HMDB metabolite records...")
-    with open(output_dir + 'metabolite_mapping.pickle', 'rb') as ref_file:
+    with open(read_file + 'metabolite_mapping.pickle', 'rb') as ref_file:
         metabolite_mapper = pickle.load(ref_file)
-    os.remove(output_dir + 'metabolite_mapping.pickle.zip')
-    os.remove(output_dir + 'metabolite_mapping.pickle')
+    os.remove(read_file + 'metabolite_mapping.pickle.zip')
+    os.remove(read_file + 'metabolite_mapping.pickle')
 
     return metabolite_mapper
 
@@ -1298,7 +1303,6 @@ def __main__(
     # Add synonyms
     # Change name to user provided if available
     metabolite_mapper = make_metabolite_synonym_dictionary(
-        network=network,
         output_dir=args_dict['output'])
 
     G, max_value, max_stat, non_mappers = map_attributes(

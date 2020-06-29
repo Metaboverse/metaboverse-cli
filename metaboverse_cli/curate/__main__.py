@@ -186,15 +186,18 @@ def parse_ensembl_synonyms(
         id_location=0):
     """Retrieve Ensembl gene entity synonyms
     """
-    # output_dir='/Users/jordan/Desktop/'
+    read_dir = output_dir
+    if ' ' in output_dir \
+    and '\ ' not in output_dir:
+        output_dir = output_dir.replace(' ', '\ ')
 
     os.system('curl -L ' + url + ' -o ' + output_dir + file_name)
 
     ensembl = pd.read_csv(
-        output_dir + file_name,
+        read_dir + file_name,
         sep='\t',
         header=None)
-    os.remove(output_dir + file_name)
+    os.remove(read_dir + file_name)
 
     ensembl[name_location] = ensembl[name_location].str.split(' \[').str[0].tolist()
 
@@ -216,14 +219,18 @@ def parse_uniprot_synonyms(
         id_location=0):
     """Retrieve UniProt protein entity synonyms
     """
+    read_dir = output_dir
+    if ' ' in output_dir \
+    and '\ ' not in output_dir:
+        output_dir = output_dir.replace(' ', '\ ')
 
     os.system('curl -L ' + url + ' -o ' + output_dir + file_name)
 
     uniprot = pd.read_csv(
-        output_dir + file_name,
+        read_dir + file_name,
         sep='\t',
         header=None)
-    os.remove(output_dir + file_name)
+    os.remove(read_dir + file_name)
 
     uniprot[name_location] = uniprot[name_location].str.split(' \[').str[0].tolist()
 
@@ -244,14 +251,17 @@ def parse_chebi_synonyms(
         source_string='SOURCE'):
     """Retrieve CHEBI chemical entity synonyms
     """
-
+    read_dir = output_dir
+    if ' ' in output_dir \
+    and '\ ' not in output_dir:
+        output_dir = output_dir.replace(' ', '\ ')
     os.system('curl -L ' + url + ' -o ' + output_dir + file_name + '.gz')
     os.system('gzip -d ' + output_dir + file_name + '.gz')
 
     chebi = pd.read_csv(
-        output_dir + file_name,
+        read_dir + file_name,
         sep='\t')
-    os.remove(output_dir + file_name)
+    os.remove(read_dir + file_name)
 
     name_index = None
     id_index = None
