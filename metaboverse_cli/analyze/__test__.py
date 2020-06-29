@@ -643,7 +643,6 @@ assert mot_dic == {'reaction_1_reaction_3': ['pathway_1'], 'reaction_2': ['pathw
 
 # make_metabolite_synonym_dictionary()
 mapper = make_metabolite_synonym_dictionary(
-    network=network,
     output_dir=test_args['output'] + '/'
 )
 assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'make_metabolite_synonym_dictionary() failed'
