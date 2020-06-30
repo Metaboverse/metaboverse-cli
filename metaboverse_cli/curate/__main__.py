@@ -256,11 +256,11 @@ def parse_chebi_synonyms(
     and '\ ' not in output_dir:
         output_dir = output_dir.replace(' ', '\ ')
     os.system('curl -L ' + url + ' -o ' + output_dir + file_name + '.gz')
-    os.system('gzip -d ' + output_dir + file_name + '.gz')
 
     chebi = pd.read_csv(
         read_dir + file_name,
-        sep='\t')
+        sep='\t',
+        compression='gzip')
     os.remove(read_dir + file_name)
 
     name_index = None
