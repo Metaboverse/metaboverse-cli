@@ -22,12 +22,6 @@ from __future__ import print_function
 """
 import os
 import sys
-import gc
-import time
-import datetime
-from multiprocessing import cpu_count
-from multiprocessing import Pool
-import itertools
 import json
 
 """Update session information
