@@ -81,14 +81,10 @@ def check_arguments(
     if 'output' not in args_dict \
     or args_dict['output'] == None \
     or args_dict['output'].lower() == 'none':
-        args_dict['output'] = args_dict['output_file'].rsplit('/', 1)[0]
+        args_dict['output'] = args_dict['output_file'].rsplit(os.path.sep, 1)[0]
 
-    if args_dict['output'][-1] != '/' \
-    and args_dict['output'][-1] != '\\':
-        if '\\\\' in args_dict['output']:
-            args_dict['output'] = args_dict['output'] + '\\\\'
-        else:
-            args_dict['output'] = args_dict['output'] + '/'
+    if not args_dict['output'].endswith(os.path.sep):
+        args_dict['output'] = args_dict['output'] + os.path.sep
 
     args_dict['output'] = check_directories(
         input=args_dict['output'],
@@ -278,12 +274,8 @@ def parse_arguments(
     # Collect subargs and package, add metaboverse script path to parameter dictionary
     args_dict = vars(args)
     args_dict['path'] = str(__path__)
-    if args_dict['path'][-1] != '/' \
-    and args_dict['path'][-1] != '\\':
-        if '\\\\' in args_dict['path']:
-            args_dict['path'] = args_dict['path'] + '\\\\'
-        else:
-            args_dict['path'] = args_dict['path'] + '/'
+    if not args_dict['path'].endswith(os.path.sep):
+        args_dict['path'] = args_dict['path'] + os.path.sep
 
     # Check inputs validity
     args_dict = check_arguments(
