@@ -85,7 +85,10 @@ def check_arguments(
 
     if args_dict['output'][-1] != '/' \
     and args_dict['output'][-1] != '\\':
-        args_dict['output'] = args_dict['output'] + '/'
+        if '\\\\' in args_dict['output']:
+            args_dict['output'] = args_dict['output'] + '\\\\'
+        else:
+            args_dict['output'] = args_dict['output'] + '/'
 
     args_dict['output'] = check_directories(
         input=args_dict['output'],
