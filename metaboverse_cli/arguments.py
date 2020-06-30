@@ -81,7 +81,11 @@ def check_arguments(
     if 'output' not in args_dict \
     or args_dict['output'] == None \
     or args_dict['output'].lower() == 'none':
-        args_dict['output'] = args_dict['output_file'].rsplit('/', 1)[0] + '/'
+        args_dict['output'] = args_dict['output_file'].rsplit('/', 1)[0]
+
+    if args_dict['output'][-1] != '/' \
+    and args_dict['output'][-1] != '\\':
+        args_dict['output'] = args_dict['output'] + '/'
 
     args_dict['output'] = check_directories(
         input=args_dict['output'],
@@ -270,7 +274,10 @@ def parse_arguments(
 
     # Collect subargs and package, add metaboverse script path to parameter dictionary
     args_dict = vars(args)
-    args_dict['path'] = str(__path__) + '/'
+    args_dict['path'] = str(__path__)
+    if args_dict['path'][-1] != '/' \
+    and args_dict['path'][-1] != '\\':
+        args_dict['path'] = args_dict['path'] + '/'
 
     # Check inputs validity
     args_dict = check_arguments(

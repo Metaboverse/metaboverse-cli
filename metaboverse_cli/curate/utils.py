@@ -66,7 +66,7 @@ def unpack_table(
         output_dir='./'):
 
     read_dir = output_dir
-    if output_dir[-1] != '/':
+    if output_dir[-1] != '/' and output_dir[-1] != '\\':
         output_dir = output_dir + '/'
 
     if ' ' in output_dir \

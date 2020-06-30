@@ -342,7 +342,11 @@ def write_database(
         os.makedirs(output)
 
     # Clean up path
-    dir = os.path.abspath(output) + '/'
+    if os.path.abspath(output).endswith('/') \
+    or os.path.abspath(output).endswith('\\'):
+        dir = os.path.abspath(output)
+    else:
+        dir = os.path.abspath(output) + '/'
 
     # Write information to file
     with open(dir + file, 'wb') as file_product:

@@ -66,7 +66,7 @@ def unpack_pathways(
     and '\ ' not in output_dir:
         output_dir = output_dir.replace(' ', '\ ')
 
-    if output_dir[-1] != '/':
+    if output_dir[-1] != '/' and output_dir[-1] != '\\':
         output_dir = output_dir + '/'
     file = output_dir + url.split('/')[-1]
     read_file = read_dir + url.split('/')[-1]
@@ -94,7 +94,11 @@ def get_pathways(
         raise Exception(pathways_dir, 'does not exist')
 
     # Clean up path
-    dir = os.path.abspath(pathways_dir) + '/'
+    if os.path.abspath(pathways_dir).endswith('\\') \
+    or os.path.abspath(pathways_dir).endswith('/'):
+        dir = os.path.abspath(pathways_dir)
+    else:
+        dir = os.path.abspath(pathways_dir) + '/'
 
     # Get list of files and their reaction name
     file_list = os.listdir(dir)
@@ -109,7 +113,8 @@ def get_database(
     """Import sbml reaction data
     """
 
-    if pathways_dir[-1] != '/':
+    if pathways_dir[-1] != '/' \
+    or pathways_dir[-1] != '\\':
         pathways_dir = pathways_dir + '/'
 
     pathway_file = pathways_dir + pathway_name + '.sbml'
