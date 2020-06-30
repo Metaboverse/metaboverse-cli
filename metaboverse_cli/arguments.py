@@ -277,7 +277,10 @@ def parse_arguments(
     args_dict['path'] = str(__path__)
     if args_dict['path'][-1] != '/' \
     and args_dict['path'][-1] != '\\':
-        args_dict['path'] = args_dict['path'] + '/'
+        if '\\\\' in args_dict['path']:
+            args_dict['path'] = args_dict['path'] + '\\\\'
+        else:
+            args_dict['path'] = args_dict['path'] + '/'
 
     # Check inputs validity
     args_dict = check_arguments(
