@@ -258,10 +258,10 @@ def parse_chebi_synonyms(
     os.system('curl -L ' + url + ' -o ' + output_dir + file_name + '.gz')
 
     chebi = pd.read_csv(
-        read_dir + file_name,
+        read_dir + file_name + '.gz',
         sep='\t',
         compression='gzip')
-    os.remove(read_dir + file_name)
+    os.remove(read_dir + file_name + '.gz')
 
     name_index = None
     id_index = None
