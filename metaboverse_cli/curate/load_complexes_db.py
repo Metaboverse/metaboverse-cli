@@ -43,6 +43,7 @@ def __main__(
         output_dir=output_dir,
         url='https://reactome.org/download/current/ComplexParticipantsPubMedIdentifiers_human.txt',
         column_names=0)
+    print(output_dir + 'ComplexParticipantsPubMedIdentifiers_human.txt')
     os.remove(output_dir + 'ComplexParticipantsPubMedIdentifiers_human.txt')
 
     complex_pathway = get_table(
