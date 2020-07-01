@@ -24,6 +24,7 @@ import os
 import sys
 import re
 import shutil
+import tarfile
 import time
 import hashlib
 import xml.etree.ElementTree as et
@@ -63,14 +64,19 @@ def unpack_pathways(
     """
 
     file = output_dir + url.split('/')[-1]
-    os.system('curl -L ' + url + ' -o "' + file + '"')
+    os.system('curl -L ' + url + ' -o \"' + file + '\"')
 
-    pathways_dir = file[:-4] + os.path.sep
+    pathways_dir = file[:-4]
     if os.path.exists(pathways_dir):
         shutil.rmtree(pathways_dir)
     os.makedirs(pathways_dir)
-    os.system('tar -zxf "' + file + '" -C "' + pathways_dir + '"')
+
+    tar = tarfile.open(file, "r:gz")
+    tar.extractall(path=pathways_dir)
+    tar.close()
     os.remove(file)
+
+    pathways_dir = pathways_dir + os.path.sep
 
     return pathways_dir
 
