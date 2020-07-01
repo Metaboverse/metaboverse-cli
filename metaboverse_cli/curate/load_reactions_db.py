@@ -61,27 +61,18 @@ def unpack_pathways(
         url='https://reactome.org/download/current/all_species.3.1.sbml.tgz'):
     """Load tarballed sbml reactome pathway files from reactome site
     """
-    read_dir = output_dir
-    if ' ' in output_dir \
-    and '\ ' not in output_dir:
-        output_dir = output_dir.replace(' ', '\ ')
 
-    if not output_dir.endswith(os.path.sep):
-        output_dir = output_dir + os.path.sep
     file = output_dir + url.split('/')[-1]
-    read_file = read_dir + url.split('/')[-1]
+    os.system('curl -L ' + url + ' -o "' + file + '"')
 
-    os.system('curl -L ' + url + ' -o ' + file)
-
-    read_pathways_dir = read_file[:-4] + os.path.sep
     pathways_dir = file[:-4] + os.path.sep
-    if os.path.exists(read_pathways_dir):
-        shutil.rmtree(read_pathways_dir)
-    os.makedirs(read_pathways_dir)
-    os.system('tar -zxf ' + file + ' -C ' + pathways_dir)
-    os.remove(read_file)
+    if os.path.exists(pathways_dir):
+        shutil.rmtree(pathways_dir)
+    os.makedirs(pathways_dir)
+    os.system('tar -zxf "' + file + '" -C "' + pathways_dir + '"')
+    os.remove(file)
 
-    return read_pathways_dir
+    return pathways_dir
 
 def get_pathways(
         species_id,
