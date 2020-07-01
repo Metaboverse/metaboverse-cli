@@ -187,7 +187,7 @@ def parse_ensembl_synonyms(
     """Retrieve Ensembl gene entity synonyms
     """
 
-    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
+    os.system('curl -L ' + url + ' -o \"' + output_dir + file_name + '\"')
     ensembl = pd.read_csv(
         output_dir + file_name,
         sep='\t',
@@ -212,17 +212,12 @@ def parse_uniprot_synonyms(
         id_location=0):
     """Retrieve UniProt protein entity synonyms
     """
-    read_dir = output_dir
-    if ' ' in output_dir \
-    and '\ ' not in output_dir:
-        output_dir = output_dir.replace(' ', '\ ')
-
     os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
     uniprot = pd.read_csv(
-        read_dir + file_name,
+        output_dir + file_name,
         sep='\t',
         header=None)
-    os.remove(read_dir + file_name)
+    os.remove(output_dir + file_name)
 
     uniprot[name_location] = uniprot[name_location].str.split(' \[').str[0].tolist()
     uniprot = uniprot[uniprot[reactome_location].str.contains(species_id)]
