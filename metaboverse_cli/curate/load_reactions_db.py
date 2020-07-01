@@ -24,6 +24,7 @@ import os
 import sys
 import re
 import shutil
+import tarfile
 import time
 import hashlib
 import xml.etree.ElementTree as et
@@ -73,8 +74,11 @@ def unpack_pathways(
         shutil.rmtree(pathways_dir)
     print(pathways_dir)
     os.makedirs(pathways_dir)
-    print('tar -zxf \"' + file + '\" -C \"' + pathways_dir + '\"')
-    os.system('tar -zxf \"' + file + '\" -C \"' + pathways_dir + '\"')
+
+    tar = tarfile.open(file, "r:gz")
+    tar.extractall(path=pathways_dir)
+    tar.close()
+
     print("unpacked")
     os.remove(file)
     pathways_dir = pathways_dir + os.path.sep
