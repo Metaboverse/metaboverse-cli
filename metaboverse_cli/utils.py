@@ -79,10 +79,8 @@ def check_directories(
     # Check input directory name is formatted correctly and fix if necessary
     input = os.path.abspath(input)
 
-    if input.endswith('/'):
-        pass
-    else:
-        input += '/'
+    if not input.endswith(os.path.sep):
+        input += os.path.sep
 
     return input
 
@@ -134,7 +132,10 @@ def argument_checks(
     # Check output file
     if 'output' in args_dict \
     and args_dict['output'] == None:
-        args_dict['output'] = os.getcwd() + '/'
+        args_dict['output'] = os.getcwd()
+
+    if not args_dict['output'].endswith(os.path.sep):
+        args_dict['output'] = args_dict['output'] + os.path.sep
 
     # Check user-provided directory formatting
     for key, value in args_dict.items():

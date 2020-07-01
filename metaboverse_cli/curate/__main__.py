@@ -186,23 +186,16 @@ def parse_ensembl_synonyms(
         id_location=0):
     """Retrieve Ensembl gene entity synonyms
     """
-    read_dir = output_dir
-    if ' ' in output_dir \
-    and '\ ' not in output_dir:
-        output_dir = output_dir.replace(' ', '\ ')
 
-    os.system('curl -L ' + url + ' -o ' + output_dir + file_name)
-
+    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
     ensembl = pd.read_csv(
-        read_dir + file_name,
+        output_dir + file_name,
         sep='\t',
         header=None)
-    os.remove(read_dir + file_name)
+    os.remove(output_dir + file_name)
 
     ensembl[name_location] = ensembl[name_location].str.split(' \[').str[0].tolist()
-
     ensembl = ensembl[ensembl[reactome_location].str.contains(species_id)]
-
     ensembl_name_dictionary = pd.Series(
         ensembl[name_location].values,
         index=ensembl[id_location]).to_dict()
@@ -224,8 +217,7 @@ def parse_uniprot_synonyms(
     and '\ ' not in output_dir:
         output_dir = output_dir.replace(' ', '\ ')
 
-    os.system('curl -L ' + url + ' -o ' + output_dir + file_name)
-
+    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
     uniprot = pd.read_csv(
         read_dir + file_name,
         sep='\t',
@@ -233,9 +225,7 @@ def parse_uniprot_synonyms(
     os.remove(read_dir + file_name)
 
     uniprot[name_location] = uniprot[name_location].str.split(' \[').str[0].tolist()
-
     uniprot = uniprot[uniprot[reactome_location].str.contains(species_id)]
-
     uniprot_name_dictionary = pd.Series(
         uniprot[name_location].values,
         index=uniprot[id_location]).to_dict()
@@ -251,22 +241,17 @@ def parse_chebi_synonyms(
         source_string='SOURCE'):
     """Retrieve CHEBI chemical entity synonyms
     """
-    read_dir = output_dir
-    if ' ' in output_dir \
-    and '\ ' not in output_dir:
-        output_dir = output_dir.replace(' ', '\ ')
-    os.system('curl -L ' + url + ' -o ' + output_dir + file_name + '.gz')
-    os.system('gzip -d ' + output_dir + file_name + '.gz')
 
+    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '.gz"')
     chebi = pd.read_csv(
-        read_dir + file_name,
-        sep='\t')
-    os.remove(read_dir + file_name)
+        output_dir + file_name + '.gz',
+        sep='\t',
+        compression='gzip')
+    os.remove(output_dir + file_name + '.gz')
 
     name_index = None
     id_index = None
     source_index = None
-
     col_names = chebi.columns.tolist()
 
     for x in range(len(col_names)):
@@ -342,7 +327,10 @@ def write_database(
         os.makedirs(output)
 
     # Clean up path
-    dir = os.path.abspath(output) + '/'
+    if os.path.abspath(output).endswith(os.path.sep):
+        dir = os.path.abspath(output)
+    else:
+        dir = os.path.abspath(output) + os.path.sep
 
     # Write information to file
     with open(dir + file, 'wb') as file_product:
