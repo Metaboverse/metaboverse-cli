@@ -212,6 +212,7 @@ def parse_uniprot_synonyms(
         id_location=0):
     """Retrieve UniProt protein entity synonyms
     """
+
     os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
     uniprot = pd.read_csv(
         output_dir + file_name,
