@@ -22,6 +22,7 @@ from __future__ import print_function
 """Import dependencies
 """
 import os
+import importlib.util
 import zipfile
 from datetime import date
 import pandas as pd
@@ -1155,22 +1156,15 @@ def make_motif_reaction_dictionary(
 
     return motif_reaction_dictionary
 
-def make_metabolite_synonym_dictionary(
-        output_dir,
-        ref_url='https://sourceforge.net/projects/metaboverse/files/utils/metabolite_mapping.pickle.zip/download'):
+def load_metabolite_synonym_dictionary(
+        dir=os.path.join(os.path.dirname(__file__), 'data'),
+        file='metabolite_mapping.pickle'):
 
-    print("Downloading metabolite mapper...")
-    os.system('curl -L ' + ref_url + ' -o "' + output_dir + 'metabolite_mapping.pickle.zip"')
-    print("Unzipping metabolite mapper...")
-    with zipfile.ZipFile(output_dir + 'metabolite_mapping.pickle.zip', 'r') as zip_ref:
-        zip_ref.extractall(output_dir)
-
-    print("Parsing HMDB metabolite records...")
-    with open(output_dir + 'metabolite_mapping.pickle', 'rb') as ref_file:
-        metabolite_mapper = pickle.load(ref_file)
-
-    os.remove(output_dir + 'metabolite_mapping.pickle.zip')
-    os.remove(output_dir + 'metabolite_mapping.pickle')
+    print("Reading metabolite mapper...")
+    with zipfile.ZipFile(dir + os.path.sep + file + '.zip', 'r') as zip_ref:
+        metabolite_mapper = pickle.load(
+            zip_ref.open(file)
+        )
 
     return metabolite_mapper
 
@@ -1253,8 +1247,7 @@ def __main__(
     # add any mapping IDs
     # Add synonyms
     # Change name to user provided if available
-    metabolite_mapper = make_metabolite_synonym_dictionary(
-        output_dir=args_dict['output'])
+    metabolite_mapper = load_metabolite_synonym_dictionary()
 
     G, max_value, max_stat, non_mappers = map_attributes(
         graph=G,
