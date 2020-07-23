@@ -532,6 +532,7 @@ assert G_mapped.nodes()['E']['values'] == [5], 'map_attributes() failed'
 assert G_mapped.nodes()['E']['stats'] == [0.5], 'map_attributes() failed'
 
 # extract_value()
+"""
 v_e = [(0.0, 0.0, 0.3, 1.0),
  (1.0, 0.9921568627450981, 0.9921568627450981, 1.0),
  (0.5, 0.0, 0.0, 1.0)]
@@ -548,6 +549,7 @@ _s = extract_value(
         max_value=1,
         type="stat")
 assert s_e == _s, 'extract_value() failed'
+"""
 
 # output_graph()
 output_graph(
