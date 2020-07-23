@@ -186,7 +186,7 @@ infer_protein_values = model.infer_protein_values
 infer_protein_stats = model.infer_protein_stats
 broadcast_values = model.broadcast_values
 make_motif_reaction_dictionary = model.make_motif_reaction_dictionary
-make_metabolite_synonym_dictionary = model.make_metabolite_synonym_dictionary
+load_metabolite_synonym_dictionary = model.load_metabolite_synonym_dictionary
 
 G = nx.DiGraph()
 G.add_node('A')
@@ -643,11 +643,11 @@ mot_dic = make_motif_reaction_dictionary(
     updated_pathway_dictionary=updated_pathway_dictionary)
 assert mot_dic == {'reaction_1_reaction_3': ['pathway_1'], 'reaction_2': ['pathway_1']}, 'make_motif_reaction_dictionary() failed'
 
-# make_metabolite_synonym_dictionary()
-mapper = make_metabolite_synonym_dictionary(
+# load_metabolite_synonym_dictionary()
+mapper = load_metabolite_synonym_dictionary(
     output_dir=test_args['output'] + '/'
 )
-assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'make_metabolite_synonym_dictionary() failed'
+assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'load_metabolite_synonym_dictionary() failed'
 
 """collapse.py
 """
