@@ -24,10 +24,6 @@ import os
 import pickle
 import pandas as pd
 import networkx as nx
-import matplotlib
-import matplotlib.pyplot as plt
-
-cmap = matplotlib.cm.get_cmap('RdYlBu')
 
 """Import internal dependencies
 """

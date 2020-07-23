@@ -14,3 +14,6 @@ A current draft of the manuscript describing Metaboverse can be found [here](htt
 - Python 3.6 or greater
 - An internet connection for network curation
 - The Metaboverse app
+
+### Other Notes
+- This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).

@@ -1,15 +1,16 @@
 # -*- mode: python3.8 ; coding: utf-8 -*-
 import sys
 sys.setrecursionlimit(5000)
-
 block_cipher = None
 
 a = Analysis(
             ['metaboverse_cli/__main__.py'],
-             pathex=['metaboverse_cli/'],
+             pathex=[
+              'metaboverse_cli/'],
              binaries=[],
              datas=[],
-             hiddenimports=[],
+             hiddenimports=[
+              'scipy.special.cython_special'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[
