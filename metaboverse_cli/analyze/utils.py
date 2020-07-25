@@ -67,7 +67,8 @@ def add_data(
     return data
 
 def convert_rgba(
-        rgba_tuples):
+        rgba_tuples,
+        N=255):
     """Convert python RGBA tuple to web-friendly tuple for later viz
     """
 
@@ -77,7 +78,7 @@ def convert_rgba(
         rgba_list = list(x)
         rgba_new = []
         for x in rgba_list[:3]:
-            rgba_new.append(int(x * 255))
+            rgba_new.append(int(x * N))
 
         rgba_new.append(rgba_list[3])
 

@@ -22,6 +22,7 @@ from __future__ import print_function
 """Import dependencies
 """
 import os
+import importlib.util
 import zipfile
 from datetime import date
 import pandas as pd
@@ -32,16 +33,13 @@ import json
 import pickle
 import networkx as nx
 from networkx.readwrite import json_graph
-import matplotlib
-import matplotlib.pyplot as plt
-cmap = matplotlib.cm.get_cmap('seismic')
-pmap = matplotlib.cm.get_cmap('Reds')
 
 """Import internal dependencies
 """
 try:
     from analyze.collapse import collapse_nodes
     from analyze.collapse import generate_updated_dictionary
+    from analyze.mpl_colormaps import get_mpl_colormap
     from analyze.utils import convert_rgba
     from utils import progress_feed
 except:
@@ -52,6 +50,11 @@ except:
     collapse_nodes = collapse.collapse_nodes
     generate_updated_dictionary = collapse.generate_updated_dictionary
 
+    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/mpl_colormaps.py"))
+    mpl_colormaps = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mpl_colormaps)
+    get_mpl_colormap = mpl_colormaps.get_mpl_colormap
+
     spec = importlib.util.spec_from_file_location("convert_rgba", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
     convert_rgba = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(convert_rgba)
@@ -61,6 +64,8 @@ except:
     progress_feed = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(progress_feed)
     progress_feed = progress_feed.progress_feed
+
+cmap = get_mpl_colormap('seismic')
 
 def test():
 
@@ -785,16 +790,11 @@ def map_attributes(
 
         if graph.nodes()[x]['type'] == 'reaction':
             colors = [reaction_color for x in range(n)]
-
             graph.nodes()[x]['values'] = [None for x in range(n)]
             graph.nodes()[x]['values_rgba'] = colors
             graph.nodes()[x]['values_js'] = convert_rgba(
                 rgba_tuples=colors)
-
             graph.nodes()[x]['stats'] = [None for x in range(n)]
-            graph.nodes()[x]['stats_rgba'] = colors
-            graph.nodes()[x]['stats_js'] = convert_rgba(
-                rgba_tuples=colors)
 
         elif map_id in set(data_dict.keys()) \
         and map_id in set(stats_dict.keys()) \
@@ -810,14 +810,7 @@ def map_attributes(
                     max_value=data_max)
                 graph.nodes()[x]['values_js'] = convert_rgba(
                     rgba_tuples=graph.nodes()[x]['values_rgba'])
-
                 graph.nodes()[x]['stats'] = stats_dict[map_id]['values']
-                graph.nodes()[x]['stats_rgba'] = extract_value(
-                    value_array=stats_dict[map_id]['values'],
-                    max_value=stats_max,
-                    type="stats")
-                graph.nodes()[x]['stats_js'] = convert_rgba(
-                    rgba_tuples=graph.nodes()[x]['stats_rgba'])
             else:
                 colors = [missing_color for x in range(n)]
 
@@ -825,11 +818,7 @@ def map_attributes(
                 graph.nodes()[x]['values_rgba'] = colors
                 graph.nodes()[x]['values_js'] = convert_rgba(
                     rgba_tuples=colors)
-
                 graph.nodes()[x]['stats'] = [None for x in range(n)]
-                graph.nodes()[x]['stats_rgba'] = colors
-                graph.nodes()[x]['stats_js'] = convert_rgba(
-                    rgba_tuples=colors)
 
         elif backup_mapper in set(data_dict.keys()) \
         and backup_mapper in set(stats_dict.keys()) \
@@ -844,26 +833,14 @@ def map_attributes(
                     max_value=data_max)
                 graph.nodes()[x]['values_js'] = convert_rgba(
                     rgba_tuples=graph.nodes()[x]['values_rgba'])
-
                 graph.nodes()[x]['stats'] = stats_dict[backup_mapper]['values']
-                graph.nodes()[x]['stats_rgba'] = extract_value(
-                    value_array=stats_dict[backup_mapper]['values'],
-                    max_value=stats_max,
-                    type="stats")
-                graph.nodes()[x]['stats_js'] = convert_rgba(
-                    rgba_tuples=graph.nodes()[x]['stats_rgba'])
             else:
                 colors = [missing_color for x in range(n)]
-
                 graph.nodes()[x]['values'] = [None for x in range(n)]
                 graph.nodes()[x]['values_rgba'] = colors
                 graph.nodes()[x]['values_js'] = convert_rgba(
                     rgba_tuples=colors)
-
                 graph.nodes()[x]['stats'] = [None for x in range(n)]
-                graph.nodes()[x]['stats_rgba'] = colors
-                graph.nodes()[x]['stats_js'] = convert_rgba(
-                    rgba_tuples=colors)
 
         else:
             colors = [missing_color for x in range(n)]
@@ -872,11 +849,7 @@ def map_attributes(
             graph.nodes()[x]['values_rgba'] = colors
             graph.nodes()[x]['values_js'] = convert_rgba(
                 rgba_tuples=colors)
-
             graph.nodes()[x]['stats'] = [None for x in range(n)]
-            graph.nodes()[x]['stats_rgba'] = colors
-            graph.nodes()[x]['stats_js'] = convert_rgba(
-                rgba_tuples=colors)
 
     return graph, data_max, stats_max, non_mappers
 
@@ -887,24 +860,17 @@ def extract_value(
     """Extract expression value
     """
 
+    def get_key_value(d, key):
+        if key in d:
+            return d[key]
+        else:
+            return d[max([x for x in d.keys() if x < key])]
+
     rgba = []
-
-    if type == "value":
-
-        for x in value_array:
-
-            position = (x + max_value) / (2 * max_value)
-            rgba_tuple = cmap(position)
-            rgba.append(rgba_tuple)
-
-    else:
-
-        for x in value_array:
-
-            x = -1 * np.log10(x + 1e-100)
-            position = x / max_value
-            rgba_tuple = pmap(position)
-            rgba.append(rgba_tuple)
+    for x in value_array:
+        position = (x + max_value) / (2 * max_value)
+        rgba_tuple = get_key_value(cmap, round(position, 3))
+        rgba.append(tuple(rgba_tuple))
 
     return rgba
 
@@ -1085,12 +1051,6 @@ def broadcast_values(
 
                         graph.nodes()[x]['inferred'] = 'true'
                         graph.nodes()[x]['stats'] = inferred_stats
-                        graph.nodes()[x]['stats_rgba'] = extract_value(
-                            value_array=inferred_stats,
-                            max_value=max_stat,
-                            type="stats")
-                        graph.nodes()[x]['stats_js'] = convert_rgba(
-                            rgba_tuples=graph.nodes()[x]['stats_rgba'])
 
     for x in graph.nodes():
 
@@ -1142,12 +1102,6 @@ def broadcast_values(
 
                     graph.nodes()[x]['inferred'] = 'true'
                     graph.nodes()[x]['stats'] = inferred_stats
-                    graph.nodes()[x]['stats_rgba'] = extract_value(
-                        value_array=inferred_stats,
-                        max_value=max_stat,
-                        type="stats")
-                    graph.nodes()[x]['stats_js'] = convert_rgba(
-                        rgba_tuples=graph.nodes()[x]['stats_rgba'])
 
     return graph
 
@@ -1202,22 +1156,15 @@ def make_motif_reaction_dictionary(
 
     return motif_reaction_dictionary
 
-def make_metabolite_synonym_dictionary(
-        output_dir,
-        ref_url='https://sourceforge.net/projects/metaboverse/files/utils/metabolite_mapping.pickle.zip/download'):
+def load_metabolite_synonym_dictionary(
+        dir=os.path.join(os.path.dirname(__file__), 'data'),
+        file='metabolite_mapping.pickle'):
 
-    print("Downloading metabolite mapper...")
-    os.system('curl -L ' + ref_url + ' -o "' + output_dir + 'metabolite_mapping.pickle.zip"')
-    print("Unzipping metabolite mapper...")
-    with zipfile.ZipFile(output_dir + 'metabolite_mapping.pickle.zip', 'r') as zip_ref:
-        zip_ref.extractall(output_dir)
-
-    print("Parsing HMDB metabolite records...")
-    with open(output_dir + 'metabolite_mapping.pickle', 'rb') as ref_file:
-        metabolite_mapper = pickle.load(ref_file)
-
-    os.remove(output_dir + 'metabolite_mapping.pickle.zip')
-    os.remove(output_dir + 'metabolite_mapping.pickle')
+    print("Reading metabolite mapper...")
+    with zipfile.ZipFile(dir + os.path.sep + file + '.zip', 'r') as zip_ref:
+        metabolite_mapper = pickle.load(
+            zip_ref.open(file)
+        )
 
     return metabolite_mapper
 
@@ -1300,8 +1247,7 @@ def __main__(
     # add any mapping IDs
     # Add synonyms
     # Change name to user provided if available
-    metabolite_mapper = make_metabolite_synonym_dictionary(
-        output_dir=args_dict['output'])
+    metabolite_mapper = load_metabolite_synonym_dictionary()
 
     G, max_value, max_stat, non_mappers = map_attributes(
         graph=G,
