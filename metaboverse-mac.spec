@@ -9,10 +9,11 @@ a = Analysis(
              pathex=[
               'metaboverse_cli'],
              binaries=[
-               ('metaboverse_cli/analyze/data/metabolite_mapping.pickle.zip',
-               'analyze/data')
+
              ],
              datas=[
+              ('metaboverse_cli/analyze/data/metabolite_mapping.pickle.zip',
+             'analyze/data'),
               ('README.md', '.')
              ],
              hiddenimports=[
