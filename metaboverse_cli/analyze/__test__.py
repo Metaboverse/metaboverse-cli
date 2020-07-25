@@ -30,6 +30,7 @@ import importlib.util
 
 """prepare_data.py
 """
+print("Testing prepare_data.py")
 spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
 prepare_data = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(prepare_data)
@@ -56,11 +57,13 @@ metabolomics_url = os.path.abspath(
     "./metaboverse_cli/analyze/test/metabolomics.txt")
 
 # read_data()
+print("Testing read_data()")
 transcriptomics_df = read_data(
     url=transcriptomics_url)
 assert len(transcriptomics_df.columns.tolist()) == 2, "read_data() failed"
 
 # format_data()
+print("Testing format_data()")
 e_sym = {}
 for k, v in network['ensembl_synonyms'].items():
     e_sym[v] = k
@@ -80,11 +83,13 @@ else:
     raise Exception('format_data() failed')
 
 # output_unmapped()
+print("Testing output_unmapped()")
 output_unmapped(
     data=t_unmapped,
     url=transcriptomics_url)
 
 # extract_data()
+print("Testing extract_data()")
 _v, _s = extract_data(
     data=t_mapped)
 assert _v.shape[1] == 1, "extract_data()"
@@ -92,6 +97,7 @@ assert _s.shape[1] == 1, "extract_data()"
 
 # broadcast_transcriptomics()
 # How is this mapped gene vs protein in graphing?
+print("Testing broadcast_transcriptomics()")
 _p, _p_stats = broadcast_transcriptomics(
     transcriptomics=_v,
     transcriptomics_stats=_s,
@@ -100,6 +106,7 @@ _p, _p_stats = broadcast_transcriptomics(
 assert _v.loc['ENST00000300648'][0] == _p.loc['Q92616'][0], 'broadcast_transcriptomics() failed'
 
 # copy_columns()
+print("Testing copy_columns()")
 data_col, stat_col = copy_columns(_v, _s, 6)
 assert len(_v.columns.tolist()) == 1, 'copy_columns() failed'
 assert len(data_col.columns.tolist()) == 6, 'copy_columns() failed'
@@ -107,10 +114,12 @@ assert data_col[0].values.all() == data_col[5].values.all(), 'copy_columns() fai
 assert stat_col[0].values.all() == stat_col[3].values.all(), 'copy_columns() failed'
 
 # catenate_data()
+print("Testing catenate_data()")
 concat_df = catenate_data([_v, _p])
 assert concat_df.shape > _v.shape and concat_df.shape > _p.shape, 'catenate_data() failed'
 
 # Test main()
+print("Testing main()")
 data, stats, unmapped = __main__(
     network=network,
     transcriptomics_url=transcriptomics_url,
@@ -135,6 +144,7 @@ except KeyError:
 
 """utils.py
 """
+print("Testing utils.py")
 spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
 utils = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(utils)
@@ -144,17 +154,21 @@ add_data = utils.add_data
 convert_rgba = utils.convert_rgba
 
 # file_path()
+print("Testing file_path()")
 file = "./metaboverse_cli/analyze/utils.py"
 assert file_path(file) == os.path.abspath(file), 'file_path() failed'
 
 # check_suffix()
+print("Testing check_suffix()")
 assert check_suffix('file.txt') == '\t', 'check_suffix() failed'
 
 # add_data()
+print("Testing add_data()")
 df = add_data(transcriptomics_url)
 assert type(df) == pd.DataFrame, 'add_data() failed'
 
 # convert_rgba()
+print("Testing convert_rgba()")
 n = 2
 reaction_color = (0.75, 0.75, 0.75, 1)
 missing_color = (1, 1, 1, 1)
@@ -166,6 +180,7 @@ assert convert_rgba(color2) == [(255,255,255,1)], 'convert_rgba() failed'
 
 """model.py
 """
+print("Testing model.py")
 spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/model.py"))
 model = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(model)
@@ -288,6 +303,7 @@ test_args = {
 }
 
 # name_graph()
+print("Testing name_graph()")
 name = name_graph(
     output_file=test_args['output_file'],
     species_id=test_args['species_id']
@@ -300,6 +316,7 @@ name = name_graph(
 assert name == test_args['bad_output_file'] + test_args['species_id'] + '_global_reactions.json', 'name_graph() failed'
 
 # build_graph()
+print("Testing build_graph()")
 net_copy = net_test.copy()
 gg1, net_copy, pathway_database = build_graph(
     network=net_copy['reaction_database'],
@@ -337,6 +354,7 @@ assert list(gg1.nodes()) == [
     'species_8'], 'build_graph() failed'
 
 # process_reactions()
+print("Testing process_reactions()")
 net_copy = net_test['reaction_database'].copy()
 gg2 = nx.DiGraph()
 key_hash = set()
@@ -372,6 +390,7 @@ except:
     raise Exception('process_reactions() failed')
 
 # add_node_edge()
+print("Testing add_node_edge()")
 G_add = G.copy()
 G_add = add_node_edge(
     graph=G_add,
@@ -395,6 +414,7 @@ except:
     raise Exception('add_node_edge() failed')
 
 # check_complexes()
+print("Testing check_complexes()")
 G_complex = G.copy()
 G_complex, add_components = check_complexes(
         species_id='HSA',
@@ -418,6 +438,7 @@ except:
     raise Exception('check_complexes() failed')
 
 # uniprot_ensembl_reference()
+print("Testing uniprot_ensembl_reference()")
 uni_ref = {'A':'B', 'E':'F'}
 ens_ref = {'B':'D'}
 ref_test = uniprot_ensembl_reference(
@@ -426,6 +447,7 @@ ref_test = uniprot_ensembl_reference(
 assert ref_test == {'A':'D'}, 'uniprot_ensembl_reference() failed'
 
 # compile_pathway_degree()
+print("Testing compile_pathway_degree()")
 s_p = compile_pathway_degree(
     pathways=net_test['pathway_database'],
     scale_factor=2
@@ -433,6 +455,7 @@ s_p = compile_pathway_degree(
 assert len(list(s_p.keys())) == 1, 'compile_pathway_degree() failed'
 
 # compile_node_degrees()
+print("Testing compile_node_degrees()")
 d_d = {
     'A':3,
     'B':2,
@@ -445,6 +468,7 @@ degree_dictionary = compile_node_degrees(
 assert degree_dictionary == d_d, 'compile_node_degrees() failed'
 
 # parse_attributes()
+print("Testing parse_attributes()")
 G_map = G.copy()
 data = pd.DataFrame()
 data[0] = [1, 3, 5]
@@ -487,6 +511,7 @@ assert data_dict == {
 }, 'parse_attributes() failed'
 
 # map_attributes()
+print("Testing map_attributes()")
 G_mapped, data_max, stats_max, non_mappers = map_attributes(
     graph = G_map,
     data=data,
@@ -552,6 +577,7 @@ assert s_e == _s, 'extract_value() failed'
 """
 
 # output_graph()
+print("Testing output_graph()")
 output_graph(
     graph=G,
     output_name=test_args['output_file'],
@@ -571,25 +597,29 @@ output_graph(
     metadata={},
     unmapped={})
 if os.path.exists(test_args['output_file']):
-    os.system('rm ' + str(test_args['output_file']))
+    os.remove(str(test_args['output_file']))
 else:
     raise Exception('output_graph() failed')
 
 # remove_nulls()
+print("Testing remove_nulls()")
 vals1 = [[None, 1, 6, None]]
 assert remove_nulls(vals1) == [], 'remove_nulls() failed'
 vals2 = [[None, 1, 6, None], [1,2,3]]
 assert remove_nulls(vals2) == [[1,2,3]], 'remove_nulls() failed'
 
 # infer_protein_values()
+print("Testing infer_protein_values()")
 vals = [[1],[2],[3],[3],[4]]
 length = 1
 assert infer_protein_values(vals, length) == [13 / 5], 'infer_protein_values() failed'
 
 # infer_protein_stats()
+print("Testing infer_protein_stats()")
 assert infer_protein_stats(vals, length) == [4], 'infer_protein_stats() failed'
 
 # broadcast_values()
+print("Testing broadcast_values()")
 G_update = G.copy()
 G_update = broadcast_values(
     graph=G_update,
@@ -604,6 +634,7 @@ assert G_update.nodes()['C']['values'] == [9.0], 'broadcast_values() failed'
 assert G_update.nodes()['D']['stats'] == [0.5], 'broadcast_values() failed'
 
 # make_motif_reaction_dictionary()
+print("Testing load_motif_reaction_dictionary()")
 updated_reactions = {
     'reaction_1_reaction_3': {
         'collapsed': 'true',
@@ -644,13 +675,13 @@ mot_dic = make_motif_reaction_dictionary(
 assert mot_dic == {'reaction_1_reaction_3': ['pathway_1'], 'reaction_2': ['pathway_1']}, 'make_motif_reaction_dictionary() failed'
 
 # load_metabolite_synonym_dictionary()
-mapper = load_metabolite_synonym_dictionary(
-    output_dir=test_args['output'] + '/'
-)
+print("Testing load_metabolite_synonym_dictionary()")
+mapper = load_metabolite_synonym_dictionary()
 assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'load_metabolite_synonym_dictionary() failed'
 
 """collapse.py
 """
+print("Testing collapse.py")
 spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
 collapse = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(collapse)
@@ -944,6 +975,7 @@ collapser_database = {
 }
 
 # collapse_nodes()
+print("Testing collapse_nodes()")
 G_coll1 = G_collapse.copy()
 G_coll1, updated_rxns1, changed_rxns1, removed_rxn1 = collapse_nodes(
     graph=G_coll1,
@@ -989,6 +1021,7 @@ final_reactions2 = [
 assert list(updated_rxns2.keys()) == final_reactions2, 'collapse_nodes() failed'
 
 # generate_updated_dictionary()
+print("Testing generate_updated_dictionary()")
 pathway_database = {
     'P1': {
         'reactome':'Re1',
