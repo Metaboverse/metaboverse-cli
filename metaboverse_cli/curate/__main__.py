@@ -52,9 +52,12 @@ except:
 
 def test():
 
+    args_dict = {
+        'output':'C:\\Users\\jorda\\Desktop\\',
+        'species_id':'MMU'
+    }
     __main__(
-        {'output':'/Users/jordan/Desktop/',
-        'species_id':'HSA'}
+        args_dict
     )
 
 def parse_table(
@@ -261,6 +264,7 @@ def parse_chebi_synonyms(
             source_index = x
 
     chebi_dictionary = {}
+    chebi_synonyms = {}
     uniprot_metabolites = {}
     if name_index != None and id_index != None:
 
@@ -268,6 +272,7 @@ def parse_chebi_synonyms(
 
             if 'KEGG' in row[source_index].upper() \
             or 'CHEM' in row[source_index].upper() \
+            or 'JCBN' in row[source_index].upper() \
             or 'CHEBI' in row[source_index].upper() \
             or 'HMDB' in row[source_index].upper() \
             or 'DRUG' in row[source_index].upper() \
@@ -275,8 +280,11 @@ def parse_chebi_synonyms(
             or 'LIPID' in row[source_index].upper() \
             or 'METACYC' in row[source_index].upper() \
             or 'SUBMITTER' in row[source_index].upper():
-
                 chebi_dictionary[row[name_index]] = 'CHEBI:' + str(row[id_index])
+                if 'CHEBI:' + str(row[id_index]) in chebi_synonyms.keys():
+                    chebi_synonyms['CHEBI:' + str(row[id_index])].append(row[name_index])
+                else:
+                    chebi_synonyms['CHEBI:' + str(row[id_index])] = [row[name_index]]
 
             else:
                 uniprot_metabolites[row[name_index]] = 'CHEBI:' + str(row[id_index])
@@ -284,7 +292,7 @@ def parse_chebi_synonyms(
     else:
         print('Unable to parse CHEBI file as expected...')
 
-    return chebi_dictionary, uniprot_metabolites
+    return chebi_dictionary, chebi_synonyms, uniprot_metabolites
 
 def reference_complex_species(
         reference,
@@ -293,11 +301,8 @@ def reference_complex_species(
     """
 
     new_dict = {}
-
     for k, v in reference.items():
-
         if reference[k]['complex_id'] in list(name_database.keys()):
-
             new_dict[name_database[reference[k]['complex_id']]] = reference[k]
 
     return new_dict
@@ -394,7 +399,7 @@ def __main__(
     progress_feed(args_dict, "curate", 3)
 
     print('Parsing ChEBI database...')
-    chebi_reference, uniprot_metabolites = parse_chebi_synonyms(
+    chebi_mapper, chebi_synonyms, uniprot_metabolites = parse_chebi_synonyms(
         output_dir=args_dict['output'])
     progress_feed(args_dict, "curate", 5)
 
@@ -406,7 +411,8 @@ def __main__(
         'name_database': name_database,
         'ensembl_synonyms': ensembl_reference,
         'uniprot_synonyms': uniprot_reference,
-        'chebi_synonyms': chebi_reference,
+        'chebi_mapper': chebi_mapper,
+        'chebi_synonyms': chebi_synonyms,
         'uniprot_metabolites': uniprot_metabolites,
         'complex_dictionary': complexes_reference['complex_dictionary'],
         'compartment_dictionary': compartment_dictionary,
