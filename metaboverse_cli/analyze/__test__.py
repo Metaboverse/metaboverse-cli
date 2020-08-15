@@ -323,7 +323,7 @@ gg1, net_copy, pathway_database = build_graph(
     species_reference={},
     name_reference={},
     protein_reference={},
-    chebi_mapper={},
+    chebi_dictionary={},
     uniprot_reference={},
     complexes={},
     species_id={},
@@ -365,7 +365,7 @@ gg2, net_copy, key_hash, remove_keys = process_reactions(
     species_reference={},
     name_reference={},
     protein_reference={},
-    chebi_mapper={},
+    chebi_dictionary={},
     uniprot_reference={},
     complex_reference={},
     species_id={},
@@ -423,7 +423,7 @@ G_complex, add_components = check_complexes(
         species_reference={''},
         name_reference={},
         protein_reference={},
-        chebi_mapper={},
+        chebi_dictionary={},
         uniprot_reference={},
         gene_reference={},
         component_database={'E':{'hasPart':['x', 'y', 'z']}},
@@ -488,13 +488,14 @@ G_mapped, data_max, stats_max, non_mappers = map_attributes(
         'e': 'E',
     },
     degree_dictionary=degree_dictionary,
-    chebi_mapper={
+    chebi_dictionary={
         'A': 'A',
         'B': 'B',
         'C': 'C',
         'D': 'D',
         'e': 'e',
     },
+    chebi_synonyms={},
     metabolite_mapper={
         'A': 'A',
         'B': 'B',
@@ -502,9 +503,6 @@ G_mapped, data_max, stats_max, non_mappers = map_attributes(
         'D': 'D',
         'e': 'e',
     })
-
-
-non_mappers
 
 assert data_max == 5, 'map_attributes() failed'
 assert stats_max == 1.0, 'map_attributes() failed'
