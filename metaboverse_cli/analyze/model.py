@@ -33,6 +33,8 @@ import json
 import pickle
 import networkx as nx
 from networkx.readwrite import json_graph
+from rapidfuzz import fuzz, process, utils
+from collections import Counter
 
 """Import internal dependencies
 """
@@ -108,6 +110,12 @@ def test_win():
     stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_stats.txt', sep='\t', index_col=0)
 
 
+    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
+    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
+    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
+
+
+    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
     data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
     stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
 
@@ -664,6 +672,101 @@ def uniprot_ensembl_reference(
 
     return new_dict
 
+def reindex_data(
+        data,
+        stats):
+
+    data_renamed = data.copy()
+    #data_renamed = data.rename(index=name_reference)
+    data_renamed = data_renamed.loc[data_renamed.index.dropna()]
+    d_cols = data_renamed.columns
+    data_renamed[d_cols] = data_renamed[d_cols].apply(
+        pd.to_numeric, errors='coerce')
+
+    stats_renamed = stats.copy()
+    #stats_renamed = stats.rename(index=name_reference)
+    stats_renamed = stats_renamed.loc[stats_renamed.index.dropna()]
+    s_cols = stats_renamed.columns
+    stats_renamed[s_cols] = stats_renamed[s_cols].apply(
+        pd.to_numeric, errors='coerce')
+
+    return data_renamed, stats_renamed
+
+def gather_synonyms(
+        map_id,
+        init_syns,
+        metabolite_mapper,
+        uniprot_mapper,
+        n_dict,
+        ignore_enantiomers):
+
+    if map_id in uniprot_mapper:
+        init_syns.append(uniprot_mapper[map_id])
+        init_syns.append(uniprot_mapper[map_id].lower())
+        _u = ''.join(
+            c.lower() for c in str(uniprot_mapper[map_id]) if c.isalnum())
+        init_syns.append(_u)
+
+    parsed_syns = set()
+    for s in init_syns:
+        parsed_syns.add(s)
+        parsed_syns.add(s.lower())
+        _s = ''.join(c.lower() for c in str(s) if c.isalnum())
+        parsed_syns.add(_s)
+
+        right_splits = [
+            ', ',
+            ' monocation',
+            ' anion',
+            ' monoanion',
+            ', potassium',
+            ', aluminum']
+        left_splits = [
+            'hydrogen ']
+        for r in right_splits:
+            if r in s.lower():
+                parsed_syns.add(s.lower().split(r)[0])
+        for l in left_splits:
+            if l in s.lower():
+                parsed_syns.add(s.lower().split(l)[1])
+
+        if ignore_enantiomers == True:
+            #if _s[0] == 'l' or _s[0] == 'd':
+            #    parsed_syns.add(_s[1:])
+            if s[0:2] == 'L-' or s[0:2] == 'D-':
+                parsed_syns.add(s[2:])
+            if s.lower()[0:2] == 'l-' or s.lower()[0:2] == 'd-':
+                parsed_syns.add(s.lower()[2:])
+
+    # Step 1: If ignore_enantiomers, trim off from beginning in data table and dictionaries, but search both with and without
+    mapper_id = None
+    check_keys = []
+    search_keys = []
+    log_keys = []
+    for p in list(parsed_syns):
+        if p in metabolite_mapper['mapping_dictionary']:
+            mapper_id = metabolite_mapper['mapping_dictionary'][p]
+        elif map_id in uniprot_mapper:
+            if uniprot_mapper[map_id] in metabolite_mapper['mapping_dictionary']:
+                mapper_id = metabolite_mapper['mapping_dictionary'][uniprot_mapper[map_id]]
+        else:
+            pass
+        if mapper_id != None:
+            log_keys.append(mapper_id)
+    if len(log_keys) > 0:
+        mapper_id = [word for word, word_count in Counter(log_keys).most_common(1)][0]
+    else:
+        mapper_id = None
+
+    parsed_syns_list = list(parsed_syns)
+    parsed_syns_list.append(mapper_id)
+    if mapper_id in metabolite_mapper['hmdb_dictionary']:
+        for m in metabolite_mapper['hmdb_dictionary'][mapper_id]:
+            parsed_syns_list.append(m)
+
+    return mapper_id, parsed_syns_list
+
+
 def map_attributes(
         graph,
         data,
@@ -672,6 +775,7 @@ def map_attributes(
         degree_dictionary,
         chebi_dictionary,
         chebi_synonyms,
+        uniprot_mapper,
         metabolite_mapper,
         ignore_enantiomers=True):
     """Data overlay
@@ -687,29 +791,22 @@ def map_attributes(
     missing_color = (1, 1, 1, 1)
 
     # Re-index data and stats
-    data_renamed = data.copy()
-    #data_renamed = data.rename(index=name_reference)
-    data_renamed = data_renamed.loc[data_renamed.index.dropna()]
-    d_cols = data_renamed.columns
-    data_renamed[d_cols] = data_renamed[d_cols].apply(
-        pd.to_numeric, errors='coerce')
+    data_renamed, stats_renamed = reindex_data(data, stats)
     data_max = abs(data_renamed).max().max()
-
-    stats_renamed = stats.copy()
-    #stats_renamed = stats.rename(index=name_reference)
-    stats_renamed = stats_renamed.loc[stats_renamed.index.dropna()]
-    s_cols = stats_renamed.columns
-    stats_renamed[s_cols] = stats_renamed[s_cols].apply(
-        pd.to_numeric, errors='coerce')
     stats_logged = -1 * np.log10(stats_renamed + 1e-100)
-
     stats_max = abs(stats_logged).max().max()
 
-    """
-    Make data dict with values and whether or not used
-    """
-
+    #Make data dict with values and whether or not used
     mapped_nodes = []
+    temp_idx = [
+        ''.join(
+            c.lower() for c in str(i) if c.isalnum())
+                for i in data_renamed.index.tolist()]
+    temp_idx_set = set(temp_idx)
+
+    n_dict = []
+    for k, v in metabolite_mapper['mapping_dictionary'].items():
+        n_dict.append(k)
 
     for current_id in list(graph.nodes()):
 
@@ -719,22 +816,48 @@ def map_attributes(
 
         # Add degree
         graph.nodes()[x]['degree'] = degree_dictionary[current_id]
+        graph.nodes()[x]['synonyms'] = []
 
         # Add synonyms to node
-        if map_id != 'none' and map_id in name_reference:
-            graph.nodes()[x]['type'] = 'enzyme'
-            graph.nodes()[x]['synonyms'] = []
-        elif map_id != 'none' and backup_mapper in name_reference:
-            graph.nodes()[x]['type'] = 'enzyme'
-            graph.nodes()[x]['synonyms'] = []
-        if map_id != 'none' and map_id in chebi_synonyms:
-            graph.nodes()[x]['type'] = 'metabolite'
-            graph.nodes()[x]['synonyms'] = chebi_synonyms[map_id]
-        else:
-            graph.nodes()[x]['type'] = 'unknown'
-            graph.nodes()[x]['synonyms'] = []
+        if map_id != 'none' and map_id in name_reference \
+        and (graph.nodes()[x]['type'] == 'protein_component' \
+        or graph.nodes()[x]['type'] == 'gene_component'):
+            graph.nodes()[x]['synonyms'].append(map_id)
 
-        if graph.nodes()[x]['type'] == 'reaction':
+        elif map_id != 'none' and backup_mapper in name_reference \
+        and (graph.nodes()[x]['type'] == 'protein_component' \
+        or graph.nodes()[x]['type'] == 'gene_component'):
+            graph.nodes()[x]['synonyms'].append(backup_mapper)
+
+        elif map_id != 'none' and map_id in chebi_synonyms:
+            graph.nodes()[x]['type'] = 'metabolite_component'
+            graph.nodes()[x]['synonyms'].append(map_id)
+
+            # Step 0: Get all CHEBI
+            init_syns = chebi_synonyms[map_id]
+            for s in init_syns:
+                graph.nodes()[x]['synonyms'].append(s)
+
+            # Step 2: Get initial CHEBI synonyms
+            _mapper, _synonyms = gather_synonyms(
+                map_id,
+                init_syns,
+                metabolite_mapper,
+                uniprot_mapper,
+                n_dict,
+                ignore_enantiomers
+            )
+            graph.nodes()[x]['hmdb_mapper'] = _mapper
+
+            if len(_synonyms) > 0:
+                for _s in _synonyms:
+                    graph.nodes()[x]['synonyms'].append(_s)
+
+        else:
+            graph.nodes()[x]['synonyms'] = [x]
+
+        if graph.nodes()[x]['sub_type'] == 'reaction':
+            graph.nodes()[x]['type'] = 'reaction'
             colors = [reaction_color for x in range(n)]
             graph.nodes()[x]['values'] = [None for x in range(n)]
             graph.nodes()[x]['values_rgba'] = colors
@@ -744,7 +867,8 @@ def map_attributes(
 
         elif map_id in set(data_renamed.index.tolist()) \
         and map_id in set(stats_renamed.index.tolist()) \
-        and map_id != 'none':
+        and map_id != 'none' \
+        and graph.nodes()[x]['type'] != 'metabolite_component':
             graph.nodes()[x]['values'] = data_renamed.loc[map_id].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
                 value_array=data_renamed.loc[map_id].tolist(),
@@ -752,10 +876,12 @@ def map_attributes(
             graph.nodes()[x]['values_js'] = convert_rgba(
                 rgba_tuples=graph.nodes()[x]['values_rgba'])
             graph.nodes()[x]['stats'] = stats_renamed.loc[map_id].tolist()
+            mapped_nodes.append(map_id)
 
         elif backup_mapper in set(data_renamed.index.tolist()) \
         and backup_mapper in set(stats_renamed.index.tolist()) \
-        and backup_mapper != 'none':
+        and backup_mapper != 'none' \
+        and graph.nodes()[x]['type'] != 'metabolite_component':
             graph.nodes()[x]['values'] = data_renamed.loc[backup_mapper].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
                 value_array=data_renamed.loc[backup_mapper].tolist(),
@@ -763,39 +889,47 @@ def map_attributes(
             graph.nodes()[x]['values_js'] = convert_rgba(
                 rgba_tuples=graph.nodes()[x]['values_rgba'])
             graph.nodes()[x]['stats'] = stats_renamed.loc[backup_mapper].tolist()
+            mapped_nodes.append(backup_mapper)
 
-        elif map_id in chebi_synonyms:
-            all_synonyms = chebi_synonyms[map_id]
-            data_available = False
-
-            for s in all_synonyms:
-                temp_idx = [
-                    ''.join(
-                        c.lower() for c in str(i) if c.isalnum())
-                            for i in data_renamed.index.tolist()]
-                temp_s = ''.join(c.lower() for c in str(s) if c.isalnum())
-                if temp_s in temp_idx \
-                and temp_s in temp_idx:
-                    data_available = data_renamed.index.tolist()[
-                        temp_idx.index(temp_s)]
-                    break
+        elif map_id in chebi_synonyms \
+        and graph.nodes()[x]['type'] == 'metabolite_component':
+            _idx = None
+            all_synonyms = graph.nodes()[x]['synonyms']
+            for a in all_synonyms:
+                if a in temp_idx_set:
+                    _idx = data_renamed.index.tolist()[
+                        temp_idx.index(a)]
                 elif ignore_enantiomers == True:
-                    if temp_s[0] == 'd' \
-                    or temp_s[0] == 'l':
-                        if temp_s[1:] in temp_idx \
-                        and temp_s[1:] in temp_idx:
-                            data_available = data_renamed.index.tolist()[
-                                temp_idx.index(temp_s[1:])]
-                            break
+                    if 'D-' + str(a) in data_renamed.index.tolist():
+                        _idx = 'D-' + str(a)
+                    if 'd-' + str(a) in data_renamed.index.tolist():
+                        _idx = 'd-' + str(a)
+                    if 'L-' + str(a) in data_renamed.index.tolist():
+                        _idx = 'L-' + str(a)
+                    if 'l-' + str(a) in data_renamed.index.tolist():
+                        _idx = 'l-' + str(a)
+                else:
+                    pass
 
-            if data_available != False:
-                graph.nodes()[x]['values'] = data_renamed.loc[data_available].tolist()
+            if graph.nodes()[x]['hmdb_mapper'] != None:
+                graph.nodes()[x]['synonyms'] = metabolite_mapper['display_dictionary'][graph.nodes()[x]['hmdb_mapper']]
+
+            if _idx != None:
+                graph.nodes()[x]['values'] = data_renamed.loc[_idx].tolist()
                 graph.nodes()[x]['values_rgba'] = extract_value(
-                    value_array=data_renamed.loc[data_available].tolist(),
+                    value_array=data_renamed.loc[_idx].tolist(),
                     max_value=data_max)
                 graph.nodes()[x]['values_js'] = convert_rgba(
                     rgba_tuples=graph.nodes()[x]['values_rgba'])
-                graph.nodes()[x]['stats'] = stats_renamed.loc[data_available].tolist()
+                graph.nodes()[x]['stats'] = stats_renamed.loc[_idx].tolist()
+                mapped_nodes.append(_idx)
+            else:
+                colors = [missing_color for x in range(n)]
+                graph.nodes()[x]['values'] = [None for x in range(n)]
+                graph.nodes()[x]['values_rgba'] = colors
+                graph.nodes()[x]['values_js'] = convert_rgba(
+                    rgba_tuples=colors)
+                graph.nodes()[x]['stats'] = [None for x in range(n)]
 
         else:
             colors = [missing_color for x in range(n)]
@@ -805,7 +939,9 @@ def map_attributes(
                 rgba_tuples=colors)
             graph.nodes()[x]['stats'] = [None for x in range(n)]
 
-    return graph, data_max, stats_max, mapped_nodes
+    non_mappers = [x for x in data_renamed.index.tolist() if x not in mapped_nodes]
+
+    return graph, data_max, stats_max, non_mappers
 
 def extract_value(
         value_array,
@@ -956,7 +1092,10 @@ def broadcast_values(
 
     if broadcast_genes == True:
         for x in graph.nodes():
-
+            try:
+                graph.nodes()[x]['values']
+            except:
+                print(graph.nodes()[x])
             if None not in graph.nodes()[x]['values'] \
             and None not in graph.nodes()[x]['stats']:
                 pass
@@ -1007,7 +1146,10 @@ def broadcast_values(
                         graph.nodes()[x]['stats'] = inferred_stats
 
     for x in graph.nodes():
-
+        try:
+            graph.nodes()[x]['values']
+        except:
+            print(graph.nodes()[x])
         if None not in graph.nodes()[x]['values'] \
         and None not in graph.nodes()[x]['stats']:
             pass
@@ -1203,6 +1345,10 @@ def __main__(
     # Change name to user provided if available
     metabolite_mapper = load_metabolite_synonym_dictionary()
 
+    u = {}
+    for k,v in network['uniprot_metabolites'].items():
+        u[v] = k
+
     G, max_value, max_stat, non_mappers = map_attributes(
         graph=G,
         data=data,
@@ -1211,8 +1357,21 @@ def __main__(
         degree_dictionary=degree_dictionary,
         chebi_dictionary=chebi_dictionary,
         chebi_synonyms=network['chebi_synonyms'],
+        uniprot_mapper=u,
         metabolite_mapper=metabolite_mapper)
     progress_feed(args_dict, "graph", 5)
+
+    if args_dict['metabolomics'].lower() != 'none':
+        m_data = pd.read_csv(
+            args_dict['metabolomics'],
+            sep='\t',
+            index_col=0)
+
+        m_non_mapper = m_data[m_data.index.isin(non_mappers)]
+        if len(m_non_mapper.index.tolist()):
+            m_non_mapper.to_csv(
+                args_dict['metabolomics'][:-4] + '_unmapped.txt',
+                sep='\t')
 
     if flag_data == True:
         max_value = 5
@@ -1273,7 +1432,7 @@ def __main__(
 
     # Final name mapping for chebi
     reverse_chebi = {}
-    for k, v in network['chebi_synonyms'].items():
+    for k, v in network['chebi_mapper'].items():
         reverse_chebi[v] = k
     for node in G.nodes():
         if 'chebi' in G.nodes()[node]['name'].lower():
@@ -1310,7 +1469,7 @@ def __main__(
         labels=args_dict['labels'],
         blocklist=args_dict['blocklist'],
         metadata=args_dict,
-        unmapped=unmapped)
+        unmapped=non_mappers)
     print('Graphing complete.')
     progress_feed(args_dict, "graph", 2)
 
