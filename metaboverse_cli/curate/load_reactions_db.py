@@ -23,6 +23,7 @@ from __future__ import print_function
 import os
 import sys
 import re
+import stat
 import shutil
 import tarfile
 import time
@@ -541,7 +542,13 @@ def __main__(
     progress_feed(args_dict, "curate", 5)
 
     if 'sbml' in pathways_dir:
-        shutil.rmtree(pathways_dir)
+        try:
+            shutil.rmtree(pathways_dir)
+        except:
+            os.chmod(pathways_dir, stat.S_IWRITE)
+            shutil.rmtree(pathways_dir)
+        else:
+            print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
     else:
         print('Could not find SMBL file directory, skipping removal of this directory...')
 
