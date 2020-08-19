@@ -106,18 +106,20 @@ def test_win():
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
 
-    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_data.txt', sep='\t', index_col=0)
-    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_stats.txt', sep='\t', index_col=0)
+    #data = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_data.txt', sep='\t', index_col=0)
+    #stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_stats.txt', sep='\t', index_col=0)
 
 
-    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
-    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
-    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
+    #data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
+    #stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
+    #args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
 
 
-    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
-    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
-    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
+    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\mct1_test_fc.txt'
+    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\mct1_test_fc.txt', sep='\t', index_col=0)
+    data.columns = [0]
+    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\mct1_test_bh.txt', sep='\t', index_col=0)
+    stats.columns = [0]
 
 """Graph utils
 """
@@ -678,17 +680,25 @@ def reindex_data(
 
     data_renamed = data.copy()
     #data_renamed = data.rename(index=name_reference)
-    data_renamed = data_renamed.loc[data_renamed.index.dropna()]
+    data_renamed = data_renamed.loc[data_renamed.dropna(axis=0).index.drop_duplicates(False)]
     d_cols = data_renamed.columns
     data_renamed[d_cols] = data_renamed[d_cols].apply(
         pd.to_numeric, errors='coerce')
 
     stats_renamed = stats.copy()
     #stats_renamed = stats.rename(index=name_reference)
-    stats_renamed = stats_renamed.loc[stats_renamed.index.dropna()]
+    stats_renamed = stats_renamed.loc[stats_renamed.dropna(axis=0).index.drop_duplicates(False)]
     s_cols = stats_renamed.columns
     stats_renamed[s_cols] = stats_renamed[s_cols].apply(
         pd.to_numeric, errors='coerce')
+
+    if len(data_renamed.index.tolist()) != len(data.index.tolist()) \
+    or len(stats_renamed.index.tolist()) != len(stats.index.tolist()):
+        print('Warning: Duplicate row names were found. All duplicate data was \nremoved from downstream processing. Choose one row per name to \nmaintain the duplicated entity in downstream processing.')
+        merge = list(set(data.index.tolist() + stats.index.tolist()))
+        merge_after = list(set(data_renamed.index.tolist() + stats_renamed.index.tolist()))
+        for x in [y for y in merge if y not in merge_after]:
+            print("-> " + str(x))
 
     return data_renamed, stats_renamed
 
@@ -908,6 +918,10 @@ def map_attributes(
                         _idx = 'L-' + str(a)
                     if 'l-' + str(a) in data_renamed.index.tolist():
                         _idx = 'l-' + str(a)
+                    if 'N-' + str(a) in data_renamed.index.tolist():
+                        _idx = 'N-' + str(a)
+                    if 'n-' + str(a) in data_renamed.index.tolist():
+                        _idx = 'n-' + str(a)
                 else:
                     pass
 
@@ -939,7 +953,7 @@ def map_attributes(
                 rgba_tuples=colors)
             graph.nodes()[x]['stats'] = [None for x in range(n)]
 
-    non_mappers = [x for x in data_renamed.index.tolist() if x not in mapped_nodes]
+    non_mappers = [x for x in data.index.tolist() if x not in mapped_nodes]
 
     return graph, data_max, stats_max, non_mappers
 
