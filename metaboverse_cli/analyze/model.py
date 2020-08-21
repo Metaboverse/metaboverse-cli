@@ -497,10 +497,10 @@ def add_node_edge(
     graph.nodes()[id]['inferred'] = 'false'
     try:
         graph.nodes()[id]['compartment'] = compartment
-        graph.nodes()[id]['compartment_name'] = compartment_reference[compartment]
+        graph.nodes()[id]['compartment_display'] = compartment_reference[compartment]
     except:
         graph.nodes()[id]['compartment'] = 'none'
-        graph.nodes()[id]['compartment_name'] = 'none'
+        graph.nodes()[id]['compartment_display'] = 'none'
 
     if type == 'reactant':
         graph.add_edges_from([
