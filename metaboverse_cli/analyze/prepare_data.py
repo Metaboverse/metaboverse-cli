@@ -202,6 +202,7 @@ def extract_data(
     - Formatting follows fold change, p-values, etc...
     """
     data_c = data.copy()
+    data_c = data_c.dropna(axis=0)
     data_c.index = [d.lstrip().rstrip() for d in data_c.index.tolist()]
 
     _values = data_c.T[::2].T
@@ -451,15 +452,15 @@ def __main__(
 
     return data, stats, unmapped
 
-def test():
+def test_win():
 
     import pickle
-    network_url = "/Users/jordan/Desktop/MMU_metaboverse_db.pickle"
+    network_url = "C:\\Users\\jorda\\Desktop\\MMU_metaboverse_db.pickle"
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
-    transcriptomics_url = "/Users/jordan/Desktop/D18_D9_RNA.txt"
+    transcriptomics_url = "C:\\Users\\jorda\\Desktop\\D18_D9_RNA.txt"
     proteomics_url = 'None'
-    metabolomics_url = "/Users/jordan/Desktop/d18.d9.log2fc.ttest.txt"
+    metabolomics_url = "C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt"
 
-    data.to_csv('~/Desktop/data.tsv', sep='\t')
-    stats.to_csv('~/Desktop/stats.tsv', sep='\t')
+    data.to_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t')
+    stats.to_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t')

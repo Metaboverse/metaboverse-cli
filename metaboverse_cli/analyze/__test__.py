@@ -190,7 +190,6 @@ process_reactions = model.process_reactions
 add_node_edge = model.add_node_edge
 check_complexes = model.check_complexes
 uniprot_ensembl_reference = model.uniprot_ensembl_reference
-parse_attributes = model.parse_attributes
 map_attributes = model.map_attributes
 extract_value = model.extract_value
 output_graph = model.output_graph
@@ -324,7 +323,7 @@ gg1, net_copy, pathway_database = build_graph(
     species_reference={},
     name_reference={},
     protein_reference={},
-    chebi_mapper={},
+    chebi_dictionary={},
     uniprot_reference={},
     complexes={},
     species_id={},
@@ -366,7 +365,7 @@ gg2, net_copy, key_hash, remove_keys = process_reactions(
     species_reference={},
     name_reference={},
     protein_reference={},
-    chebi_mapper={},
+    chebi_dictionary={},
     uniprot_reference={},
     complex_reference={},
     species_id={},
@@ -424,7 +423,7 @@ G_complex, add_components = check_complexes(
         species_reference={''},
         name_reference={},
         protein_reference={},
-        chebi_mapper={},
+        chebi_dictionary={},
         uniprot_reference={},
         gene_reference={},
         component_database={'E':{'hasPart':['x', 'y', 'z']}},
@@ -467,8 +466,8 @@ degree_dictionary = compile_node_degrees(
     graph=G)
 assert degree_dictionary == d_d, 'compile_node_degrees() failed'
 
-# parse_attributes()
-print("Testing parse_attributes()")
+# map_attributes()
+print("Testing map_attributes()")
 G_map = G.copy()
 data = pd.DataFrame()
 data[0] = [1, 3, 5]
@@ -477,41 +476,6 @@ stats = pd.DataFrame()
 stats[0] = [.1, .3, .5]
 stats.index = ['A', 'C', 'e']
 
-data_dict, chebi_synonyms, non_mappers1 = parse_attributes(
-    dataframe=data,
-    name_reference={
-        'A': 'A',
-        'B': 'B',
-        'C': 'C',
-        'D': 'D',
-        'e': 'E',
-    },
-    chebi_mapper={
-        'A': 'A',
-        'B': 'B',
-        'C': 'C',
-        'D': 'D',
-        'e': 'E',
-    },
-    metabolite_mapper={
-        'A': 'A',
-        'B': 'B',
-        'C': 'C',
-        'D': 'D',
-        'e': 'E',
-    },
-    ignore_enantiomers=True)
-
-data_dict
-
-assert data_dict == {
-    'A': {'values': [1], 'type': 'enzyme'},
-    'C': {'values': [3], 'type': 'enzyme'},
-    'E': {'values': [5], 'type': 'enzyme'}
-}, 'parse_attributes() failed'
-
-# map_attributes()
-print("Testing map_attributes()")
 G_mapped, data_max, stats_max, non_mappers = map_attributes(
     graph = G_map,
     data=data,
@@ -524,23 +488,32 @@ G_mapped, data_max, stats_max, non_mappers = map_attributes(
         'e': 'E',
     },
     degree_dictionary=degree_dictionary,
-    chebi_mapper={
+    chebi_dictionary={
         'A': 'A',
         'B': 'B',
         'C': 'C',
         'D': 'D',
         'e': 'e',
     },
+    chebi_synonyms={},
     metabolite_mapper={
+        'mapping_dictionary': {
+            'A': 'A',
+            'B': 'B',
+            'C': 'C',
+            'D': 'D',
+            'e': 'e',
+        },
+
+
+    },
+    uniprot_mapper={
         'A': 'A',
         'B': 'B',
         'C': 'C',
         'D': 'D',
         'e': 'e',
     })
-
-
-non_mappers
 
 assert data_max == 5, 'map_attributes() failed'
 assert stats_max == 1.0, 'map_attributes() failed'
