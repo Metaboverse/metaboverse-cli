@@ -44,6 +44,14 @@ copy_columns = prepare_data.copy_columns
 catenate_data = prepare_data.catenate_data
 __main__ = prepare_data.__main__
 
+import zipfile
+zipped_net = os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA_metaboverse_db.zip')
+with zipfile.ZipFile(zipped_net, 'r') as zip_file:
+    zip_file.extractall(
+        os.path.abspath(
+            './metaboverse_cli/analyze/test'))
+
 network_url = os.path.abspath(
     "./metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle")
 with open(network_url, 'rb') as network_file:
@@ -1048,13 +1056,6 @@ args_dict = {
     'blocklist': ''
 }
 
-import zipfile
-zipped_net = os.path.abspath(
-    './metaboverse_cli/analyze/test/HSA_metaboverse_db.zip')
-with zipfile.ZipFile(zipped_net, 'r') as zip_file:
-    zip_file.extractall(
-        os.path.abspath(
-            './metaboverse_cli/analyze/test'))
 test_modeling(args_dict)
 os.remove(args_dict['network'])
 rna_unmapped = os.path.abspath(
