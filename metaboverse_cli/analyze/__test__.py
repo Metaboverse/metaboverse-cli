@@ -497,6 +497,17 @@ G_mapped, data_max, stats_max, non_mappers = map_attributes(
     },
     chebi_synonyms={},
     metabolite_mapper={
+        'mapping_dictionary': {
+            'A': 'A',
+            'B': 'B',
+            'C': 'C',
+            'D': 'D',
+            'e': 'e',
+        },
+
+
+    },
+    uniprot_mapper={
         'A': 'A',
         'B': 'B',
         'C': 'C',
