@@ -33,7 +33,6 @@ import json
 import pickle
 import networkx as nx
 from networkx.readwrite import json_graph
-from rapidfuzz import fuzz, process, utils
 from collections import Counter
 
 """Import internal dependencies
