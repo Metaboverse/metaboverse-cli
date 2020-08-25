@@ -1023,4 +1023,52 @@ assert updated_pathway_dictionary['Re1']['reactions'] == ['R1','R2_R3','R4'], 'g
 assert updated_pathway_dictionary['Re2']['reactions'] == ['R5_R6_R7','R8_R9_R10','R11','R12','R13'], 'generate_updated_dictionary() failed'
 assert updated_pathway_dictionary['Re3']['reactions'] == ['R14','R15','R16','R17'], 'generate_updated_dictionary() failed'
 
+# Run full test on data
+print("Testing __main__.py for modeling data")
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
+__main__ = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(__main__)
+test_modeling = __main__.__main__
+args_dict = {
+    'network': os.path.abspath(
+        './metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle'),
+    'organism_curation': os.path.abspath(
+        './metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle'),
+    'species_id': 'HSA',
+    'transcriptomics': os.path.abspath(
+        './metaboverse_cli/analyze/test/rna_mapping_test.txt'),
+    'proteomics': 'none',
+    'metabolomics': os.path.abspath(
+        './metaboverse_cli/analyze/test/metabolite_mapping_test.txt'),
+    'output_file': os.path.abspath(
+        './metaboverse_cli/analyze/test/HSA_test.json'),
+    'collapse_with_modifiers': False,
+    'broadcast_genes': True,
+    'labels': '0',
+    'blocklist': ''
+}
+
+import zipfile
+zipped_net = os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA_metaboverse_db.zip')
+with zipfile.ZipFile(zipped_net, 'r') as zip_file:
+    zip_file.extractall(
+        os.path.abspath(
+            './metaboverse_cli/analyze/test'))
+test_modeling(args_dict)
+os.remove(args_dict['network'])
+rna_unmapped = os.path.abspath(
+    './metaboverse_cli/analyze/test/rna_mapping_test_unmapped.txt'
+)
+rna = pd.read_csv(rna_unmapped, sep='\t', index_col=0)
+assert len(rna.index.tolist()) == 7239, 'RNA mapping experienced error'
+os.remove(rna_unmapped)
+
+metabolite_unmapped = os.path.abspath(
+    './metaboverse_cli/analyze/test/metabolite_mapping_test_unmapped.txt'
+)
+met = pd.read_csv(metabolite_unmapped, sep='\t', index_col=0)
+assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS', 'Phenylacetylglycine'], 'Metabolite mapping experienced error'
+os.remove(metabolite_unmapped)
+os.remove(args_dict['output_file'])
 print('Tests completed')

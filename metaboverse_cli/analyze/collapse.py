@@ -299,7 +299,7 @@ def collapse_nodes(
 
                 # If the current reaction's neighbors inputs or outputs match,
                 # append that reaction to the current reaction's neighbors
-                # list                  
+                # list
                 if (real_reactants == neighbor_reactants \
                         or real_reactants == neighbor_products) \
                         and real_reactants + real_products != \
