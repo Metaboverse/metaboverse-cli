@@ -72,10 +72,11 @@ def unpack_pathways(
         try:
             shutil.rmtree(pathways_dir)
         except:
-            os.chmod(pathways_dir, stat.S_IWRITE)
-            shutil.rmtree(pathways_dir)
-        else:
-            print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
+            try:
+                os.chmod(pathways_dir, stat.S_IWRITE)
+                shutil.rmtree(pathways_dir)
+            except:
+                print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
     os.makedirs(pathways_dir)
 
     tar = tarfile.open(file, "r:gz")
@@ -551,10 +552,11 @@ def __main__(
         try:
             shutil.rmtree(pathways_dir)
         except:
-            os.chmod(pathways_dir, stat.S_IWRITE)
-            shutil.rmtree(pathways_dir)
-        else:
-            print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
+            try:
+                os.chmod(pathways_dir, stat.S_IWRITE)
+                shutil.rmtree(pathways_dir)
+            except:
+                print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
     else:
         print('Could not find SMBL file directory, skipping removal of this directory...')
 
