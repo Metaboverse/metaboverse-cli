@@ -69,7 +69,13 @@ def unpack_pathways(
 
     pathways_dir = file[:-4]
     if os.path.exists(pathways_dir):
-        shutil.rmtree(pathways_dir)
+        try:
+            shutil.rmtree(pathways_dir)
+        except:
+            os.chmod(pathways_dir, stat.S_IWRITE)
+            shutil.rmtree(pathways_dir)
+        else:
+            print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
     os.makedirs(pathways_dir)
 
     tar = tarfile.open(file, "r:gz")
