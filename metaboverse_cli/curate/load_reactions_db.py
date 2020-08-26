@@ -29,6 +29,7 @@ import tarfile
 import time
 import hashlib
 import xml.etree.ElementTree as et
+import glob
 
 """Import internal dependencies
 """
@@ -58,6 +59,21 @@ def test():
     species_id = 'HSA'
     args_dict = None
 
+def handle_folder_contents(dir):
+
+    if os.path.exists(dir):
+        try:
+            files = glob.glob(dir + "*")
+            for f in files:
+                os.remove(f)
+        except:
+            print('Unable to remove files from: ' + str(dir) + ' ... skipping...')
+
+        try:
+            os.rmdir(dir)
+        except:
+            print('Unable to remove directory named: ' + str(dir) + ' ... skipping...')
+
 def unpack_pathways(
         output_dir,
         url='https://reactome.org/download/current/all_species.3.1.sbml.tgz'):
@@ -65,26 +81,17 @@ def unpack_pathways(
     """
 
     file = output_dir + url.split('/')[-1]
-    os.system('curl -L ' + url + ' -o \"' + file + '\"')
+    pathways_dir = file[:-4] + os.path.sep
+    handle_folder_contents(
+        dir=pathways_dir)
 
-    pathways_dir = file[:-4]
-    if os.path.exists(pathways_dir):
-        try:
-            shutil.rmtree(pathways_dir)
-        except:
-            try:
-                os.chmod(pathways_dir, stat.S_IWRITE)
-                shutil.rmtree(pathways_dir)
-            except:
-                print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
+    os.system('curl -L ' + url + ' -o \"' + file + '\"')
     os.makedirs(pathways_dir)
 
     tar = tarfile.open(file, "r:gz")
     tar.extractall(path=pathways_dir)
     tar.close()
     os.remove(file)
-
-    pathways_dir = pathways_dir + os.path.sep
 
     return pathways_dir
 
@@ -549,14 +556,8 @@ def __main__(
     progress_feed(args_dict, "curate", 5)
 
     if 'sbml' in pathways_dir:
-        try:
-            shutil.rmtree(pathways_dir)
-        except:
-            try:
-                os.chmod(pathways_dir, stat.S_IWRITE)
-                shutil.rmtree(pathways_dir)
-            except:
-                print('Unable to remove: ' + str(pathways_dir) + ' ... skipping...')
+        handle_folder_contents(
+            dir=pathways_dir)
     else:
         print('Could not find SMBL file directory, skipping removal of this directory...')
 

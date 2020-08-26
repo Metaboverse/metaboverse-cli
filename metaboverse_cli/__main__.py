@@ -94,7 +94,6 @@ def main(
     # Run metaboverse-curate
     elif args_dict['cmd'] == 'curate':
 
-        print(args_dict)
         if str(args_dict['organism_curation']) != 'None':
             progress_feed(
                 args_dict=args_dict,
