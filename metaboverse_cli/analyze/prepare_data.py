@@ -22,6 +22,7 @@ from __future__ import print_function
 """
 import os
 import sys
+import re
 import pandas as pd
 
 def read_data(
@@ -307,10 +308,16 @@ def __main__(
             url=transcriptomics_url)
         e_sym = {}
         for k, v in network['ensembl_synonyms'].items():
-            if 'phospho-' in k:
-                k = k.replace('phospho-', '')
+            if 'phospho-' in v and '-phospho-' not in v:
+                v = v.replace('phospho-', '')
+            if '(' in v and ')' in v:
+                v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+            if '  ' in v:
+                v = v.replace('  ', ' ')
+            v = v.strip()
             e_sym[v.upper()] = k
             e_sym[k.upper()] = k
+
         transcriptomics, transcriptomics_unmapped = format_data(
             data=transcriptomics,
             reference=e_sym)
@@ -330,8 +337,13 @@ def __main__(
             url=proteomics_url)
         u_sym = {}
         for k, v in network['uniprot_synonyms'].items():
-            if 'phospho-' in k:
-                k = k.replace('phospho-', '')
+            if 'phospho-' in v and '-phospho-' not in v:
+                v = v.replace('phospho-', '')
+            if '(' in v and ')' in v:
+                v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+            if '  ' in v:
+                v = v.replace('  ', ' ')
+            v = v.strip()
             u_sym[v.upper()] = k
             u_sym[k.upper()] = k
         proteomics, proteomics_unmapped = format_data(
@@ -455,12 +467,12 @@ def __main__(
 def test_win():
 
     import pickle
-    network_url = "C:\\Users\\jorda\\Desktop\\MMU_metaboverse_db.pickle"
+    network_url = "C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle"
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
-    transcriptomics_url = "C:\\Users\\jorda\\Desktop\\D18_D9_RNA.txt"
-    proteomics_url = 'None'
-    metabolomics_url = "C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt"
+    transcriptomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\transcriptomics.txt"
+    proteomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\proteomics.txt"
+    metabolomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\metabolomics.txt"
 
     data.to_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t')
     stats.to_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t')

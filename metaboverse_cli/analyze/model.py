@@ -22,6 +22,7 @@ from __future__ import print_function
 """Import dependencies
 """
 import os
+import re
 import importlib.util
 import zipfile
 from datetime import date
@@ -101,7 +102,7 @@ def test_win():
     species_id = "HSA"
     __file__ = 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\'
     #network_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\HSA_metaboverse_db.pickle"
-    network_url = "C:\\Users\\jorda\\Desktop\\MMU_metaboverse_db.pickle"
+    network_url = "C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle"
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
 
@@ -109,9 +110,9 @@ def test_win():
     #stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_stats.txt', sep='\t', index_col=0)
 
 
-    #data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
-    #stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
-    #args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
+    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
+    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
+    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
 
 
     args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\mct1_test_fc.txt'
@@ -1343,13 +1344,23 @@ def __main__(
 
     name_reference = {}
     for k, v in network['ensembl_synonyms'].items():
-        if 'phospho-' in k:
-            k = k.replace('phospho-', '')
+        if 'phospho-' in v and '-phospho-' not in v:
+            v = v.replace('phospho-', '')
+        if '(' in v and ')' in v:
+            v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+        if '  ' in v:
+            v = v.replace('  ', ' ')
+        v = v.strip()
         name_reference[v] = k
         name_reference[k] = k
     for k, v in network['uniprot_synonyms'].items():
-        if 'phospho-' in k:
-            k = k.replace('phospho-', '')
+        if 'phospho-' in v and '-phospho-' not in v:
+            v = v.replace('phospho-', '')
+        if '(' in v and ')' in v:
+            v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+        if '  ' in v:
+            v = v.replace('  ', ' ')
+        v = v.strip()
         name_reference[v] = k
         name_reference[k] = k
 
