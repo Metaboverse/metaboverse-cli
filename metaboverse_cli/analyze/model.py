@@ -707,7 +707,6 @@ def gather_synonyms(
         init_syns,
         metabolite_mapper,
         uniprot_mapper,
-        n_dict,
         ignore_enantiomers):
 
     if map_id in uniprot_mapper:
@@ -754,7 +753,9 @@ def gather_synonyms(
     search_keys = []
     log_keys = []
     for p in list(parsed_syns):
-        if p in metabolite_mapper['mapping_dictionary']:
+        if len(p) <= 1: # ignore electrons, etc in mapping
+            pass
+        elif p in metabolite_mapper['mapping_dictionary']:
             mapper_id = metabolite_mapper['mapping_dictionary'][p]
         elif map_id in uniprot_mapper:
             if uniprot_mapper[map_id] in metabolite_mapper['mapping_dictionary']:
@@ -769,7 +770,8 @@ def gather_synonyms(
         mapper_id = None
 
     parsed_syns_list = list(parsed_syns)
-    parsed_syns_list.append(mapper_id)
+    if mapper_id != None:
+        parsed_syns_list.append(mapper_id)
     if mapper_id in metabolite_mapper['hmdb_dictionary']:
         for m in metabolite_mapper['hmdb_dictionary'][mapper_id]:
             parsed_syns_list.append(m)
@@ -814,10 +816,6 @@ def map_attributes(
                 for i in data_renamed.index.tolist()]
     temp_idx_set = set(temp_idx)
 
-    n_dict = []
-    for k, v in metabolite_mapper['mapping_dictionary'].items():
-        n_dict.append(k)
-
     for current_id in list(graph.nodes()):
 
         x = current_id
@@ -854,7 +852,6 @@ def map_attributes(
                 init_syns,
                 metabolite_mapper,
                 uniprot_mapper,
-                n_dict,
                 ignore_enantiomers
             )
             graph.nodes()[x]['hmdb_mapper'] = _mapper
@@ -878,6 +875,7 @@ def map_attributes(
         elif map_id in set(data_renamed.index.tolist()) \
         and map_id in set(stats_renamed.index.tolist()) \
         and map_id != 'none' \
+        and len(map_id) > 1 \
         and graph.nodes()[x]['type'] != 'metabolite_component':
             graph.nodes()[x]['values'] = data_renamed.loc[map_id].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
@@ -891,6 +889,7 @@ def map_attributes(
         elif backup_mapper in set(data_renamed.index.tolist()) \
         and backup_mapper in set(stats_renamed.index.tolist()) \
         and backup_mapper != 'none' \
+        and len(backup_mapper) > 1 \
         and graph.nodes()[x]['type'] != 'metabolite_component':
             graph.nodes()[x]['values'] = data_renamed.loc[backup_mapper].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
@@ -928,7 +927,8 @@ def map_attributes(
             if graph.nodes()[x]['hmdb_mapper'] != None:
                 graph.nodes()[x]['synonyms'] = metabolite_mapper['display_dictionary'][graph.nodes()[x]['hmdb_mapper']]
 
-            if _idx != None:
+            if _idx != None \
+            and len(_idx) > 1:
                 graph.nodes()[x]['values'] = data_renamed.loc[_idx].tolist()
                 graph.nodes()[x]['values_rgba'] = extract_value(
                     value_array=data_renamed.loc[_idx].tolist(),
@@ -1126,8 +1126,7 @@ def broadcast_values(
                 #           take min, max, avg of genes to broadcast
                 #           mark as inferred
 
-                if graph.nodes()[x]['sub_type'] == 'protein_component' \
-                and graph.nodes()[x]['type'] == 'complex_component':
+                if graph.nodes()[x]['sub_type'] == 'protein_component':
 
                     gene_values = []
                     gene_stats = []
