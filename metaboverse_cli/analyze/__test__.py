@@ -211,56 +211,56 @@ make_motif_reaction_dictionary = model.make_motif_reaction_dictionary
 load_metabolite_synonym_dictionary = model.load_metabolite_synonym_dictionary
 
 G = nx.DiGraph()
-G.add_node('A')
-G.nodes()['A']['name'] = 'A'
-G.nodes()['A']['map_id'] = 'a'
-G.nodes()['A']['type'] = 'reactant'
-G.nodes()['A']['sub_type'] = 'gene'
-G.nodes()['A']['complex'] = 'false'
-G.nodes()['A']['values'] = [5]
-G.nodes()['A']['stats'] = [0.5]
-G.add_node('B')
-G.nodes()['B']['name'] = 'B'
-G.nodes()['B']['map_id'] = 'b'
-G.nodes()['B']['type'] = 'reaction'
-G.nodes()['B']['sub_type'] = 'reaction'
-G.nodes()['B']['complex'] = 'false'
-G.nodes()['B']['values'] = [None]
-G.nodes()['B']['stats'] = [None]
-G.add_node('C')
-G.nodes()['C']['name'] = 'C'
-G.nodes()['C']['map_id'] = 'c'
-G.nodes()['C']['type'] = 'product'
-G.nodes()['C']['sub_type'] = 'product'
-G.nodes()['C']['complex'] = 'true'
-G.nodes()['C']['values'] = [None]
-G.nodes()['C']['stats'] = [None]
-G.add_node('D')
-G.nodes()['D']['name'] = 'D'
-G.nodes()['D']['map_id'] = 'd'
-G.nodes()['D']['type'] = 'complex_component'
-G.nodes()['D']['sub_type'] = 'protein_component'
-G.nodes()['D']['complex'] = 'false'
-G.nodes()['D']['values'] = [None]
-G.nodes()['D']['stats'] = [None]
-G.add_node('E')
-G.nodes()['E']['name'] = 'E'
-G.nodes()['E']['map_id'] = 'e'
-G.nodes()['E']['type'] = 'complex_component'
-G.nodes()['E']['sub_type'] = 'protein_component'
-G.nodes()['E']['complex'] = 'false'
-G.nodes()['E']['values'] = [9]
-G.nodes()['E']['stats'] = [.9]
+G.add_node('Alpha')
+G.nodes()['Alpha']['name'] = 'Alpha'
+G.nodes()['Alpha']['map_id'] = 'alpha'
+G.nodes()['Alpha']['type'] = 'reactant'
+G.nodes()['Alpha']['sub_type'] = 'gene'
+G.nodes()['Alpha']['complex'] = 'false'
+G.nodes()['Alpha']['values'] = [5]
+G.nodes()['Alpha']['stats'] = [0.5]
+G.add_node('Beta')
+G.nodes()['Beta']['name'] = 'Beta'
+G.nodes()['Beta']['map_id'] = 'beta'
+G.nodes()['Beta']['type'] = 'reaction'
+G.nodes()['Beta']['sub_type'] = 'reaction'
+G.nodes()['Beta']['complex'] = 'false'
+G.nodes()['Beta']['values'] = [None]
+G.nodes()['Beta']['stats'] = [None]
+G.add_node('Gamma')
+G.nodes()['Gamma']['name'] = 'Gamma'
+G.nodes()['Gamma']['map_id'] = 'gamma'
+G.nodes()['Gamma']['type'] = 'product'
+G.nodes()['Gamma']['sub_type'] = 'product'
+G.nodes()['Gamma']['complex'] = 'true'
+G.nodes()['Gamma']['values'] = [None]
+G.nodes()['Gamma']['stats'] = [None]
+G.add_node('Delta')
+G.nodes()['Delta']['name'] = 'Delta'
+G.nodes()['Delta']['map_id'] = 'delta'
+G.nodes()['Delta']['type'] = 'complex_component'
+G.nodes()['Delta']['sub_type'] = 'protein_component'
+G.nodes()['Delta']['complex'] = 'false'
+G.nodes()['Delta']['values'] = [None]
+G.nodes()['Delta']['stats'] = [None]
+G.add_node('Epsilon')
+G.nodes()['Epsilon']['name'] = 'Epsilon'
+G.nodes()['Epsilon']['map_id'] = 'epsilon'
+G.nodes()['Epsilon']['type'] = 'complex_component'
+G.nodes()['Epsilon']['sub_type'] = 'protein_component'
+G.nodes()['Epsilon']['complex'] = 'false'
+G.nodes()['Epsilon']['values'] = [9]
+G.nodes()['Epsilon']['stats'] = [.9]
 G.add_edges_from([
-    ('A', 'B')])
+    ('Alpha', 'Beta')])
 G.add_edges_from([
-    ('B', 'C')])
+    ('Beta', 'Gamma')])
 G.add_edges_from([
-    ('C', 'A')])
+    ('Gamma', 'Alpha')])
 G.add_edges_from([
-    ('A', 'D')])
+    ('Alpha', 'Delta')])
 G.add_edges_from([
-    ('C', 'E')])
+    ('Gamma', 'Epsilon')])
 
 net_test = {
     'reaction_database': {
@@ -405,7 +405,7 @@ G_add = add_node_edge(
     map_id='mapper',
     name='test',
     compartment='none',
-    reaction_membership='C',
+    reaction_membership='Gamma',
     type='complex_component',
     sub_type='none',
     reversible='false',
@@ -416,7 +416,7 @@ G_add = add_node_edge(
     compartment_reference={})
 try:
     G_add.nodes()['thisisnew']
-    G_add.edges()[('thisisnew', 'C')]
+    G_add.edges()[('thisisnew', 'Gamma')]
 except:
     raise Exception('add_node_edge() failed')
 
@@ -426,32 +426,32 @@ G_complex = G.copy()
 G_complex, add_components = check_complexes(
         species_id='HSA',
         graph=G_complex,
-        id='E',
-        complex_reference={'E':['x', 'y', 'z']},
+        id='Epsilon',
+        complex_reference={'Epsilon':['x', 'y', 'z']},
         species_reference={''},
         name_reference={},
         protein_reference={},
         chebi_dictionary={},
         uniprot_reference={},
         gene_reference={},
-        component_database={'E':{'hasPart':['x', 'y', 'z']}},
+        component_database={'Epsilon':{'hasPart':['x', 'y', 'z']}},
         compartment_reference={})
 try:
     G_complex.nodes()['x']
-    G_complex.edges()[('x', 'E')]
-    G_complex.edges()[('y', 'E')]
-    G_complex.edges()[('z', 'E')]
+    G_complex.edges()[('x', 'Epsilon')]
+    G_complex.edges()[('y', 'Epsilon')]
+    G_complex.edges()[('z', 'Epsilon')]
 except:
     raise Exception('check_complexes() failed')
 
 # uniprot_ensembl_reference()
 print("Testing uniprot_ensembl_reference()")
-uni_ref = {'A':'B', 'E':'F'}
-ens_ref = {'B':'D'}
+uni_ref = {'Alpha':'Beta', 'Epsilon':'F'}
+ens_ref = {'Beta':'Delta'}
 ref_test = uniprot_ensembl_reference(
     uniprot_reference=uni_ref,
     ensembl_reference=ens_ref)
-assert ref_test == {'A':'D'}, 'uniprot_ensembl_reference() failed'
+assert ref_test == {'Alpha':'Delta'}, 'uniprot_ensembl_reference() failed'
 
 # compile_pathway_degree()
 print("Testing compile_pathway_degree()")
@@ -464,11 +464,11 @@ assert len(list(s_p.keys())) == 1, 'compile_pathway_degree() failed'
 # compile_node_degrees()
 print("Testing compile_node_degrees()")
 d_d = {
-    'A':3,
-    'B':2,
-    'C':3,
-    'D':1,
-    'E':1
+    'Alpha':3,
+    'Beta':2,
+    'Gamma':3,
+    'Delta':1,
+    'Epsilon':1
 }
 degree_dictionary = compile_node_degrees(
     graph=G)
@@ -479,63 +479,63 @@ print("Testing map_attributes()")
 G_map = G.copy()
 data = pd.DataFrame()
 data[0] = [1, 3, 5]
-data.index = ['A', 'C', 'e']
+data.index = ['Alpha', 'Gamma', 'epsilon']
 stats = pd.DataFrame()
 stats[0] = [.1, .3, .5]
-stats.index = ['A', 'C', 'e']
+stats.index = ['Alpha', 'Gamma', 'epsilon']
 
 G_mapped, data_max, stats_max, non_mappers = map_attributes(
     graph = G_map,
     data=data,
     stats=stats,
     name_reference={
-        'A': 'A',
-        'B': 'B',
-        'C': 'C',
-        'D': 'D',
-        'e': 'E',
+        'Alpha': 'Alpha',
+        'Beta': 'Beta',
+        'Gamma': 'Gamma',
+        'Delta': 'Delta',
+        'epsilon': 'Epsilon',
     },
     degree_dictionary=degree_dictionary,
     chebi_dictionary={
-        'A': 'A',
-        'B': 'B',
-        'C': 'C',
-        'D': 'D',
-        'e': 'e',
+        'Alpha': 'Alpha',
+        'Beta': 'Beta',
+        'Gamma': 'Gamma',
+        'Delta': 'Delta',
+        'epsilon': 'epsilon',
     },
     chebi_synonyms={},
     metabolite_mapper={
         'mapping_dictionary': {
-            'A': 'A',
-            'B': 'B',
-            'C': 'C',
-            'D': 'D',
-            'e': 'e',
+            'Alpha': 'Alpha',
+            'Beta': 'Beta',
+            'Gamma': 'Gamma',
+            'Delta': 'Delta',
+            'epsilon': 'epsilon',
         },
 
 
     },
     uniprot_mapper={
-        'A': 'A',
-        'B': 'B',
-        'C': 'C',
-        'D': 'D',
-        'e': 'e',
+        'Alpha': 'Alpha',
+        'Beta': 'Beta',
+        'Gamma': 'Gamma',
+        'Delta': 'Delta',
+        'epsilon': 'epsilon',
     })
 
 assert data_max == 5, 'map_attributes() failed'
 assert stats_max == 1.0, 'map_attributes() failed'
 assert non_mappers == [], 'map_attributes() failed'
-assert G_mapped.nodes()['A']['values'] == [1], 'map_attributes() failed'
-assert G_mapped.nodes()['A']['stats'] == [0.1], 'map_attributes() failed'
-assert G_mapped.nodes()['B']['values'] == [None], 'map_attributes() failed'
-assert G_mapped.nodes()['B']['stats'] == [None], 'map_attributes() failed'
-assert G_mapped.nodes()['C']['values'] == [3], 'map_attributes() failed'
-assert G_mapped.nodes()['C']['stats'] == [0.3], 'map_attributes() failed'
-assert G_mapped.nodes()['D']['values'] == [None], 'map_attributes() failed'
-assert G_mapped.nodes()['D']['stats'] == [None], 'map_attributes() failed'
-assert G_mapped.nodes()['E']['values'] == [5], 'map_attributes() failed'
-assert G_mapped.nodes()['E']['stats'] == [0.5], 'map_attributes() failed'
+assert G_mapped.nodes()['Alpha']['values'] == [1], 'map_attributes() failed'
+assert G_mapped.nodes()['Alpha']['stats'] == [0.1], 'map_attributes() failed'
+assert G_mapped.nodes()['Beta']['values'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['Beta']['stats'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['Gamma']['values'] == [3], 'map_attributes() failed'
+assert G_mapped.nodes()['Gamma']['stats'] == [0.3], 'map_attributes() failed'
+assert G_mapped.nodes()['Delta']['values'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['Delta']['stats'] == [None], 'map_attributes() failed'
+assert G_mapped.nodes()['Epsilon']['values'] == [5], 'map_attributes() failed'
+assert G_mapped.nodes()['Epsilon']['stats'] == [0.5], 'map_attributes() failed'
 
 # extract_value()
 """
@@ -608,11 +608,11 @@ G_update = broadcast_values(
     max_value=100,
     max_stat=1,
     broadcast_genes=True)
-assert G_update.nodes()['A'] == G.nodes()['A'], 'broadcast_values() failed'
-assert G_update.nodes()['B'] == G.nodes()['B'], 'broadcast_values() failed'
-assert G_update.nodes()['E'] == G.nodes()['E'], 'broadcast_values() failed'
-assert G_update.nodes()['C']['values'] == [9.0], 'broadcast_values() failed'
-assert G_update.nodes()['D']['stats'] == [0.5], 'broadcast_values() failed'
+assert G_update.nodes()['Alpha'] == G.nodes()['Alpha'], 'broadcast_values() failed'
+assert G_update.nodes()['Beta'] == G.nodes()['Beta'], 'broadcast_values() failed'
+assert G_update.nodes()['Epsilon'] == G.nodes()['Epsilon'], 'broadcast_values() failed'
+assert G_update.nodes()['Gamma']['values'] == [9.0], 'broadcast_values() failed'
+assert G_update.nodes()['Delta']['stats'] == [0.5], 'broadcast_values() failed'
 
 # make_motif_reaction_dictionary()
 print("Testing load_motif_reaction_dictionary()")
@@ -1062,7 +1062,7 @@ rna_unmapped = os.path.abspath(
     './metaboverse_cli/analyze/test/rna_mapping_test_unmapped.txt'
 )
 rna = pd.read_csv(rna_unmapped, sep='\t', index_col=0)
-assert len(rna.index.tolist()) == 7239, 'RNA mapping experienced error'
+assert len(rna.index.tolist()) == 7025, 'RNA mapping experienced error'
 os.remove(rna_unmapped)
 
 metabolite_unmapped = os.path.abspath(
