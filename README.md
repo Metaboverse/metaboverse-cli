@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/Metaboverse/metaboverse-cli.svg?branch=master)](https://travis-ci.org/Metaboverse/metaboverse-cli)
 [![Documentation Status](https://readthedocs.org/projects/metaboverse/badge/?version=latest)](https://metaboverse.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/Metaboverse/metaboverse-cli/branch/master/graph/badge.svg)](https://codecov.io/gh/Metaboverse/metaboverse-cli)
+[![DOI](https://zenodo.org/badge/269683933.svg)](https://zenodo.org/badge/latestdoi/269683933)
 
 ## Using Metaboverse
 To use the Metaboverse app, please click [here](https://github.com/Metaboverse/Metaboverse)
