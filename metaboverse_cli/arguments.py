@@ -1,20 +1,22 @@
 """License Information
-Metaboverse:
-    A toolkit for navigating and analyzing gene expression datasets
-    alias: metaboverse
-    Copyright (C) 2019-2020  Jordan A. Berg
-    jordan <dot> berg <at> biochem <dot> utah <dot> edu
+metaboverse-cli
+Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
+https://github.com/Metaboverse/metaboverse-cli/
+alias: metaboverse-cli
 
-    This program is free software: you can redistribute it and/or modify it under
-    the terms of the GNU General Public License as published by the Free Software
-    Foundation, either version 3 of the License, or (at your option) any later
-    version.
+Copyright (C) 2019-2020 Jordan A. Berg
+Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
 
-    This program is distributed in the hope that it will be useful, but WITHOUT ANY
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-    PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License along with
-    this program.  If not, see <https://www.gnu.org/licenses/>.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 
@@ -173,19 +175,19 @@ def parse_arguments(
     curate_opts.add_argument(
         '-c', '--organism_curation',
         help = 'Path and name for organism curation file',
-        metavar = '<path/filename.pickle>',
+        metavar = '<path/filename.mvdb>',
         type = str,
         required = False)
     curate_opts.add_argument(
         '-i', '--model_file',
         help = 'Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored.',
-        metavar = '<path/filename.pickle>',
+        metavar = '<path/filename.mvdb>',
         type = str,
         required = False)
     curate_opts.add_argument(
         '-f', '--output_file',
         help = 'Path and name for output database file',
-        metavar = '<path/filename.json>',
+        metavar = '<path/filename.mvrs>',
         type = str,
         required = False)
     curate_opts.add_argument(
@@ -208,6 +210,20 @@ def parse_arguments(
         metavar = '<path/filename>',
         type = str,
         default = 'None',
+        required = False)
+    curate_opts.add_argument(
+        '--database_source',
+        help = 'A string indicating the database source (default: "reactome"; other options: "biomodels" or "bigg")',
+        metavar = '<source_name>',
+        type = str,
+        default = 'reactome',
+        required = False)
+    curate_opts.add_argument(
+        '--sbml_url',
+        help = 'For non-Reactome database curations, provide the XML or SBML file to process (must be a supported source as outlined in the --database_source flag).',
+        metavar = '<path/sbml_file.sbml>',
+        type = str,
+        default = '',
         required = False)
     #curate_opts.add_argument(
     #    '-a', '--additional_reactions',

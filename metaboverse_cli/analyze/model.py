@@ -1,21 +1,22 @@
 """License Information
-Metaboverse:
-    A toolkit for navigating and analyzing gene expression datasets
-    alias: metaboverse
-    Copyright (C) 2019-2020  Jordan A. Berg
-    jordan <dot> berg <at> biochem <dot> utah <dot> edu
+metaboverse-cli
+Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
+https://github.com/Metaboverse/metaboverse-cli/
+alias: metaboverse-cli
 
-    This program is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by the Free
-    Software Foundation, either version 3 of the License, or (at your option)
-    any later version.
+Copyright (C) 2019-2020 Jordan A. Berg
+Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
 
-    This program is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-    more details.
-    You should have received a copy of the GNU General Public License along with
-    this program.  If not, see <https://www.gnu.org/licenses/>.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 
@@ -23,13 +24,10 @@ from __future__ import print_function
 """
 import os
 import re
-import importlib.util
 import zipfile
 from datetime import date
 import pandas as pd
 import numpy as np
-from math import sqrt
-from ast import literal_eval
 import json
 import pickle
 import networkx as nx
@@ -83,7 +81,7 @@ cmap = get_mpl_colormap('seismic')
 
 def test_nix():
     args_dict = {'output': '/Users/jordan/Desktop/'}
-    output_file = "/Users/jordan/Desktop/testHSA.json"
+    output_file = "/Users/jordan/Desktop/testHSA.mvrs"
     species_id = "HSA"
     network_url = "/Users/jordan/Desktop/metaboverse-cli/metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle"
     with open(network_url, 'rb') as network_file:
@@ -98,7 +96,7 @@ def test_nix():
 
 def test_win():
     args_dict = {'output': 'C:\\Users\\jorda\\Desktop'}
-    output_file = "C:\\Users\\jorda\\Desktop\\testHSA.json"
+    output_file = "C:\\Users\\jorda\\Desktop\\testHSA.mvrs"
     species_id = "HSA"
     __file__ = 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\'
     #network_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\HSA_metaboverse_db.pickle"
@@ -129,10 +127,10 @@ def name_graph(
     """Name graph
     """
 
-    if output_file[-5:].lower() == '.json':
+    if output_file[-5:].lower() == '.mvrs':
         graph_name = output_file
     else:
-        graph_name = output_file + species_id + '_global_reactions.json'
+        graph_name = output_file + species_id + '_global_reactions.mvrs'
 
     return graph_name
 

@@ -1,20 +1,22 @@
 """License Information
-Metaboverse:
-    A toolkit for navigating and analyzing gene expression datasets
-    alias: metaboverse
-    Copyright (C) 2019-2020  Jordan A. Berg
-    jordan <dot> berg <at> biochem <dot> utah <dot> edu
+metaboverse-cli
+Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
+https://github.com/Metaboverse/metaboverse-cli/
+alias: metaboverse-cli
 
-    This program is free software: you can redistribute it and/or modify it under
-    the terms of the GNU General Public License as published by the Free Software
-    Foundation, either version 3 of the License, or (at your option) any later
-    version.
+Copyright (C) 2019-2020 Jordan A. Berg
+Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
 
-    This program is distributed in the hope that it will be useful, but WITHOUT ANY
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-    PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License along with
-    this program.  If not, see <https://www.gnu.org/licenses/>.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 
@@ -34,21 +36,22 @@ import glob
 """Import internal dependencies
 """
 try:
-    from utils import progress_feed
+    from utils import progress_feed, update_session
 except:
     import importlib.util
-    spec = importlib.util.spec_from_file_location("progress_feed", os.path.abspath("./metaboverse_cli/utils.py"))
-    progress_feed = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(progress_feed)
-    progress_feed = progress_feed.progress_feed
+    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils)
+    progress_feed = utils.progress_feed
+    update_session = utils.update_session
 
 """Global variables
 """
-smbl_namespace = '{{http://www.sbml.org/sbml/level{0}/version{1}/core}}'
+sbml_namespace = '{{http://www.sbml.org/sbml/level{0}/version{1}/core}}'
 rdf_namespace = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
 bqbiol_namespace = '{http://biomodels.net/biology-qualifiers/}'
-smbl_level = '3'
-smbl_version = '1'
+sbml_level = '3'
+sbml_version = '1'
 
 """Functions
 """
@@ -120,14 +123,15 @@ def get_pathways(
 
 def get_database(
         pathways_dir,
-        pathway_name):
+        pathway_name,
+        extension='.sbml'):
     """Import sbml reaction data
     """
 
     if not pathways_dir.endswith(os.path.sep):
         pathways_dir = pathways_dir + os.path.sep
 
-    pathway_file = pathways_dir + pathway_name + '.sbml'
+    pathway_file = pathways_dir + pathway_name + extension
     pathway_contents = et.parse(pathway_file)
     contents = pathway_contents.getroot()
 
@@ -135,9 +139,9 @@ def get_database(
 
 def get_metadata(
         reaction,
-        smbl_level,
-        smbl_version,
-        smbl_namespace=smbl_namespace):
+        sbml_level,
+        sbml_version,
+        sbml_namespace=sbml_namespace):
     """Get basic metadata for a reaction
     """
 
@@ -152,9 +156,9 @@ def get_metadata(
 
     try:
         notes = reaction.findall(
-            str(smbl_namespace + 'notes').format(
-                smbl_level,
-                smbl_version
+            str(sbml_namespace + 'notes').format(
+                sbml_level,
+                sbml_version
             )
         )[0][0].text
     except:
@@ -180,9 +184,9 @@ def add_reaction(
 def add_reaction_components(
         type,
         reaction,
-        smbl_namespace=smbl_namespace,
-        smbl_level=smbl_level,
-        smbl_version=smbl_version):
+        sbml_namespace=sbml_namespace,
+        sbml_level=sbml_level,
+        sbml_version=sbml_version):
     """Add reaction components to reactions database
     For type, options are "listOfReactants", "listOfProducts", or
     "listOfModifiers"
@@ -190,9 +194,9 @@ def add_reaction_components(
 
     # Collect modifiers for a given reaction by species ID
     component_list = reaction.findall(
-        str(smbl_namespace + type).format(
-            smbl_level,
-            smbl_version
+        str(sbml_namespace + type).format(
+            sbml_level,
+            sbml_version
         )
     )
 
@@ -217,6 +221,40 @@ def add_reaction_components(
                 type = 'other'
 
             items.append([child.attrib['species'], type])
+
+        else:
+            items.append(child.attrib['species'])
+
+    return items
+
+def add_reaction_components_manual(
+        type,
+        reaction,
+        sbml_namespace=sbml_namespace,
+        sbml_level=sbml_level,
+        sbml_version=sbml_version):
+    """Add reaction components to reactions database
+    For type, options are "listOfReactants", "listOfProducts", or
+    "listOfModifiers"
+    """
+
+    # Collect modifiers for a given reaction by species ID
+    component_list = reaction.findall(
+        str(sbml_namespace + type).format(
+            sbml_level,
+            sbml_version
+        )
+    )
+
+    if len(component_list) > 0:
+        component_list = component_list[0]
+
+    items = []
+    for child in component_list:
+
+        if type == 'listOfModifiers':
+            _type = 'modifier'
+            items.append([child.attrib['species'], _type])
 
         else:
             items.append(child.attrib['species'])
@@ -282,18 +320,18 @@ def add_species(
         compartment_database,
         components_database,
         pathway_record,
-        smbl_namespace=smbl_namespace,
-        smbl_level=smbl_level,
-        smbl_version=smbl_version,
+        sbml_namespace=sbml_namespace,
+        sbml_level=sbml_level,
+        sbml_version=sbml_version,
         bqbiol_namespace=bqbiol_namespace,
         rdf_namespace=rdf_namespace):
     """Add species records for pathway to database
     """
 
     species = pathway_record.findall(
-        str(smbl_namespace + 'listOfSpecies').format(
-            smbl_level,
-            smbl_version
+        str(sbml_namespace + 'listOfSpecies').format(
+            sbml_level,
+            sbml_version
         )
     )[0]
 
@@ -390,7 +428,7 @@ def process_components(
         pathways_list,
         species_id,
         args_dict=None,
-        smbl_namespace=smbl_namespace,
+        sbml_namespace=sbml_namespace,
         bqbiol_namespace=bqbiol_namespace,
         rdf_namespace=rdf_namespace):
     """Process species-specific pathways
@@ -411,13 +449,13 @@ def process_components(
         db = get_database(
             pathways_dir,
             pathway)
-        smbl_level = db.attrib['level']
-        smbl_version = db.attrib['version']
+        sbml_level = db.attrib['level']
+        sbml_version = db.attrib['version']
 
         pathway_record = db.findall(
-            str(smbl_namespace + 'model').format(
-                smbl_level,
-                smbl_version
+            str(sbml_namespace + 'model').format(
+                sbml_level,
+                sbml_version
             )
         )[0]
 
@@ -433,17 +471,17 @@ def process_components(
 
         # Parse out reactions
         reactions = pathway_record.findall(
-            str(smbl_namespace + 'listOfReactions').format(
-                smbl_level,
-                smbl_version
+            str(sbml_namespace + 'listOfReactions').format(
+                sbml_level,
+                sbml_version
             )
         )[0]
 
         # Parse out compartment IDs and names
         compartments = pathway_record.findall(
-            str(smbl_namespace + 'listOfCompartments').format(
-                smbl_level,
-                smbl_version
+            str(sbml_namespace + 'listOfCompartments').format(
+                sbml_level,
+                sbml_version
             )
         )[0]
         for c in range(len(compartments)):
@@ -457,9 +495,9 @@ def process_components(
             # Get metadata
             compartment, id, name, reversible, notes = get_metadata(
                 reaction=reaction,
-                smbl_level=smbl_level,
-                smbl_version=smbl_version,
-                smbl_namespace=smbl_namespace)
+                sbml_level=sbml_level,
+                sbml_version=sbml_version,
+                sbml_namespace=sbml_namespace)
 
             # Get pathway high-level information (reactions, name, compartment)
             pathway_database, reaction_id = add_reaction(
@@ -481,25 +519,25 @@ def process_components(
             reaction_database[reaction_id]['reactants'] = add_reaction_components(
                 type='listOfReactants',
                 reaction=reaction,
-                smbl_namespace=smbl_namespace,
-                smbl_level=smbl_level,
-                smbl_version=smbl_version)
+                sbml_namespace=sbml_namespace,
+                sbml_level=sbml_level,
+                sbml_version=sbml_version)
 
             # Collect products for a given reaction by species ID
             reaction_database[reaction_id]['products'] = add_reaction_components(
                 type='listOfProducts',
                 reaction=reaction,
-                smbl_namespace=smbl_namespace,
-                smbl_level=smbl_level,
-                smbl_version=smbl_version)
+                sbml_namespace=sbml_namespace,
+                sbml_level=sbml_level,
+                sbml_version=sbml_version)
 
             # Collect modifiers for a given reaction by species ID
             reaction_database[reaction_id]['modifiers'] = add_reaction_components(
                 type='listOfModifiers',
                 reaction=reaction,
-                smbl_namespace=smbl_namespace,
-                smbl_level=smbl_level,
-                smbl_version=smbl_version)
+                sbml_namespace=sbml_namespace,
+                sbml_level=sbml_level,
+                sbml_version=sbml_version)
 
         # Convert reaction set for pathway to list
         pathway_database[pathway]['reactions'] = list(
@@ -513,11 +551,237 @@ def process_components(
             compartment_database=compartment_database,
             components_database=components_database,
             pathway_record=pathway_record,
-            smbl_namespace=smbl_namespace,
-            smbl_level=smbl_level,
-            smbl_version=smbl_version,
+            sbml_namespace=sbml_namespace,
+            sbml_level=sbml_level,
+            sbml_version=sbml_version,
             bqbiol_namespace=bqbiol_namespace,
             rdf_namespace=rdf_namespace)
+
+    return (pathway_database, reaction_database, species_database,
+        name_database, compartment_database, compartment_dictionary,
+        components_database)
+
+def load_sbml(
+        sbml_url):
+    """Load supported SBML file for organism network curation
+    """
+
+    parsed_url = sbml_url.split(os.path.sep)
+    parsed_path = os.path.sep.join(parsed_url[0:-1]) + os.path.sep
+    parsed_file = parsed_url[-1].split('.')[0]
+    parsed_extension = '.' + parsed_url[-1].split('.')[1]
+
+    return get_database(
+        parsed_path,
+        parsed_file,
+        extension=parsed_extension)
+
+def update_model_metadata(
+        sbml_db,
+        args_dict):
+    """Get model metadata and update session info
+    """
+
+    session_file = args_dict['session_data']
+    update_session(
+        session_file=session_file,
+        key='organism_id',
+        value=sbml_db[0].attrib['id'])
+    if 'name' in sbml_db[0].attrib:
+        update_session(
+            session_file=session_file,
+            key='organism',
+            value=sbml_db[0].attrib['name'])
+    else:
+        update_session(
+            session_file=session_file,
+            key='organism',
+            value='unknown')
+    if 'metaid' in sbml_db[0].attrib:
+        update_session(
+            session_file=session_file,
+            key='database_version',
+            value=sbml_db[0].attrib['metaid'] + ' (' + args_dict['database_source'] + ')')
+    else:
+        update_session(
+            session_file=session_file,
+            key='database_version',
+            value='unknown')
+
+def process_manual(
+        sbml_db,
+        args_dict=None):
+    """Parse network curation elements
+    """
+
+    if 'core' in sbml_db.tag:
+        _a = '/core'
+    else:
+        _a = ''
+
+    sbml_namespace = '{{http://www.sbml.org/sbml/level{0}/version{1}' + _a + '}}'
+    sbml_level = sbml_db.attrib['level']
+    sbml_version = sbml_db.attrib['version']
+
+    # Initialize databases
+    pathway_database = {
+        'All': {
+            'id': 'All',
+            'reactome': 'All',
+            'name': 'All',
+            'reactions': set()
+        }
+    }
+    reaction_database = {}
+    name_database = {}
+    compartment_dictionary = {}
+    compartment_database = {}
+    species_database = {}
+    components_database = {}
+
+    # Get model information
+    if args_dict != None:
+        update_model_metadata(
+            sbml_db=sbml_db,
+            args_dict= args_dict
+        )
+
+    # Get model categories
+    elements = [x for x in sbml_db[0]]
+
+    # Generate compartment dictionary
+    for x in elements:
+        if x.tag == str(sbml_namespace + 'listOfCompartments').format(
+                sbml_level,
+                sbml_version):
+            for child in x:
+                id = child.attrib['id']
+                name = child.attrib['name']
+                compartment_dictionary[id] = name
+
+    #Generate species database
+    for x in elements:
+        if x.tag == str(sbml_namespace + 'listOfSpecies').format(
+                sbml_level,
+                sbml_version):
+            for child in x:
+                specie = child.attrib['id']
+                if 'name' in child.attrib:
+                    name = child.attrib['name']
+                else:
+                    name = specie
+                if 'sboTerm' in child.attrib:
+                    sboTerm = child.attrib['sboTerm']
+                else:
+                    sboTerm = ''
+                compartment = child.attrib['compartment']
+
+                species_database[specie] = name
+                compartment_database[specie] = compartment
+                name_database[name] = specie
+                components_database[specie] = {
+                    'id': specie,
+                    'reactome_id': sboTerm,
+                    'name': name,
+                    'is': '',
+                    'hasPart': [],
+                    'type': '',
+                    'compartment': compartment
+                }
+
+                for rank in child.iter(str(bqbiol_namespace + 'is')):
+                    for _rank in rank.iter(str(rdf_namespace + 'li')):
+                        item = _rank.attrib[str(rdf_namespace + 'resource')]
+                        if 'reactome' not in item.lower():
+                            if 'chebi' in item.lower() \
+                            or 'kegg' in item.lower() \
+                            or 'hmdb' in item.lower() \
+                            or 'bigg' in item.lower():
+                                _id = item.split('/')[-1]
+                                components_database[specie]['is'] = _id
+                                components_database[specie]['type'] = 'metabolite_component'
+                            elif 'uniprot' in item.lower():
+                                _id = item.split('/')[-1]
+                                components_database[specie]['is'] = _id
+                                components_database[specie]['type'] = 'protein_component'
+                            else:
+                                components_database[specie]['type'] = 'other'
+                        else:
+                            r_id = item.split('/')[-1]
+                            components_database[specie]['reactome_id'] = r_id
+
+                for rank in child.iter(str(bqbiol_namespace + 'hasPart')):
+                    for _rank in rank.iter(str(rdf_namespace + 'li')):
+                        item = _rank.attrib[str(rdf_namespace + 'resource')]
+                        if 'reactome' not in item:
+                            components_database[specie]['type'] = 'complex_component'
+                            if 'chebi' in item.lower() \
+                            or 'kegg' in item.lower() \
+                            or 'hmdb' in item.lower() \
+                            or 'bigg' in item.lower():
+                                _id = item.split('/')[-1]
+                                components_database[specie]['hasPart'].append(_id)
+                            elif 'uniprot' in item.lower():
+                                _id = item.split('/')[-1]
+                                components_database[specie]['hasPart'].append(_id)
+                            elif 'mirbase' in item.lower():
+                                _id = item.split('acc=')[1]
+                                components_database[specie]['hasPart'].append(_id)
+                            else:
+                                pass
+
+                # Add source ID
+                name_database = add_names(
+                    name_database=name_database,
+                    child=child,
+                    specie=specie,
+                    search_string='is',
+                    bqbiol_namespace=bqbiol_namespace,
+                    rdf_namespace=rdf_namespace)
+
+    #Generate reaction database
+    for x in elements:
+        if x.tag == str(sbml_namespace + 'listOfReactions').format(
+                sbml_level,
+                sbml_version):
+            for child in x:
+                # Get metadata
+                _id = child.attrib['id']
+                if 'name' in child.attrib:
+                    _name = child.attrib['name']
+                else:
+                    _name = _id
+                if 'reversible' in child.attrib:
+                    _reversible = child.attrib['reversible']
+                else:
+                    _reversible = 'false'
+
+                name_database[_name] = _id
+                pathway_database['All']['reactions'].add(_id)
+                reaction_database[_id] = {
+                    'compartment': '',
+                    'id': _id,
+                    'name': _name,
+                    'reversible': _reversible,
+                    'notes': ''}
+                reaction_database[_id]['reactants'] = add_reaction_components_manual(
+                    type='listOfReactants',
+                    reaction=child,
+                    sbml_namespace=sbml_namespace,
+                    sbml_level=sbml_level,
+                    sbml_version=sbml_version)
+                reaction_database[_id]['products'] = add_reaction_components_manual(
+                    type='listOfProducts',
+                    reaction=child,
+                    sbml_namespace=sbml_namespace,
+                    sbml_level=sbml_level,
+                    sbml_version=sbml_version)
+                reaction_database[_id]['modifiers'] = add_reaction_components_manual(
+                    type='listOfModifiers',
+                    reaction=child,
+                    sbml_namespace=sbml_namespace,
+                    sbml_level=sbml_level,
+                    sbml_version=sbml_version)
 
     return (pathway_database, reaction_database, species_database,
         name_database, compartment_database, compartment_dictionary,
@@ -526,40 +790,53 @@ def process_components(
 def __main__(
         species_id,
         output_dir,
+        database_source,
+        sbml_url,
         args_dict):
     """Fetch all reactions for a given organism
     """
 
-    #############
-    # Make pathway id and reaction ids non R-HSA-etc
-    #############
-
     # Get pathways files
-    pathways_dir = unpack_pathways(
-        output_dir=output_dir)
-    progress_feed(args_dict, "curate", 10)
+    if database_source.lower() == 'reactome':
+        pathways_dir = unpack_pathways(
+            output_dir=output_dir)
+        progress_feed(args_dict, "curate", 10)
 
-    pathways_list = get_pathways(
-        species_id=species_id,
-        pathways_dir=pathways_dir)
-    progress_feed(args_dict, "curate", 7)
+        pathways_list = get_pathways(
+            species_id=species_id,
+            pathways_dir=pathways_dir)
+        progress_feed(args_dict, "curate", 7)
 
-    # Get list of reaction files to use for populating database
-    pathway_database, reaction_database, species_database, \
-    name_database, compartment_database, compartment_dictionary, \
-    components_database = process_components(
-        output_dir=output_dir,
-        pathways_dir=pathways_dir,
-        pathways_list=pathways_list,
-        species_id=species_id,
-        args_dict=args_dict)
-    progress_feed(args_dict, "curate", 5)
+        # Get list of reaction files to use for populating database
+        pathway_database, reaction_database, species_database, \
+        name_database, compartment_database, compartment_dictionary, \
+        components_database = process_components(
+            output_dir=output_dir,
+            pathways_dir=pathways_dir,
+            pathways_list=pathways_list,
+            species_id=species_id,
+            args_dict=args_dict)
+        progress_feed(args_dict, "curate", 5)
 
-    if 'sbml' in pathways_dir:
-        handle_folder_contents(
-            dir=pathways_dir)
+        if 'sbml' in pathways_dir:
+            handle_folder_contents(
+                dir=pathways_dir)
+        else:
+            print('Could not find SMBL file directory, skipping removal of this directory...')
+    elif database_source.lower() == 'biomodels' or database_source.lower() == 'bigg' and sbml_url != "":
+        sbml_db = load_sbml(
+            sbml_url=sbml_url)
+        progress_feed(args_dict, "curate", 10)
+
+        pathway_database, reaction_database, species_database, \
+        name_database, compartment_database, compartment_dictionary, \
+        components_database = process_manual(
+            sbml_db=sbml_db,
+            args_dict=args_dict)
+        progress_feed(args_dict, "curate", 13)
+
     else:
-        print('Could not find SMBL file directory, skipping removal of this directory...')
+        raise Exception('Input database type not supported by Metaboverse. If you would like the database type included, please submit an issue at <https://github.com/Metaboverse/Metaboverse/issues>.')
 
     return (pathway_database, reaction_database, species_database,
         name_database, compartment_dictionary, components_database)

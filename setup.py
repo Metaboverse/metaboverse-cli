@@ -1,9 +1,11 @@
-"""
-Metaboverse
-A toolkit for navigating and analyzing gene expression datasets
-alias: metaboverse
-Copyright (C) 2019-2020  Jordan A. Berg
-jordan <dot> berg <at> biochem <dot> utah <dot> edu
+"""License Information
+metaboverse-cli
+Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
+https://github.com/Metaboverse/metaboverse-cli/
+alias: metaboverse-cli
+
+Copyright (C) 2019-2020 Jordan A. Berg
+Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

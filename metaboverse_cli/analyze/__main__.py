@@ -1,20 +1,22 @@
 """License Information
-Metaboverse:
-    A toolkit for navigating and analyzing gene expression datasets
-    alias: metaboverse
-    Copyright (C) 2019-2020  Jordan A. Berg
-    jordan <dot> berg <at> biochem <dot> utah <dot> edu
+metaboverse-cli
+Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
+https://github.com/Metaboverse/metaboverse-cli/
+alias: metaboverse-cli
 
-    This program is free software: you can redistribute it and/or modify it under
-    the terms of the GNU General Public License as published by the Free Software
-    Foundation, either version 3 of the License, or (at your option) any later
-    version.
+Copyright (C) 2019-2020 Jordan A. Berg
+Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
 
-    This program is distributed in the hope that it will be useful, but WITHOUT ANY
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-    PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License along with
-    this program.  If not, see <https://www.gnu.org/licenses/>.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 
@@ -56,15 +58,33 @@ def test():
         'proteomics': 'None',
         'organism_curation': '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE_metaboverse_db.pickle',
         'species_id': 'SCE',
-        'output_file': '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE_global_reactions.json',
+        'output_file': '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE.mvrs',
     }
 
     __main__(
         args_dict=args_dict)
 
-def check_db():
+def test2():
 
-    network_url = '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE_metaboverse_db.pickle'
+    args_dict = {
+        'network': 'C:\\Users\\jorda\\Desktop\\BMID000000141967.mvdb',
+        'metabolomics': 'None',
+        'transcriptomics': 'None',
+        'proteomics': 'None',
+        'organism_curation': 'C:\\Users\\jorda\\Desktop\\BMID000000141967.mvdb',
+        'species_id': 'BMID000000141967',
+        'output_file': 'C:\\Users\\jorda\\Desktop\\BMID000000141967.mvrs',
+    }
+
+    with open(args_dict['network'], 'rb') as network_file:
+        network = pickle.load(network_file)
+
+    __main__(
+        args_dict=args_dict)
+
+def test_check_db():
+
+    network_url = '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE.mvdb'
     with open(network_url, 'rb') as network_file:
         network = pickle.load(network_file)
 

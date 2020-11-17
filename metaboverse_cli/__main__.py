@@ -1,20 +1,22 @@
 """License Information
-Metaboverse:
-    A toolkit for navigating and analyzing gene expression datasets
-    alias: metaboverse
-    Copyright (C) 2019-2020  Jordan A. Berg
-    jordan <dot> berg <at> biochem <dot> utah <dot> edu
+metaboverse-cli
+Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
+https://github.com/Metaboverse/metaboverse-cli/
+alias: metaboverse-cli
 
-    This program is free software: you can redistribute it and/or modify it under
-    the terms of the GNU General Public License as published by the Free Software
-    Foundation, either version 3 of the License, or (at your option) any later
-    version.
+Copyright (C) 2019-2020 Jordan A. Berg
+Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
 
-    This program is distributed in the hope that it will be useful, but WITHOUT ANY
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-    PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    You should have received a copy of the GNU General Public License along with
-    this program.  If not, see <https://www.gnu.org/licenses/>.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 
@@ -28,7 +30,6 @@ import pandas
 import numpy
 import scipy
 import networkx
-import pickle
 import sklearn
 import argparse
 
@@ -88,7 +89,6 @@ def main(
 
         print('Generating metabolite mapper...')
         mapper(args_dict)
-        #sys.stdout.flush()
         sys.exit(1)
 
     # Run metaboverse-curate
@@ -108,14 +108,14 @@ def main(
                 or args_dict['output_file'] == "find":
                     args_dict['output_file'] = args_dict['output'] \
                         + args_dict['species_id'] \
-                        + '_global_reactions.json'
+                        + '.mvrs'
                 args_dict['network'] = args_dict['organism_curation']
 
                 # add variables back to session data json file
                 session_file = args_dict['session_data']
                 update_session(
                     session_file=session_file,
-                    key='species_id',
+                    key='organism_id',
                     value=args_dict['species_id'])
                 update_session(
                     session_file=session_file,
@@ -134,7 +134,7 @@ def main(
             and str(args_dict['model_file']) == 'None':
                 args_dict['model_file'] = args_dict['output'] \
                     + args_dict['species_id'] \
-                    + '_metaboverse_db.pickle'
+                    + '.mvdb'
 
             args_dict['network'] = args_dict['model_file']
             args_dict = curate(args_dict)
@@ -145,18 +145,14 @@ def main(
         and str(args_dict['output_file']) == 'None':
             args_dict['output_file'] = args_dict['output'] \
                 + args_dict['species_id'] \
-                + '_global_reactions.json'
+                + '.mvrs'
 
         analyze(args_dict)
-        #sys.stdout.flush()
         sys.exit(1)
 
     # Print some error messaging
     else:
         raise Exception('Invalid sub-module selected')
-
-    # Exit
-    #sys.stdout.flush()
 
 """Run main
 """
