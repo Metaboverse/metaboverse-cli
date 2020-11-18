@@ -365,11 +365,6 @@ def __main__(
 
         metabolomics = read_data(
             url=metabolomics_url)
-        #metabolomics, metabolomics_unmapped = format_metabolomics(
-        #    data=metabolomics)
-        #output_unmapped(
-        #    data=metabolomics_unmapped,
-        #    url=metabolomics_url)
         metabolomics, metabolomics_stats = extract_data(
             data=metabolomics)
         metabolomics_length = len(metabolomics.columns.tolist())
@@ -478,3 +473,22 @@ def test_win():
 
     data.to_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t')
     stats.to_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t')
+
+
+def test_win_biomodels_bigg():
+
+    import pickle
+    network_url = "C:\\Users\\jorda\\Desktop\\BMID000000141967.mvdb"
+    with open(network_url, 'rb') as network_file:
+        network = pickle.load(network_file)
+    transcriptomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\biomodels_gene.txt"
+    proteomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\biomodels_protein.txt"
+    metabolomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\biomodels_metabolite.txt"
+
+    d, s, u = __main__(
+        network,
+        transcriptomics_url,
+        proteomics_url,
+        metabolomics_url)
+
+    u

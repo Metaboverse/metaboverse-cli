@@ -280,6 +280,7 @@ def add_names(
                 _id = check_chebi(item=_id)
                 _id = _id.split(' ')[0]
             name_database[_id] = specie
+            name_database[specie] = specie
 
             # If element has parentheses, remove what's in between as
             # additional key
@@ -359,6 +360,7 @@ def add_species(
             'reactome_id': '',
             'name': name,
             'is': '',
+            'isEncodedBy':'',
             'hasPart': [],
             'type': '',
             'compartment': compartment
@@ -372,20 +374,16 @@ def add_species(
                         _id = item.split('chebiId=')[1]
                         components_database[specie]['is'] = _id
                         components_database[specie]['type'] = 'metabolite_component'
-
                     elif 'uniprot' in item.lower():
                         _id = item.split('/')[-1]
                         components_database[specie]['is'] = _id
                         components_database[specie]['type'] = 'protein_component'
-
                     elif 'mirbase' in item.lower():
                         _id = item.split('acc=')[1]
                         components_database[specie]['is'] = _id
                         components_database[specie]['type'] = 'mirna_component'
-
                     else:
                         components_database[specie]['type'] = 'other'
-
                 else:
                     r_id = item.split('/')[-1]
                     components_database[specie]['reactome_id'] = r_id
@@ -398,15 +396,12 @@ def add_species(
                     if 'chebi' in item.lower():
                         _id = item.split('chebiId=')[1]
                         components_database[specie]['hasPart'].append(_id)
-
                     elif 'uniprot' in item.lower():
                         _id = item.split('/')[-1]
                         components_database[specie]['hasPart'].append(_id)
-
                     elif 'mirbase' in item.lower():
                         _id = item.split('acc=')[1]
                         components_database[specie]['hasPart'].append(_id)
-
                     else:
                         pass
 
@@ -683,7 +678,8 @@ def process_manual(
                     'id': specie,
                     'reactome_id': sboTerm,
                     'name': name,
-                    'is': '',
+                    'is': specie,
+                    'isEncodedBy':'',
                     'hasPart': [],
                     'type': '',
                     'compartment': compartment
@@ -729,6 +725,18 @@ def process_manual(
                                 components_database[specie]['hasPart'].append(_id)
                             else:
                                 pass
+
+                for rank in child.iter(str(bqbiol_namespace + 'isEncodedBy')):
+                    for _rank in rank.iter(str(rdf_namespace + 'li')):
+                        item = _rank.attrib[str(rdf_namespace + 'resource')]
+                        if 'reactome' not in item:
+                            if 'kegg.genes' in item.lower():
+                                _id = item.split('/')[-1]
+                                _id_ = _id.split(':')[-1]
+                                components_database[specie]['isEncodedBy'] = _id_
+                            else:
+                                _id = item.split('/')[-1]
+                                components_database[specie]['isEncodedBy'] = _id
 
                 # Add source ID
                 name_database = add_names(
@@ -824,6 +832,7 @@ def __main__(
         else:
             print('Could not find SMBL file directory, skipping removal of this directory...')
     elif database_source.lower() == 'biomodels' or database_source.lower() == 'bigg' and sbml_url != "":
+
         sbml_db = load_sbml(
             sbml_url=sbml_url)
         progress_feed(args_dict, "curate", 10)

@@ -71,7 +71,7 @@ def test2():
         'species_id': 'find',
         'output': 'C:\\Users\\jorda\\Desktop\\',
         'database_source': 'biomodels',
-        'sbml_url': 'C:\\Users\\jorda\\Desktop\\BMID000000141967_url.xml',
+        'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\BMID000000141967_url.xml',
         'session_data': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\curate\\test\\test_session_data.json'
     }
 
@@ -85,7 +85,7 @@ def test3():
         'species_id': 'find',
         'output': 'C:\\Users\\jorda\\Desktop\\',
         'database_source': 'biomodels',
-        'sbml_url': 'C:\\Users\\jorda\\Desktop\\iIS312.xml',
+        'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\iIS312.xml',
         'session_data': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\curate\\test\\test_session_data.json'
     }
 
@@ -399,6 +399,11 @@ def __main__(
         sbml_url=args_dict['sbml_url'],
         args_dict=args_dict)
 
+    print('Parsing ChEBI database...')
+    chebi_mapper, chebi_synonyms, uniprot_metabolites = parse_chebi_synonyms(
+        output_dir=args_dict['output'])
+    progress_feed(args_dict, "curate", 5)
+
     if args_dict['database_source'].lower() == 'reactome':
         print('Loading complex database...')
         complexes_reference = load_complexes(
@@ -434,11 +439,6 @@ def __main__(
             species_id=args_dict['species_id'])
         progress_feed(args_dict, "curate", 3)
 
-        print('Parsing ChEBI database...')
-        chebi_mapper, chebi_synonyms, uniprot_metabolites = parse_chebi_synonyms(
-            output_dir=args_dict['output'])
-        progress_feed(args_dict, "curate", 5)
-
         database_version = str(get_reactome_version() + ' (Reactome)')
         _species_id = args_dict['species_id']
 
@@ -447,11 +447,7 @@ def __main__(
             'complex_dictionary': {}
         }
         ensembl_reference = {}
-        name_database = {}
         uniprot_reference = {}
-        chebi_mapper = {}
-        chebi_synonyms = {}
-        uniprot_metabolites = {}
         database_version = get_session_value(
             args_dict['session_data'],
             'database_version')
