@@ -229,7 +229,10 @@ def process_reactions(
         products = network[reactome_id]['products']
         modifiers = network[reactome_id]['modifiers'] # ordered list
         compartment_id = network[reactome_id]['compartment']
-        compartment_name = compartment_reference[compartment_id]
+        try:
+            compartment_name = compartment_reference[compartment_id]
+        except:
+            compartment_name = '' # for non-Reactome models where reactions do not have a compartment annotation
 
         prot_ref = {}
         for k, v in uniprot_reference.items():
@@ -1472,7 +1475,7 @@ def __main__(
     args_dict["max_stat"] = max_stat
     args_dict["database_date"] = date.today().strftime('%Y-%m-%d')
     args_dict["curation_date"] = network["curation_date"]
-    args_dict["reactome_version"] = network["reactome_version"]
+    args_dict["database_version"] = network["database_version"]
     output_graph(
         graph=G,
         output_name=graph_name,

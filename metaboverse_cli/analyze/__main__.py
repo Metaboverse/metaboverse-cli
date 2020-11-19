@@ -74,6 +74,9 @@ def test2():
         'organism_curation': 'C:\\Users\\jorda\\Desktop\\BMID000000141967.mvdb',
         'species_id': 'BMID000000141967',
         'output_file': 'C:\\Users\\jorda\\Desktop\\BMID000000141967.mvrs',
+        'collapse_with_modifiers': False,
+        'labels': '0',
+        'blocklist': 'H+, H2O, CO2, e-, Mn2+, K+, Na+, Mg2+, O2, H2O2'
     }
 
     with open(args_dict['network'], 'rb') as network_file:
@@ -122,7 +125,8 @@ def __main__(
             network=network,
             transcriptomics_url=args_dict['transcriptomics'],
             proteomics_url=args_dict['proteomics'],
-            metabolomics_url=args_dict['metabolomics'])
+            metabolomics_url=args_dict['metabolomics'],
+            database_source=args_dict['database_source'])
         progress_feed(args_dict, "model", 3)
         flag_data = False
 
@@ -153,5 +157,4 @@ def __main__(
         output_file=args_dict['output_file'],
         unmapped=unmapped,
         flag_data=flag_data)
-
     progress_feed(args_dict, "model", 10)

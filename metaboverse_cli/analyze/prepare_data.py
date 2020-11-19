@@ -299,7 +299,8 @@ def __main__(
         network,
         transcriptomics_url,
         proteomics_url,
-        metabolomics_url):
+        metabolomics_url,
+        database_source='reactome'):
     """Get user data and preprocess
     """
 
@@ -309,23 +310,23 @@ def __main__(
         transcriptomics = read_data(
             url=transcriptomics_url)
         e_sym = {}
-        for k, v in network['ensembl_synonyms'].items():
-            if 'phospho-' in v and '-phospho-' not in v:
-                v = v.replace('phospho-', '')
-            if '(' in v and ')' in v:
-                v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
-            if '  ' in v:
-                v = v.replace('  ', ' ')
-            v = v.strip()
-            e_sym[v.upper()] = k
-            e_sym[k.upper()] = k
-
-        transcriptomics, transcriptomics_unmapped = format_data(
-            data=transcriptomics,
-            reference=e_sym)
-        output_unmapped(
-            data=transcriptomics_unmapped,
-            url=transcriptomics_url)
+        if database_source.lower() != 'reactome':
+            for k, v in network['ensembl_synonyms'].items():
+                if 'phospho-' in v and '-phospho-' not in v:
+                    v = v.replace('phospho-', '')
+                if '(' in v and ')' in v:
+                    v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+                if '  ' in v:
+                    v = v.replace('  ', ' ')
+                v = v.strip()
+                e_sym[v.upper()] = k
+                e_sym[k.upper()] = k
+            transcriptomics, transcriptomics_unmapped = format_data(
+                data=transcriptomics,
+                reference=e_sym)
+            output_unmapped(
+                data=transcriptomics_unmapped,
+                url=transcriptomics_url)
         transcriptomics, transcriptomics_stats = extract_data(
             data=transcriptomics)
         transcriptomics_length = len(transcriptomics.columns.tolist())
@@ -338,22 +339,23 @@ def __main__(
         proteomics = read_data(
             url=proteomics_url)
         u_sym = {}
-        for k, v in network['uniprot_synonyms'].items():
-            if 'phospho-' in v and '-phospho-' not in v:
-                v = v.replace('phospho-', '')
-            if '(' in v and ')' in v:
-                v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
-            if '  ' in v:
-                v = v.replace('  ', ' ')
-            v = v.strip()
-            u_sym[v.upper()] = k
-            u_sym[k.upper()] = k
-        proteomics, proteomics_unmapped = format_data(
-            data=proteomics,
-            reference=u_sym)
-        output_unmapped(
-            data=proteomics_unmapped,
-            url=proteomics_url)
+        if database_source.lower() != 'reactome':
+            for k, v in network['uniprot_synonyms'].items():
+                if 'phospho-' in v and '-phospho-' not in v:
+                    v = v.replace('phospho-', '')
+                if '(' in v and ')' in v:
+                    v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+                if '  ' in v:
+                    v = v.replace('  ', ' ')
+                v = v.strip()
+                u_sym[v.upper()] = k
+                u_sym[k.upper()] = k
+            proteomics, proteomics_unmapped = format_data(
+                data=proteomics,
+                reference=u_sym)
+            output_unmapped(
+                data=proteomics_unmapped,
+                url=proteomics_url)
         proteomics, proteomics_stats = extract_data(
             data=proteomics)
         proteomics_length = len(proteomics.columns.tolist())
@@ -490,5 +492,3 @@ def test_win_biomodels_bigg():
         transcriptomics_url,
         proteomics_url,
         metabolomics_url)
-
-    u
