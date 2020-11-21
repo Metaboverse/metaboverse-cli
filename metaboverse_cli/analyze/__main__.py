@@ -85,6 +85,30 @@ def test2():
     __main__(
         args_dict=args_dict)
 
+def test3():
+
+    # Check that CHEBI values map
+    args_dict = {
+        'database_source': 'reactome',
+        'network': 'C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle',
+        'metabolomics': 'C:\\Users\\jorda\\Desktop\\targetedMetabolites_byChEBIs_rawAbundances_bySystem_unmapped.txt',
+        'transcriptomics': 'None',
+        'proteomics': 'None',
+        'organism_curation': 'C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle',
+        'species_id': 'HSA',
+        'output_file': 'C:\\Users\\jorda\\Desktop\\HSA_chebi_mapping',
+        'collapse_with_modifiers': False,
+        'labels': 'a,b,c,d',
+        'blocklist': 'H+, H2O, CO2, e-, Mn2+, K+, Na+, Mg2+, O2, H2O2',
+        'database_version': 'test'
+    }
+
+    with open(args_dict['network'], 'rb') as network_file:
+        network = pickle.load(network_file)
+
+    __main__(
+        args_dict=args_dict)
+
 def test_check_db():
 
     network_url = '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE.mvdb'

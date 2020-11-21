@@ -492,3 +492,29 @@ def test_win_biomodels_bigg():
         transcriptomics_url,
         proteomics_url,
         metabolomics_url)
+
+def test_win2():
+
+    import pickle
+    network_url = "C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle"
+    with open(network_url, 'rb') as network_file:
+        network = pickle.load(network_file)
+    transcriptomics_url = "None"
+    proteomics_url = "None"
+    metabolomics_url = "C:\\Users\\jorda\\Desktop\\targetedMetabolites_byChEBIs_rawAbundances_bySystem_unmapped.txt"
+
+    d, s, u = __main__(
+        network,
+        transcriptomics_url,
+        proteomics_url,
+        metabolomics_url)
+
+    data_renamed = d.copy()
+    data_renamed = data_renamed.loc[data_renamed.dropna(axis=0).index.drop_duplicates(False)]
+    d_cols = data_renamed.columns
+    data_renamed[d_cols] = data_renamed[d_cols].apply(
+        pd.to_numeric, errors='coerce')
+
+    map_id = "CHEBI:15729"
+    map_id in set(data_renamed.index.tolist())
+    map_id in network['chebi_synonyms']

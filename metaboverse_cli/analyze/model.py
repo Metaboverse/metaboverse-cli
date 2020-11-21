@@ -938,6 +938,18 @@ def map_attributes(
                     rgba_tuples=graph.nodes()[x]['values_rgba'])
                 graph.nodes()[x]['stats'] = stats_renamed.loc[_idx].tolist()
                 mapped_nodes.append(_idx)
+            elif map_id in set(data_renamed.index.tolist()) \
+            and map_id in set(stats_renamed.index.tolist()) \
+            and map_id != 'none' \
+            and len(map_id) > 1:
+                graph.nodes()[x]['values'] = data_renamed.loc[map_id].tolist()
+                graph.nodes()[x]['values_rgba'] = extract_value(
+                    value_array=data_renamed.loc[map_id].tolist(),
+                    max_value=data_max)
+                graph.nodes()[x]['values_js'] = convert_rgba(
+                    rgba_tuples=graph.nodes()[x]['values_rgba'])
+                graph.nodes()[x]['stats'] = stats_renamed.loc[map_id].tolist()
+                mapped_nodes.append(map_id)
             else:
                 colors = [missing_color for x in range(n)]
                 graph.nodes()[x]['values'] = [None for x in range(n)]
@@ -1462,13 +1474,6 @@ def __main__(
         if 'chebi' in G.nodes()[node]['name'].lower():
             if G.nodes()[node]['name'] in reverse_chebi.keys():
                 G.nodes()[node]['name'] = reverse_chebi[G.nodes()[node]['name']]
-
-    # Export graph, pathway membership, pathway degree, other refs
-    #unmapped['metabolites_unmapped'] = []
-    #for x in non_mappers:
-    #    if x not in data.index.tolist():
-    #        unmapped['metabolites_unmapped'].append(x)
-    #print(unmapped)
 
     print('Exporting graph...')
     args_dict["max_value"] = max_value
