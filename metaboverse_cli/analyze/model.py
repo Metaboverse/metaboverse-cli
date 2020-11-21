@@ -1110,7 +1110,8 @@ def broadcast_values(
         categories,
         max_value,
         max_stat,
-        broadcast_genes=True):
+        broadcast_genes=True,
+        broadcast_metabolites=True):
     """
     """
 
@@ -1202,6 +1203,12 @@ def broadcast_values(
                     if graph.nodes()[neighbor]['type'] == 'complex_component':
                         gene_values.append(graph.nodes()[neighbor]['values'])
                         gene_stats.append(graph.nodes()[neighbor]['stats'])
+                    elif broadcast_metabolites == True \
+                    and graph.nodes()[neighbor]['type'] == 'metabolite_component':
+                        gene_values.append(graph.nodes()[neighbor]['values'])
+                        gene_stats.append(graph.nodes()[neighbor]['stats'])
+                    else:
+                        pass
 
                 # Remove None and avg
                 gene_values = remove_nulls(gene_values)
@@ -1416,17 +1423,25 @@ def __main__(
     print('Broadcasting values where available...')
     categories = data.columns.tolist()
 
-    if 'broadcast_genes' in args_dict and args_dict['broadcast_genes'] == True:
+    if 'broadcast_genes' in args_dict \
+    and args_dict['broadcast_genes'] == True:
         broadcast_genes = True
     else:
         broadcast_genes = False
+
+    if 'broadcast_metabolites' in args_dict \
+    and args_dict['broadcast_metabolites'] == True:
+        broadcast_metabolites = True
+    else:
+        broadcast_metabolites = False
 
     G = broadcast_values(
         graph=G,
         categories=categories,
         max_value=max_value,
         max_stat=max_stat,
-        broadcast_genes=broadcast_genes)
+        broadcast_genes=broadcast_genes,
+        broadcast_metabolites=broadcast_metabolites)
     progress_feed(args_dict, "graph", 10)
 
     # Remove disease reactions that are "defective" from reaction collapse
@@ -1439,7 +1454,8 @@ def __main__(
 
     print('Compiling collapsed reaction reference...')
     # Collapse reactions
-    G, updated_reactions, changed_reactions, removed_reaction = collapse_nodes(
+    G, updated_reactions, changed_reactions, \
+    removed_reaction = collapse_nodes(
         graph=G,
         reaction_dictionary=no_defective_reactions,
         samples=len(categories),
@@ -1480,7 +1496,7 @@ def __main__(
     args_dict["max_stat"] = max_stat
     args_dict["database_date"] = date.today().strftime('%Y-%m-%d')
     args_dict["curation_date"] = network["curation_date"]
-    args_dict["database_version"] = network["database_version"]
+    #args_dict["database_version"] = network["database_version"]
     output_graph(
         graph=G,
         output_name=graph_name,

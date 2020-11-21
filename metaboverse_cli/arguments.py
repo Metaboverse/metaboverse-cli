@@ -243,6 +243,11 @@ def parse_arguments(
         action = 'store_true',
         required = False)
     curate_opts.add_argument(
+        '--broadcast_metabolites',
+        help = 'Broadcast metabolites values to protein complexes.',
+        action = 'store_true',
+        required = False)
+    curate_opts.add_argument(
         '-e', '--experiment_type',
         help = 'Specify experiment type',
         metavar = '<default/timecourse/flux/multi-condition>',

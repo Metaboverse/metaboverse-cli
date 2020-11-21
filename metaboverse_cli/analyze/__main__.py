@@ -109,6 +109,31 @@ def test3():
     __main__(
         args_dict=args_dict)
 
+def test4():
+
+    args_dict = {
+        'database_source': 'reactome',
+        'network': 'C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle',
+        'metabolomics': 'C:\\Users\\jorda\\Desktop\\projects\\manuscript\\data\\lung_tumor_pr000305_st000390\\lung_tumor_vs_normal_measurements.txt',
+        'transcriptomics': 'None',
+        'proteomics': 'None',
+        'organism_curation': 'C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle',
+        'species_id': 'HSA',
+        'output_file': 'C:\\Users\\jorda\\Desktop\\lung_broadcasting.mvrs',
+        'collapse_with_modifiers': False,
+        'labels': 'a,b,c,d',
+        'blocklist': 'H+, H2O, CO2, e-, Mn2+, K+, Na+, Mg2+, O2, H2O2',
+        'database_version': 'test',
+        'broadcast_genes': True,
+        'broadcast_metabolites': True
+    }
+
+    with open(args_dict['network'], 'rb') as network_file:
+        network = pickle.load(network_file)
+
+    __main__(
+        args_dict=args_dict)
+
 def test_check_db():
 
     network_url = '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE.mvdb'
