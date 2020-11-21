@@ -175,12 +175,12 @@ def parse_arguments(
     curate_opts.add_argument(
         '-c', '--organism_curation',
         help = 'Path and name for organism curation file',
-        metavar = '<path/filename.mvdb>',
+        metavar = '<path/filename.mvdb; path/filename.xml; path/filename.sbml>',
         type = str,
         required = False)
     curate_opts.add_argument(
         '-i', '--model_file',
-        help = 'Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored. Can also be a BioModels or BiGG .xml/.sbml file.',
+        help = 'Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored.',
         metavar = '<path/filename.mvdb>',
         type = str,
         required = False)

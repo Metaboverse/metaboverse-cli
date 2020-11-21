@@ -396,7 +396,7 @@ def __main__(
         species_id=args_dict['species_id'],
         output_dir=args_dict['output'],
         database_source=args_dict['database_source'],
-        sbml_url=args_dict['model_file'],
+        sbml_url=args_dict['organism_curation'],
         args_dict=args_dict)
 
     print('Parsing ChEBI database...')
