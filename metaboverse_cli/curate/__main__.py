@@ -70,7 +70,7 @@ def test2():
     args_dict = {
         'species_id': 'find',
         'output': 'C:\\Users\\jorda\\Desktop\\',
-        'database_source': 'biomodels',
+        'database_source': 'biomodels/bigg',
         'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\BMID000000141967_url.xml',
         'session_data': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\curate\\test\\test_session_data.json'
     }
@@ -84,7 +84,7 @@ def test3():
     args_dict = {
         'species_id': 'find',
         'output': 'C:\\Users\\jorda\\Desktop\\',
-        'database_source': 'biomodels',
+        'database_source': 'biomodels/bigg',
         'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\iIS312.xml',
         'session_data': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\curate\\test\\test_session_data.json'
     }
@@ -396,7 +396,7 @@ def __main__(
         species_id=args_dict['species_id'],
         output_dir=args_dict['output'],
         database_source=args_dict['database_source'],
-        sbml_url=args_dict['sbml_url'],
+        sbml_url=args_dict['model_file'],
         args_dict=args_dict)
 
     print('Parsing ChEBI database...')

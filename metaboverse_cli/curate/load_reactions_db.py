@@ -831,7 +831,7 @@ def __main__(
                 dir=pathways_dir)
         else:
             print('Could not find SMBL file directory, skipping removal of this directory...')
-    elif database_source.lower() == 'biomodels' or database_source.lower() == 'bigg' and sbml_url != "":
+    elif database_source.lower() == 'biomodels/bigg' and sbml_url != "None":
 
         sbml_db = load_sbml(
             sbml_url=sbml_url)

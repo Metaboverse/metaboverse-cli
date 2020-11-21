@@ -180,7 +180,7 @@ def parse_arguments(
         required = False)
     curate_opts.add_argument(
         '-i', '--model_file',
-        help = 'Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored.',
+        help = 'Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored. Can also be a BioModels or BiGG .xml/.sbml file.',
         metavar = '<path/filename.mvdb>',
         type = str,
         required = False)
@@ -213,17 +213,10 @@ def parse_arguments(
         required = False)
     curate_opts.add_argument(
         '--database_source',
-        help = 'A string indicating the database source (default: "reactome"; other options: "biomodels" or "bigg")',
+        help = 'A string indicating the database source (default: "reactome"; other options: "biomodels/bigg")',
         metavar = '<source_name>',
         type = str,
         default = 'reactome',
-        required = False)
-    curate_opts.add_argument(
-        '--sbml_url',
-        help = 'For non-Reactome database curations, provide the XML or SBML file to process (must be a supported source as outlined in the --database_source flag).',
-        metavar = '<path/sbml_file.sbml>',
-        type = str,
-        default = '',
         required = False)
     #curate_opts.add_argument(
     #    '-a', '--additional_reactions',
