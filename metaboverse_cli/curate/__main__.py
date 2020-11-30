@@ -57,7 +57,7 @@ def test():
 
     args_dict = {
         'output':'C:\\Users\\jorda\\Desktop\\',
-        'species_id':'MMU',
+        'organism_id':'MMU',
         'database_source':'reactome',
         'sbml_url':''
     }
@@ -68,7 +68,7 @@ def test():
 def test2():
 
     args_dict = {
-        'species_id': 'find',
+        'organism_id': 'find',
         'output': 'C:\\Users\\jorda\\Desktop\\',
         'database_source': 'biomodels/bigg',
         'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\BMID000000141967_url.xml',
@@ -82,7 +82,7 @@ def test2():
 def test3():
 
     args_dict = {
-        'species_id': 'find',
+        'organism_id': 'find',
         'output': 'C:\\Users\\jorda\\Desktop\\',
         'database_source': 'biomodels/bigg',
         'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\iIS312.xml',
@@ -393,7 +393,7 @@ def __main__(
     pathway_database, reaction_database, species_database, \
     name_database, compartment_dictionary, \
     components_database = load_reactions(
-        species_id=args_dict['species_id'],
+        species_id=args_dict['organism_id'],
         output_dir=args_dict['output'],
         database_source=args_dict['database_source'],
         sbml_url=args_dict['organism_curation'],
@@ -424,7 +424,7 @@ def __main__(
         print('Parsing Ensembl database...')
         ensembl_reference = parse_ensembl_synonyms(
             output_dir=args_dict['output'],
-            species_id=args_dict['species_id'])
+            species_id=args_dict['organism_id'])
         progress_feed(args_dict, "curate", 3)
 
         print('Adding gene IDs to name database...')
@@ -436,11 +436,11 @@ def __main__(
         print('Parsing UniProt database...')
         uniprot_reference = parse_uniprot_synonyms(
             output_dir=args_dict['output'],
-            species_id=args_dict['species_id'])
+            species_id=args_dict['organism_id'])
         progress_feed(args_dict, "curate", 3)
 
         database_version = str(get_reactome_version() + ' (Reactome)')
-        _species_id = args_dict['species_id']
+        _species_id = args_dict['organism_id']
 
     else:
         complexes_reference = {
@@ -456,7 +456,7 @@ def __main__(
             'organism_id')
 
     metaboverse_db = {
-        'species_id': _species_id,
+        'organism_id': _species_id,
         'pathway_database': pathway_database,
         'reaction_database': reaction_database,
         'species_database': species_database,

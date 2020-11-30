@@ -57,7 +57,7 @@ def test():
         'transcriptomics': 'None',
         'proteomics': 'None',
         'organism_curation': '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE_metaboverse_db.pickle',
-        'species_id': 'SCE',
+        'organism_id': 'SCE',
         'output_file': '/Users/jordan/Desktop/metaboverse_data/sce_mct1_omics/_networks/SCE.mvrs',
     }
 
@@ -72,7 +72,7 @@ def test2():
         'transcriptomics': 'None',
         'proteomics': 'None',
         'organism_curation': 'C:\\Users\\jorda\\Desktop\\BMID000000141967.mvdb',
-        'species_id': 'BMID000000141967',
+        'organism_id': 'BMID000000141967',
         'output_file': 'C:\\Users\\jorda\\Desktop\\BMID000000141967.mvrs',
         'collapse_with_modifiers': False,
         'labels': '0',
@@ -95,7 +95,7 @@ def test3():
         'transcriptomics': 'None',
         'proteomics': 'None',
         'organism_curation': 'C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle',
-        'species_id': 'HSA',
+        'organism_id': 'HSA',
         'output_file': 'C:\\Users\\jorda\\Desktop\\HSA_chebi_mapping',
         'collapse_with_modifiers': False,
         'labels': 'a,b,c,d',
@@ -118,7 +118,7 @@ def test4():
         'transcriptomics': 'None',
         'proteomics': 'None',
         'organism_curation': 'C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle',
-        'species_id': 'HSA',
+        'organism_id': 'HSA',
         'output_file': 'C:\\Users\\jorda\\Desktop\\lung_broadcasting.mvrs',
         'collapse_with_modifiers': False,
         'labels': 'a,b,c,d',
@@ -163,7 +163,7 @@ def __main__(
     progress_feed(args_dict, "model", 2)
 
     if args_dict['organism_curation'] != 'None':
-        args_dict['species_id'] = network['species_id']
+        args_dict['organism_id'] = network['organism_id']
 
     # Read in data (if any)
     if str(args_dict['transcriptomics']).lower() != 'none' \
@@ -202,7 +202,7 @@ def __main__(
         network=network,
         data=data,
         stats=stats,
-        species_id=args_dict['species_id'],
+        species_id=args_dict['organism_id'],
         output_file=args_dict['output_file'],
         unmapped=unmapped,
         flag_data=flag_data)

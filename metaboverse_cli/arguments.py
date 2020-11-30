@@ -159,9 +159,9 @@ def parse_arguments(
         type = str,
         required = True)
     curate_reqs.add_argument(
-        '-s', '--species_id',
+        '-s', '--organism_id',
         help = 'Reactome species ID',
-        metavar = '<species_id>',
+        metavar = '<organism_id>',
         type = str,
         default = 'HSA',
         required = True)
@@ -192,21 +192,21 @@ def parse_arguments(
         required = False)
     curate_opts.add_argument(
         '-r', '--transcriptomics',
-        help = 'Path and filename of RNA-Seq data -- refer to documentation for details on formatting and normalization',
+        help = 'Path and filename of RNA-Seq data - refer to documentation for details on formatting and normalization',
         metavar = '<path/filename>',
         type = str,
         default = 'None',
         required = False)
     curate_opts.add_argument(
         '-p', '--proteomics',
-        help = 'Path and filename of proteomics data -- refer to documentation for details on formatting and normalization',
+        help = 'Path and filename of proteomics data - refer to documentation for details on formatting and normalization',
         metavar = '<path/filename>',
         type = str,
         default = 'None',
         required = False)
     curate_opts.add_argument(
         '-m', '--metabolomics',
-        help = 'Path and filename of metabolomics data -- refer to documentation for details on formatting and normalization',
+        help = 'Path and filename of metabolomics data - refer to documentation for details on formatting and normalization',
         metavar = '<path/filename>',
         type = str,
         default = 'None',

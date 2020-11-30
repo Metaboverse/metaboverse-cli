@@ -102,12 +102,12 @@ def main(
             # Update args_dict with path for network model
             with open(args_dict['organism_curation'], 'rb') as network_file:
                 network = pickle.load(network_file)
-                args_dict['species_id'] = network['species_id']
+                args_dict['organism_id'] = network['organism_id']
                 if args_dict['output_file'] == None \
                 or args_dict['output_file'] == "None" \
                 or args_dict['output_file'] == "find":
                     args_dict['output_file'] = args_dict['output'] \
-                        + args_dict['species_id'] \
+                        + args_dict['organism_id'] \
                         + '.mvrs'
                 args_dict['network'] = args_dict['organism_curation']
 
@@ -116,7 +116,7 @@ def main(
                 update_session(
                     session_file=session_file,
                     key='organism_id',
-                    value=args_dict['species_id'])
+                    value=args_dict['organism_id'])
                 update_session(
                     session_file=session_file,
                     key='output_file',
@@ -133,7 +133,7 @@ def main(
             if 'model_file' in args_dict \
             and str(args_dict['model_file']) == 'None':
                 args_dict['model_file'] = args_dict['output'] \
-                    + args_dict['species_id'] \
+                    + args_dict['organism_id'] \
                     + '.mvdb'
 
             args_dict['network'] = args_dict['model_file']
@@ -144,7 +144,7 @@ def main(
         if 'output_file' in args_dict \
         and str(args_dict['output_file']) == 'None':
             args_dict['output_file'] = args_dict['output'] \
-                + args_dict['species_id'] \
+                + args_dict['organism_id'] \
                 + '.mvrs'
 
         analyze(args_dict)
