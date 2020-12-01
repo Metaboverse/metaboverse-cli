@@ -23,7 +23,10 @@ from __future__ import print_function
 """Import dependencies
 """
 import os
+import io
 import pickle
+import zipfile
+import requests
 import xml.etree.ElementTree as et
 import pandas as pd
 
@@ -55,13 +58,18 @@ def parse_hmdb_synonyms(
 
     output_file = output_dir + file_name
     print("Downloading HMDB metabolite reference...")
-    os.system('curl -L ' + url + ' -o ' + output_file + '.zip')
-    print("Unzipping HMDB metabolite reference...")
-    os.system('unzip ' + output_file + '.zip -d ' + output_dir)
+    hmdb_url = requests.get(url)
+    if hmdb_url.ok:
+        print("Unzipping HMDB metabolite reference...")
+        hmdb_zip = zipfile.ZipFile(io.BytesIO(hmdb_url.content))
+        hmdb_zip.extractall(output_dir)
+        hmdb_zip = None
+    else:
+        raise Exception("Unable to download file at: " + url)
+
     print("Parsing HMDB metabolite records...")
     hmdb_contents = et.parse(output_file + '.xml')
     contents = hmdb_contents.getroot()
-    os.remove(output_file + '.zip')
     os.remove(output_file + '.xml')
 
     hmdb_dictionary = {}

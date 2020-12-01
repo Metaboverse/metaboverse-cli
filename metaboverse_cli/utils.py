@@ -43,7 +43,7 @@ def update_session(
             json.dump(session, outfile)
 
     else:
-        print("File at " + str(session_file) + " does not exist.")
+        print("Session file not found: " + str(session_file))
 
 def get_session_value(
         session_file,
@@ -53,7 +53,11 @@ def get_session_value(
 
         with open(session_file) as json_file:
             session = json.load(json_file)
-            return session[key]
+            if key in session:
+                return session[key]
+            else:
+                print("Cannot find specified key: " + key)
+                return 'unknown'
 
     else:
         print("File at " + str(session_file) + " does not exist.")

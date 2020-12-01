@@ -31,16 +31,19 @@ try:
                                         check_directories, \
                                         check_files, \
                                         check_curate, \
-                                        argument_checks
+                                        argument_checks, \
+                                        get_session_value
 except:
     from utils import update_session, \
                         progress_feed, \
                         check_directories, \
                         check_files, \
                         check_curate, \
-                        argument_checks
+                        argument_checks, \
+                        get_session_value
+
 # update_session()
-session_file = os.path.abspath("./metaboverse_cli/test/session_data.json")
+session_file = os.path.abspath(os.path.join(".", "metaboverse_cli", "test", "session_data.json"))
 update_session(
     session_file=session_file,
     key='database_url',
@@ -77,23 +80,31 @@ with open(progress_file) as json_file:
     assert data['tester'] == 0, 'progress_feed() failed'
 
 # check_directories()
-args_dict = {'output': os.path.abspath("./metaboverse_cli/test")}
+args_dict = {
+    'output': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "test"))}
 dir = check_directories(
     input=args_dict['output'],
     argument='output')
-assert dir == os.path.abspath("./metaboverse_cli/test") + '/', 'check_directories() failed'
+assert dir == os.path.abspath(
+    os.path.join(".", "metaboverse_cli", "test")
+) + os.path.sep, 'check_directories() failed'
 
 # check_files()
-args_dict = {'input': os.path.abspath("./metaboverse_cli/test/rnaseq_test.txt")}
+args_dict = {
+    'input': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "test", "rnaseq_test.txt"))}
 f = check_files(
     input=args_dict['input'],
     argument='input')
-assert f == os.path.abspath("./metaboverse_cli/test/rnaseq_test.txt"), 'check_files() failed'
+assert f == os.path.abspath(
+    os.path.join(".", "metaboverse_cli", "test", "rnaseq_test.txt")
+), 'check_files() failed'
 
 # check_curate()
 args_dict = {
-    'output': os.path.abspath("./metaboverse_cli/test"),
-    'species_id': 'SCE'}
+    'output': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")),
+    'organism_id': 'SCE'}
 try:
     check_curate(
         args_dict=args_dict)
@@ -102,18 +113,34 @@ except:
 
 # argument_checks()
 args_dict = {
-    'output': os.path.abspath("./metaboverse_cli/test"),
-    'species_id': 'SCE',
+    'output': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")),
+    'organism_id': 'SCE',
     'progress_log': progress_file,
     'session_data': session_file,
     'cmd': "BAD"}
 args_dict = argument_checks(
     args_dict=args_dict)
 assert args_dict == {
-    'output': os.path.abspath("./metaboverse_cli/test") + '/',
-    'species_id': 'SCE',
-    'progress_log': os.path.abspath("./metaboverse_cli/test") + '/progress_data.json',
-    'session_data': os.path.abspath("./metaboverse_cli/test") + '/session_data.json',
+    'output': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")) + os.path.sep,
+    'organism_id': 'SCE',
+    'progress_log': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")) + os.path.sep + 'progress_data.json',
+    'session_data': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")) + os.path.sep + 'session_data.json',
     'cmd': 'BAD'}, 'argument_checks() failed'
+
+# get_session_value()
+val1 = get_session_value(
+    session_file=args_dict['session_data'],
+    key="database_url")
+assert val1 == "", 'get_session_value() failed'
+
+val2 = get_session_value(
+    session_file=args_dict['session_data'],
+    key="database_badURL")
+assert val2 == "unknown", 'get_session_value() failed'
+
+val3 = get_session_value(
+    session_file= os.path.abspath(os.path.join(".", "metaboverse_cli", "test")) + os.path.sep + 'bad_file.json',
+    key="database_url")
+assert val3 == "unknown", 'get_session_value() failed'
 
 print('Tests completed')

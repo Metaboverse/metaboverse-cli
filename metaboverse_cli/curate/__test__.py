@@ -24,6 +24,7 @@ from __future__ import print_function
 """
 import os
 import pickle
+from shutil import copyfile
 import pandas as pd
 import xml.etree.ElementTree as et
 
@@ -60,24 +61,18 @@ spec.loader.exec_module(load_reactions_db)
 
 # test __main__() -- functional test
 args_dict = {
-    'species_id': 'SCE',
-    'output': os.path.abspath("./metaboverse_cli/curate/test") + '/'}
-"""
-args_dict = curate.__main__(
-    args_dict=args_dict)
-network_file = args_dict['output'] + 'SCE.mvdb'
-with open(network_file, 'rb') as network_file:
-    reactome_database = pickle.load(network_file)
-assert type(reactome_database) == dict, "curate module failed"
-os.remove(args_dict['output'] + 'SCE.mvdb')
-"""
+    'organism_id': 'SCE',
+    'output': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep}
 
 # load_reactions_db.py
 pathway_database, reaction_database, species_database, \
 name_database, compartment_dictionary, \
 components_database = load_reactions.__main__(
-    species_id=args_dict['species_id'],
+    species_id=args_dict['organism_id'],
     output_dir=args_dict['output'],
+    database_source='reactome',
+    sbml_url='None',
     args_dict=args_dict)
 
 assert type(pathway_database) == dict, "load_reactions_db.py failed"
@@ -110,7 +105,8 @@ assert type(organisms) == list, "fetch_species.py failed"
 
 # write_database()
 args_dict = {
-    'output': os.path.abspath("./metaboverse_cli/curate/test") + '/',
+    'output': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep,
     'file': 'test.mvdb'}
 database = {
     'chebi_reference': {
@@ -217,11 +213,11 @@ species_id = 'HSA'
 path = args_dict['output']
 file = 'R-HSA-realtest.sbml'
 test_db = args_dict['output'] + file
-smbl_namespace = '{{http://www.sbml.org/sbml/level{0}/version{1}/core}}'
+sbml_namespace = '{{http://www.sbml.org/sbml/level{0}/version{1}/core}}'
 rdf_namespace = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
 bqbiol_namespace = '{http://biomodels.net/biology-qualifiers/}'
-smbl_level = '3'
-smbl_version = '1'
+sbml_level = '3'
+sbml_version = '1'
 
 path_list = load_reactions_db.get_pathways(
     species_id=species_id,
@@ -241,7 +237,7 @@ components_database = load_reactions_db.process_components(
     pathways_list=path_list,
     species_id=species_id,
     args_dict=None,
-    smbl_namespace=smbl_namespace,
+    sbml_namespace=sbml_namespace,
     bqbiol_namespace=bqbiol_namespace,
     rdf_namespace=rdf_namespace)
 
@@ -315,5 +311,73 @@ assert set(components_database['species_195941']['hasPart']) == set([
     'P03468',
     'P03452',
     'P06821']), 'process_components() failed'
+
+# BioModels tests
+src = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data.json"))
+dst = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))
+s_out = copyfile(src, dst)
+
+args_dict = {
+    'organism_id': 'find',
+    'output': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep,
+    'session_data':os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))}
+
+pathway_database, reaction_database, species_database, \
+name_database, compartment_dictionary, \
+components_database = load_reactions.__main__(
+    species_id=args_dict['organism_id'],
+    output_dir=args_dict['output'],
+    database_source='biomodels/bigg',
+    sbml_url=os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "iIS312.xml")),
+    args_dict=args_dict)
+
+if 'All' in pathway_database:
+    print("Pass")
+else:
+    raise Exception("BioModels/BiGG database curation failed")
+assert reaction_database['R_PROt2r_copy2']['reactants'] == ['M_h_e', 'M_pro__L_e'], "BioModels/BiGG database curation failed"
+assert species_database['M_pro__L_e'] == 'L-Proline', "BioModels/BiGG database curation failed"
+assert name_database['M_pro__L_e'] == 'M_pro__L_e', "BioModels/BiGG database curation failed"
+assert name_database['L-Proline'] == 'M_pro__L_e', "BioModels/BiGG database curation failed"
+assert compartment_dictionary['c'] == 'cytosol', "BioModels/BiGG database curation failed"
+assert components_database['M_pro__L_e']['is'] == 'D00035', "BioModels/BiGG database curation failed"
+
+os.remove(dst)
+
+
+# BiGG tests
+src = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data.json"))
+dst = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))
+s_out = copyfile(src, dst)
+
+args_dict = {
+    'organism_id': 'find',
+    'database_source': 'biomodels/bigg',
+    'output': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep,
+    'session_data':os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))}
+
+pathway_database, reaction_database, species_database, \
+name_database, compartment_dictionary, \
+components_database = load_reactions.__main__(
+    species_id=args_dict['organism_id'],
+    output_dir=args_dict['output'],
+    database_source='biomodels/bigg',
+    sbml_url=os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "BMID000000141967_url.xml")),
+    args_dict=args_dict)
+
+if 'All' in pathway_database:
+    print("Pass")
+else:
+    raise Exception("BioModels/BiGG database curation failed")
+assert reaction_database['MNXR42496_i']['reactants'] == ['MNXM2885_i', 'bigg_gthrd_i'], "BioModels/BiGG database curation failed"
+assert species_database['MNXM2885_i'] == '(1S,2R)-Naphthalene 1,2-oxide', "BioModels/BiGG database curation failed"
+assert species_database['MNXM2885_e'] == '(1S,2R)-Naphthalene 1,2-oxide', "BioModels/BiGG database curation failed"
+assert name_database['(1S,2R)-Naphthalene 1,2-oxide'] == 'MNXM2885_e', "BioModels/BiGG database curation failed"
+assert compartment_dictionary['i'] == 'intracellular', "BioModels/BiGG database curation failed"
+assert components_database['MNXM2885_e']['is'] == 'MNXM2885_e', "BioModels/BiGG database curation failed"
+
+os.remove(dst)
 
 print('Tests completed')

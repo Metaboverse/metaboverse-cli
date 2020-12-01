@@ -26,7 +26,6 @@ import os
 import sys
 import re
 import stat
-import shutil
 import tarfile
 import time
 import hashlib
@@ -290,6 +289,41 @@ def add_names(
                     item=_id,
                     specie=specie)
 
+    return name_database
+
+def add_bigg_names(
+        name_database,
+        child,
+        specie,
+        search_string='notes',
+        sbml_namespace=sbml_namespace,
+        sbml_level=sbml_level,
+        sbml_version=sbml_version):
+    """Add names to dictionary to map species ID
+    """
+
+    for c in child:
+        if c.tag == str(sbml_namespace + 'notes').format(
+                sbml_level,
+                sbml_version):
+            for z in c[0]:
+                _z = z.text
+                if 'bigg' in _z.lower():
+                    name_database[_z.split(':')[1].replace(' ', '')] = specie
+                if 'biopath' in _z.lower():
+                    name_database[_z.split(':')[1].replace(' ', '')] = specie
+                if 'kegg' in _z.lower():
+                    if ',' in _z:
+                        for _z_ in _z.split(','):
+                            name_database[_z_.replace(' ', '')] = specie
+                    else:
+                        name_database[_z.replace(' ', '')] = specie
+                if 'metacyc' in _z.lower():
+                    name_database[_z.split(':')[1].replace(' ', '')] = specie
+                if 'mxnref' in _z.lower():
+                    name_database[_z.split(':')[1].replace(' ', '')] = specie
+
+    name_database[specie] = specie
     return name_database
 
 def add_alternative_names(
@@ -746,6 +780,15 @@ def process_manual(
                     search_string='is',
                     bqbiol_namespace=bqbiol_namespace,
                     rdf_namespace=rdf_namespace)
+
+                name_database = add_bigg_names(
+                    name_database=name_database,
+                    child=child,
+                    specie=specie,
+                    search_string='notes',
+                    sbml_namespace=sbml_namespace,
+                    sbml_level=sbml_level,
+                    sbml_version=sbml_version)
 
     #Generate reaction database
     for x in elements:
