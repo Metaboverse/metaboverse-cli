@@ -19,7 +19,7 @@ script:
 - bash <(curl -s https://codecov.io/bash) -cF python
 - coverage run metaboverse_cli/curate/__test__.py
 - bash <(curl -s https://codecov.io/bash) -cF python
-- travis_wait 30 coverage run metaboverse_cli/analyze/__test__.py
+- travis_wait 40 coverage run metaboverse_cli/analyze/__test__.py
 - bash <(curl -s https://codecov.io/bash) -cF python
 # - coverage run metaboverse_cli/mapper/__test__.py # can't run due to travis memory limit
 
