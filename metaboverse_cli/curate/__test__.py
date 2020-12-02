@@ -381,6 +381,7 @@ assert components_database['MNXM2885_e']['is'] == 'MNXM2885_e', "BioModels/BiGG 
 os.remove(dst)
 
 # test all
+"""
 src = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data.json"))
 dst = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))
 s_out = copyfile(src, dst)
@@ -397,6 +398,7 @@ curate.__main__(
 )
 os.remove(dst)
 os.remove(args_dict['output'] + "SCE.mvdb")
+"""
 
 # test all bigg
 src = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data.json"))
