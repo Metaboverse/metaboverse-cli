@@ -73,120 +73,6 @@ def format_data(
 
     return data_output, data_unmapped
 
-def format_metabolomics (
-        data,
-        chebi_reference,
-        other_reference):
-    """Format data for processing
-    3) Metabolomics
-    - Accepts entities mapping to ensembl genes and their synonyms
-    - Expects fold change values and their p-values side-by-side
-    - Columns should be ordered in intended order (for multi-conditions)
-    - gene_dictionary is an Ensembl GTF file
-    - Columns should be condition_fc, condition_p, etc.
-    """
-
-    ### Primary mappings
-    # Phase 1
-    data['holder'] = data.index
-    data['holder'] = data['holder'].str.replace(' ', '')
-    data['holder'] = data['holder'].replace(chebi_reference)
-
-    # Phase 2
-    phase2 = {}
-    for k, v in chebi_reference.items():
-
-        try:
-            phase2[k.upper().replace(' ', '')] = v
-        except:
-            if k == None:
-                phase2['NA'] = v
-            else:
-                pass
-
-    data['holder'] = data['holder'].str.upper()
-    data['holder'] = data['holder'].replace(phase2)
-
-    # Phase 3
-    phase3 = {}
-    for k, v in phase2.items():
-
-        phase3[k.replace('-', '')] = v
-
-    data['holder'] = data['holder'].str.replace('-', '')
-    data['holder'] = data['holder'].replace(phase3)
-
-    # Phase 4
-    phase4 = {}
-    for k, v in phase3.items():
-
-        phase4[k.replace('D', '').replace('L', '')] = v
-
-    data['holder'] = data['holder'].str.replace('D', '')
-    data['holder'] = data['holder'].str.replace('L', '')
-    data['holder'] = data['holder'].replace(phase4)
-
-    ### Other mappings
-    # Phase 5
-    data['holder'] = data['holder'].replace(other_reference)
-
-    # Phase 6
-    phase6 = {}
-    for k, v in other_reference.items():
-
-        try:
-            phase6[k.upper().replace(' ', '')] = v
-        except:
-            if k == None:
-                phase6['NA'] = v
-            else:
-                pass
-
-    data['holder'] = data['holder'].str.upper()
-    data['holder'] = data['holder'].replace(phase6)
-
-    # Phase 7
-    phase7 = {}
-    for k, v in phase6.items():
-
-        phase7[k.replace('-', '')] = v
-
-    data['holder'] = data['holder'].str.replace('-', '')
-    data['holder'] = data['holder'].replace(phase7)
-
-    # Phase 8
-    phase8 = {}
-    for k, v in phase7.items():
-
-        phase8[k.replace('D', '').replace('L', '')] = v
-
-    data['holder'] = data['holder'].str.replace('D', '')
-    data['holder'] = data['holder'].str.replace('L', '')
-    data['holder'] = data['holder'].replace(phase8)
-
-    ### Extract mapped from unmapped
-    reference_ids = list(chebi_reference.values()) + list(other_reference.values())
-
-    data_output = data.copy()
-    data_unmapped = data.copy()
-
-    data_output = data_output[data_output['holder'].isin(reference_ids)]
-    data_unmapped = data_unmapped[~data_unmapped['holder'].isin(reference_ids)]
-
-    data_output.index = data_output['holder']
-    data_output = data_output.drop(
-        labels='holder',
-        axis=1)
-
-    data_unmapped = data_unmapped.drop(
-        labels='holder',
-        axis=1)
-
-    data_output.index.name = None
-    data_unmapped.index.name = None
-
-    return data_output, data_unmapped
-
 def output_unmapped(
         data,
         url,
@@ -310,7 +196,7 @@ def __main__(
         transcriptomics = read_data(
             url=transcriptomics_url)
         e_sym = {}
-        if database_source.lower() != 'reactome':
+        if database_source.lower() == 'reactome':
             for k, v in network['ensembl_synonyms'].items():
                 if 'phospho-' in v and '-phospho-' not in v:
                     v = v.replace('phospho-', '')
@@ -339,7 +225,7 @@ def __main__(
         proteomics = read_data(
             url=proteomics_url)
         u_sym = {}
-        if database_source.lower() != 'reactome':
+        if database_source.lower() == 'reactome':
             for k, v in network['uniprot_synonyms'].items():
                 if 'phospho-' in v and '-phospho-' not in v:
                     v = v.replace('phospho-', '')
@@ -462,59 +348,3 @@ def __main__(
         unmapped['proteomics_unmapped'] = []
 
     return data, stats, unmapped
-
-def test_win():
-
-    import pickle
-    network_url = "C:\\Users\\jorda\\Desktop\\HSA.mvdb"
-    with open(network_url, 'rb') as network_file:
-        network = pickle.load(network_file)
-    transcriptomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\transcriptomics.txt"
-    proteomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\proteomics.txt"
-    metabolomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\metabolomics.txt"
-
-    data.to_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t')
-    stats.to_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t')
-
-
-def test_win_biomodels_bigg():
-
-    import pickle
-    network_url = "C:\\Users\\jorda\\Desktop\\BMID000000141967.mvdb"
-    with open(network_url, 'rb') as network_file:
-        network = pickle.load(network_file)
-    transcriptomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\biomodels_gene.txt"
-    proteomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\biomodels_protein.txt"
-    metabolomics_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\biomodels_metabolite.txt"
-
-    d, s, u = __main__(
-        network,
-        transcriptomics_url,
-        proteomics_url,
-        metabolomics_url)
-
-def test_win2():
-
-    import pickle
-    network_url = "C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle"
-    with open(network_url, 'rb') as network_file:
-        network = pickle.load(network_file)
-    transcriptomics_url = "None"
-    proteomics_url = "None"
-    metabolomics_url = "C:\\Users\\jorda\\Desktop\\targetedMetabolites_byChEBIs_rawAbundances_bySystem_unmapped.txt"
-
-    d, s, u = __main__(
-        network,
-        transcriptomics_url,
-        proteomics_url,
-        metabolomics_url)
-
-    data_renamed = d.copy()
-    data_renamed = data_renamed.loc[data_renamed.dropna(axis=0).index.drop_duplicates(False)]
-    d_cols = data_renamed.columns
-    data_renamed[d_cols] = data_renamed[d_cols].apply(
-        pd.to_numeric, errors='coerce')
-
-    map_id = "CHEBI:15729"
-    map_id in set(data_renamed.index.tolist())
-    map_id in network['chebi_synonyms']

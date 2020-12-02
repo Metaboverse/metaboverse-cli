@@ -38,7 +38,6 @@ prepare_data = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(prepare_data)
 read_data = prepare_data.read_data
 format_data = prepare_data.format_data
-format_metabolomics = prepare_data.format_metabolomics
 output_unmapped = prepare_data.output_unmapped
 extract_data = prepare_data.extract_data
 broadcast_transcriptomics = prepare_data.broadcast_transcriptomics
@@ -48,14 +47,14 @@ __main__ = prepare_data.__main__
 
 import zipfile
 zipped_net = os.path.abspath(
-    './metaboverse_cli/analyze/test/HSA_metaboverse_db.zip')
+    './metaboverse_cli/analyze/test/HSA.zip')
 with zipfile.ZipFile(zipped_net, 'r') as zip_file:
     zip_file.extractall(
         os.path.abspath(
             './metaboverse_cli/analyze/test'))
 
 network_url = os.path.abspath(
-    "./metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle")
+    "./metaboverse_cli/analyze/test/HSA.mvdb")
 with open(network_url, 'rb') as network_file:
     network = pickle.load(network_file)
 
@@ -136,18 +135,26 @@ data, stats, unmapped = __main__(
     proteomics_url=proteomics_url,
     metabolomics_url=metabolomics_url)
 assert data.shape > _v.shape, '__main__() from prepare_data.py failed'
+
 try:
-    data.loc['UBE2N']
+    stats.loc['UBE2N']
 except KeyError:
     pass
 else:
     raise Exception('__main__() from prepare_data.py failed')
+
 try:
     data.loc['P61088']
 except KeyError:
     raise Exception('__main__() from prepare_data.py failed')
+
 try:
     data.loc['ENST00000318066']
+except KeyError:
+    raise Exception('__main__() from prepare_data.py failed')
+
+try:
+    data.loc['WRAP73']
 except KeyError:
     raise Exception('__main__() from prepare_data.py failed')
 
@@ -307,7 +314,7 @@ test_args = {
     'output': os.path.abspath("./metaboverse_cli/analyze/test"),
     'output_file': os.path.abspath("./metaboverse_cli/analyze/test/test.mvrs"),
     'bad_output_file': os.path.abspath("./metaboverse_cli/analyze/test/") + '/',
-    'species_id': "HSA",
+    'organism_id': "HSA",
     'network': network_url
 }
 
@@ -315,14 +322,14 @@ test_args = {
 print("Testing name_graph()")
 name = name_graph(
     output_file=test_args['output_file'],
-    species_id=test_args['species_id']
+    species_id=test_args['organism_id']
 )
 assert name == test_args['output_file'], 'name_graph() failed'
 name = name_graph(
     output_file=test_args['bad_output_file'],
-    species_id=test_args['species_id']
+    species_id=test_args['organism_id']
 )
-assert name == test_args['bad_output_file'] + test_args['species_id'] + '_global_reactions.mvrs', 'name_graph() failed'
+assert name == test_args['bad_output_file'] + test_args['organism_id'] + '_global_reactions.mvrs', 'name_graph() failed'
 
 # build_graph()
 print("Testing build_graph()")
@@ -1040,11 +1047,12 @@ __main__ = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(__main__)
 test_modeling = __main__.__main__
 args_dict = {
+    'database_source': 'reactome',
     'network': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle'),
+        './metaboverse_cli/analyze/test/HSA.mvdb'),
     'organism_curation': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle'),
-    'species_id': 'HSA',
+        './metaboverse_cli/analyze/test/HSA.mvdb'),
+    'organism_id': 'HSA',
     'transcriptomics': os.path.abspath(
         './metaboverse_cli/analyze/test/rna_mapping_test.txt'),
     'proteomics': 'none',
@@ -1059,12 +1067,12 @@ args_dict = {
 }
 
 test_modeling(args_dict)
-os.remove(args_dict['network'])
+
 rna_unmapped = os.path.abspath(
     './metaboverse_cli/analyze/test/rna_mapping_test_unmapped.txt'
 )
 rna = pd.read_csv(rna_unmapped, sep='\t', index_col=0)
-assert len(rna.index.tolist()) == 7025, 'RNA mapping experienced error'
+assert len(rna.index.tolist()) == 7029, 'RNA mapping experienced error'
 os.remove(rna_unmapped)
 
 metabolite_unmapped = os.path.abspath(
@@ -1073,5 +1081,8 @@ metabolite_unmapped = os.path.abspath(
 met = pd.read_csv(metabolite_unmapped, sep='\t', index_col=0)
 assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS', 'Phenylacetylglycine'], 'Metabolite mapping experienced error'
 os.remove(metabolite_unmapped)
+
 os.remove(args_dict['output_file'])
+os.remove(args_dict['network'])
+
 print('Tests completed')

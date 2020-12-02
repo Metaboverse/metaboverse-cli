@@ -79,46 +79,6 @@ except:
 
 cmap = get_mpl_colormap('seismic')
 
-def test_nix():
-    args_dict = {'output': '/Users/jordan/Desktop/'}
-    output_file = "/Users/jordan/Desktop/testHSA.mvrs"
-    species_id = "HSA"
-    network_url = "/Users/jordan/Desktop/metaboverse-cli/metaboverse_cli/analyze/test/HSA_metaboverse_db.pickle"
-    with open(network_url, 'rb') as network_file:
-        network = pickle.load(network_file)
-
-    network_url = "/Users/jordan/Desktop/MMU_metaboverse_db.pickle"
-    with open(network_url, 'rb') as network_file:
-        network = pickle.load(network_file)
-
-    data = pd.read_csv('~/Desktop/data.tsv', sep='\t', index_col=0)
-    stats = pd.read_csv('~/Desktop/stats.tsv', sep='\t', index_col=0)
-
-def test_win():
-    args_dict = {'output': 'C:\\Users\\jorda\\Desktop'}
-    output_file = "C:\\Users\\jorda\\Desktop\\testHSA.mvrs"
-    species_id = "HSA"
-    __file__ = 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\'
-    #network_url = "C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\HSA_metaboverse_db.pickle"
-    network_url = "C:\\Users\\jorda\\Desktop\\HSA_metaboverse_db.pickle"
-    with open(network_url, 'rb') as network_file:
-        network = pickle.load(network_file)
-
-    #data = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_data.txt', sep='\t', index_col=0)
-    #stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\analyze\\test\\cat_stats.txt', sep='\t', index_col=0)
-
-
-    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_data.txt', sep='\t', index_col=0)
-    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\test_stats.txt', sep='\t', index_col=0)
-    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\d18.d9.log2fc.ttest.txt'
-
-
-    args_dict['metabolomics'] = 'C:\\Users\\jorda\\Desktop\\mct1_test_fc.txt'
-    data = pd.read_csv('C:\\Users\\jorda\\Desktop\\mct1_test_fc.txt', sep='\t', index_col=0)
-    data.columns = [0]
-    stats = pd.read_csv('C:\\Users\\jorda\\Desktop\\mct1_test_bh.txt', sep='\t', index_col=0)
-    stats.columns = [0]
-
 """Graph utils
 """
 def name_graph(

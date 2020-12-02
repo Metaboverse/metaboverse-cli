@@ -20,6 +20,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 import os
+import sys
 import json
 
 """Main/Utils
@@ -51,6 +52,11 @@ update_session(
 with open(session_file) as json_file:
     data = json.load(json_file)
     assert data['database_url'] == 'this is a fake', 'update_session() failed'
+
+update_session(
+    session_file="bad_path",
+    key='database_url',
+    value='this is a fake')
 
 update_session(
     session_file=session_file,
@@ -90,6 +96,15 @@ assert dir == os.path.abspath(
     os.path.join(".", "metaboverse_cli", "test")
 ) + os.path.sep, 'check_directories() failed'
 
+try:
+    dir = check_directories(
+        input="bad_path",
+        argument='output')
+except:
+    pass
+else:
+    raise Exception('check_directories() failed')
+
 # check_files()
 args_dict = {
     'input': os.path.abspath(
@@ -101,6 +116,15 @@ assert f == os.path.abspath(
     os.path.join(".", "metaboverse_cli", "test", "rnaseq_test.txt")
 ), 'check_files() failed'
 
+try:
+    f = check_files(
+        input="bad_file",
+        argument='input')
+except:
+    pass
+else:
+    raise Exception('check_files() failed')
+
 # check_curate()
 args_dict = {
     'output': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")),
@@ -109,6 +133,28 @@ try:
     check_curate(
         args_dict=args_dict)
 except:
+    raise Exception('check_curate() failed')
+
+args_dict = {
+    'output': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")),
+    'organism_id': 'None'}
+try:
+    check_curate(
+        args_dict=args_dict)
+except:
+    pass
+else:
+    raise Exception('check_curate() failed')
+
+args_dict = {
+    'output': "bad_path",
+    'organism_id': 'SCE'}
+try:
+    check_curate(
+        args_dict=args_dict)
+except:
+    pass
+else:
     raise Exception('check_curate() failed')
 
 # argument_checks()
@@ -126,6 +172,11 @@ assert args_dict == {
     'progress_log': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")) + os.path.sep + 'progress_data.json',
     'session_data': os.path.abspath(os.path.join(".", "metaboverse_cli", "test")) + os.path.sep + 'session_data.json',
     'cmd': 'BAD'}, 'argument_checks() failed'
+
+args_dict['output'] = None
+args_dict = argument_checks(
+    args_dict=args_dict)
+assert args_dict['output'] != None, 'argument_checks() failed'
 
 # get_session_value()
 val1 = get_session_value(

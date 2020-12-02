@@ -380,4 +380,39 @@ assert components_database['MNXM2885_e']['is'] == 'MNXM2885_e', "BioModels/BiGG 
 
 os.remove(dst)
 
+# test all
+src = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data.json"))
+dst = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))
+s_out = copyfile(src, dst)
+
+args_dict = {
+    'organism_id': 'SCE',
+    'database_source': 'reactome',
+    'organism_curation': "None",
+    'output': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep,
+    'session_data':os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))}
+curate.__main__(
+    args_dict=args_dict
+)
+os.remove(dst)
+os.remove(args_dict['output'] + "SCE.mvdb")
+
+# test all bigg
+src = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data.json"))
+dst = os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))
+s_out = copyfile(src, dst)
+args_dict = {
+    'organism_id': 'find',
+    'database_source': 'biomodels/bigg',
+    'organism_curation': os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "BMID000000141967_url.xml")),
+    'output': os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep,
+    'session_data':os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))}
+curate.__main__(
+    args_dict=args_dict
+)
+os.remove(dst)
+os.remove(args_dict['output'] + "BMID000000141967.mvdb")
+
 print('Tests completed')

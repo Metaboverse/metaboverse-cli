@@ -53,46 +53,6 @@ except:
     progress_feed = utils.progress_feed
     get_session_value = utils.get_session_value
 
-def test():
-
-    args_dict = {
-        'output':'C:\\Users\\jorda\\Desktop\\',
-        'organism_id':'MMU',
-        'database_source':'reactome',
-        'sbml_url':''
-    }
-    __main__(
-        args_dict
-    )
-
-def test2():
-
-    args_dict = {
-        'organism_id': 'find',
-        'output': 'C:\\Users\\jorda\\Desktop\\',
-        'database_source': 'biomodels/bigg',
-        'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\BMID000000141967_url.xml',
-        'session_data': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\curate\\test\\test_session_data.json'
-    }
-
-    __main__(
-        args_dict
-    )
-
-def test3():
-
-    args_dict = {
-        'organism_id': 'find',
-        'output': 'C:\\Users\\jorda\\Desktop\\',
-        'database_source': 'biomodels/bigg',
-        'sbml_url': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\test\\iIS312.xml',
-        'session_data': 'C:\\Users\\jorda\\Desktop\\projects\\metaboverse-cli\\metaboverse_cli\\curate\\test\\test_session_data.json'
-    }
-
-    __main__(
-        args_dict
-    )
-
 def parse_table(
         reference,
         key,
