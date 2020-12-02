@@ -144,9 +144,9 @@ def get_metadata(
     """Get basic metadata for a reaction
     """
 
-    compartment = reaction.attrib['compartment']
-    id = reaction.attrib['id']
-    name = reaction.attrib['name']
+    compartment = str(reaction.attrib['compartment'])
+    id = str(reaction.attrib['id'])
+    name = str(reaction.attrib['name'])
 
     reversible = reaction.attrib['reversible']
     if reversible == 'false':
@@ -471,6 +471,8 @@ def process_components(
     compartment_database = {}
     compartment_dictionary = {}
     components_database = {}
+
+    print('Extracting pathway-level reaction data for: ' + str(species_id))
 
     # Cycle through each pathway database and extract  contents
     for pathway in pathways_list:
