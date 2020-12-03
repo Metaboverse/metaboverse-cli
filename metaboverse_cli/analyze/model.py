@@ -777,6 +777,19 @@ def map_attributes(
                 for i in data_renamed.index.tolist()]
     temp_idx_set = set(temp_idx)
 
+    # Get cross-species CHEBI synonyms
+    chebi_mapping = {}
+    for current_id in list(graph.nodes()):
+        map_id = graph.nodes()[current_id]['map_id']
+        name = graph.nodes()[current_id]['name']
+        if 'chebi' in map_id.lower():
+            if name in chebi_mapping:
+                chebi_mapping[name].add(map_id)
+            else:
+                chebi_mapping[name] = set()
+                chebi_mapping[name].add(map_id)
+
+    # Map values to nodes
     for current_id in list(graph.nodes()):
 
         x = current_id
@@ -861,14 +874,19 @@ def map_attributes(
             graph.nodes()[x]['stats'] = stats_renamed.loc[backup_mapper].tolist()
             mapped_nodes.append(backup_mapper)
 
-        elif map_id in chebi_synonyms \
+        # elif map_id in chebi_synonyms
+        elif ('chebi' in map_id.lower() or map_id in chebi_synonyms) \
         and graph.nodes()[x]['type'] == 'metabolite_component':
             _idx = None
             all_synonyms = graph.nodes()[x]['synonyms']
+            if graph.nodes()[x]['name'] in chebi_mapping:
+                all_synonyms.extend(chebi_mapping[graph.nodes()[x]['name']])
+
             for a in all_synonyms:
-                if a in temp_idx_set:
+                _a = ''.join(c.lower() for c in a if c.isalnum())
+                if _a in temp_idx_set:
                     _idx = data_renamed.index.tolist()[
-                        temp_idx.index(a)]
+                        temp_idx.index(_a)]
                 elif ignore_enantiomers == True:
                     if 'D-' + str(a) in data_renamed.index.tolist():
                         _idx = 'D-' + str(a)
