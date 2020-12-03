@@ -75,7 +75,7 @@ except:
     progress_feed = utils.progress_feed
     update_session = utils.update_session
 
-"""Run metaboverse
+"""Run metaboverse-cli
 """
 def main(
         args=None):
@@ -84,6 +84,10 @@ def main(
     args, args_dict = parse_arguments(
         args,
         __version__)
+
+    print('Back-end parsed arguments:')
+    print(args_dict)
+    print()
 
     if args_dict['cmd'] == 'metaboliteMapper':
 

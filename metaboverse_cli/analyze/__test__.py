@@ -616,12 +616,39 @@ G_update = broadcast_values(
     categories=[0],
     max_value=100,
     max_stat=1,
-    broadcast_genes=True)
+    broadcast_genes=True,
+    broadcast_metabolites=False)
 assert G_update.nodes()['Alpha'] == G.nodes()['Alpha'], 'broadcast_values() failed'
 assert G_update.nodes()['Beta'] == G.nodes()['Beta'], 'broadcast_values() failed'
 assert G_update.nodes()['Epsilon'] == G.nodes()['Epsilon'], 'broadcast_values() failed'
-assert G_update.nodes()['Gamma']['values'] == [9.0], 'broadcast_values() failed'
-assert G_update.nodes()['Delta']['stats'] == [0.5], 'broadcast_values() failed'
+assert G_update.nodes()['Gamma']['values'] == [9.0], 'broadcast_values() failed to broadcast proteins to complexes'
+assert G_update.nodes()['Delta']['stats'] == [0.5], 'broadcast_values() failed to broadcast genes to proteins'
+
+# Test casting metabolite values to protein complexes
+G_update = G.copy()
+G_update.add_node('Zeta')
+G_update.nodes()['Zeta']['name'] = 'Zeta'
+G_update.nodes()['Zeta']['map_id'] = 'zeta'
+G_update.nodes()['Zeta']['type'] = 'metabolite_component'
+G_update.nodes()['Zeta']['sub_type'] = 'metabolite_component'
+G_update.nodes()['Zeta']['complex'] = 'false'
+G_update.nodes()['Zeta']['values'] = [7]
+G_update.nodes()['Zeta']['stats'] = [.7]
+G_update.add_edges_from([
+    ('Zeta', 'Gamma')])
+
+G_update = broadcast_values(
+    graph=G_update,
+    categories=[0],
+    max_value=100,
+    max_stat=1,
+    broadcast_genes=True,
+    broadcast_metabolites=True)
+assert G_update.nodes()['Alpha'] == G.nodes()['Alpha'], 'broadcast_values() failed'
+assert G_update.nodes()['Beta'] == G.nodes()['Beta'], 'broadcast_values() failed'
+assert G_update.nodes()['Epsilon'] == G.nodes()['Epsilon'], 'broadcast_values() failed'
+assert G_update.nodes()['Gamma']['values'] == [8.0], 'broadcast_values() failed to broadcast metabolites to complexes'
+assert G_update.nodes()['Delta']['stats'] == [0.5], 'broadcast_values() failed to broadcast genes to proteins'
 
 # make_motif_reaction_dictionary()
 print("Testing load_motif_reaction_dictionary()")
