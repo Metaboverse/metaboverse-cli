@@ -1181,6 +1181,7 @@ for n in chebi_json['nodes']:
     if n['name'] == 'MAL':
         assert n['values'] == [-0.10850223], "Mixed CHEBI mapping failed"
 
+os.remove(args_dict['output_file'])
 os.remove(args_dict['network'])
 
 print('Tests completed')
