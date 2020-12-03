@@ -21,7 +21,13 @@ a = Analysis(
              runtime_hooks=[],
              excludes=[
               'metaboverse_cli\\test\\',
-              'metaboverse_cli\\__test__.py'
+              'metaboverse_cli\\__test__.py',
+              'metaboverse_cli\\curate\\test\\',
+              'metaboverse_cli\\curate\\__test__.py',
+              'metaboverse_cli\\mapper\\test\\',
+              'metaboverse_cli\\mapper\\__test__.py',
+              'metaboverse_cli\\analyze\\test\\',
+              'metaboverse_cli\\analyze\\__test__.py'
              ],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
