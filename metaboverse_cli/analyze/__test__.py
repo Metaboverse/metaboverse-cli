@@ -1166,7 +1166,7 @@ for n in chebi_json['nodes']:
         assert n['values'] == [-0.187286934], "Mixed CHEBI mapping failed"
     if n['name'] == 'SUCCA':
         assert n['values'] == [0.068245646], "Mixed CHEBI mapping failed"
-    if n['values'] == [-0.110443]:
+    if n['values'] == [-0.11044283]:
         raise Exception("Mixed CHEBI mapping failed")
     if n['name'] == 'Fru(6)P':
         assert n['values'] == [0.06620505], "Mixed CHEBI mapping failed"
