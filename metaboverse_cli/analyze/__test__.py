@@ -1110,7 +1110,6 @@ assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS', 'Phenylacetylglyci
 os.remove(metabolite_unmapped)
 
 os.remove(args_dict['output_file'])
-os.remove(args_dict['network'])
 
 # CHEBI mapping
 print('Testing CHEBI mapping...')
@@ -1181,5 +1180,7 @@ for n in chebi_json['nodes']:
         assert n['values'] == [-0.200045781], "Mixed CHEBI mapping failed"
     if n['name'] == 'MAL':
         assert n['values'] == [-0.10850223], "Mixed CHEBI mapping failed"
+
+os.remove(args_dict['network'])
 
 print('Tests completed')
