@@ -136,6 +136,12 @@ def get_database(
 
     return contents
 
+def safestr(obj):
+    """Covert ascii text if needed
+    """
+
+    return str(obj).encode('ascii', 'ignore').decode('ascii')
+
 def get_metadata(
         reaction,
         sbml_level,
@@ -144,22 +150,22 @@ def get_metadata(
     """Get basic metadata for a reaction
     """
 
-    compartment = str(reaction.attrib['compartment'])
-    id = str(reaction.attrib['id'])
-    name = str(reaction.attrib['name'])
+    compartment = safestr(reaction.attrib['compartment'])
+    id = safestr(reaction.attrib['id'])
+    name = safestr(reaction.attrib['name'])
 
-    reversible = reaction.attrib['reversible']
+    reversible = safestr(reaction.attrib['reversible'])
     if reversible == 'false':
         if '<' in name and '>' in name:
             reversible = 'true'
 
     try:
-        notes = reaction.findall(
+        notes = safestr(reaction.findall(
             str(sbml_namespace + 'notes').format(
                 sbml_level,
                 sbml_version
             )
-        )[0][0].text
+        )[0][0].text)
     except:
         notes = ''
         print('No notes available for', name)
@@ -876,7 +882,7 @@ def __main__(
                 dir=pathways_dir)
         else:
             print('Could not find SMBL file directory, skipping removal of this directory...')
-            
+
     elif database_source.lower() == 'biomodels/bigg' and sbml_url != "None":
         sbml_db = load_sbml(
             sbml_url=sbml_url)
