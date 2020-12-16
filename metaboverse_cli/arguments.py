@@ -34,6 +34,7 @@ try:
     from utils import check_directories
     from utils import check_curate
     from utils import argument_checks
+    from utils import safestr
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location("__version__", os.path.abspath("./metaboverse_cli/__init__.py"))
@@ -47,6 +48,7 @@ except:
     check_directories = utils.check_directories
     check_curate = utils.check_curate
     argument_checks = utils.argument_checks
+    safestr = utils.safestr
 
 __path__  =  os.path.dirname(os.path.realpath(__file__))
 url = 'https://raw.githubusercontent.com/j-berg/Metaboverse/master/metaboverse/__init__.py'
@@ -93,11 +95,11 @@ def check_arguments(
         argument='output')
 
     # Print out user commands to log file
-    print('Metaboverse-CLI version: ' + str(__version__))
+    print('Metaboverse-CLI version: ' + safestr(__version__))
     print('======================\nUser commands summary:\n======================')
 
     for key, value in args_dict.items():
-        print(str(key) + ': ' + str(value))
+        print(safestr(key) + ': ' + safestr(value))
     print('=====================\nEnd commands summary\n=====================\n')
 
     return args_dict
@@ -124,7 +126,7 @@ def parse_arguments(
         '-v', '--version',
         help = 'Print installed version to stout',
         action = 'version',
-        version = '%(prog)s ' + str(__version__))
+        version = '%(prog)s ' + safestr(__version__))
 
     # Add sub-parsers
     subparser = parser.add_subparsers(dest = 'cmd')
@@ -287,7 +289,7 @@ def parse_arguments(
 
     # Collect subargs and package, add metaboverse script path to parameter dictionary
     args_dict = vars(args)
-    args_dict['path'] = str(__path__)
+    args_dict['path'] = safestr(__path__)
     if not args_dict['path'].endswith(os.path.sep):
         args_dict['path'] = args_dict['path'] + os.path.sep
 

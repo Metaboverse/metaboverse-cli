@@ -26,6 +26,12 @@ import os
 import sys
 import json
 
+def safestr(obj):
+    """Covert ascii text if needed
+    """
+
+    return str(obj).encode('ascii', 'ignore').decode('ascii')
+
 """Update session information
 """
 def update_session(
@@ -94,10 +100,10 @@ def check_directories(
 
     # Check that a file wasn't passed in
     if os.path.isdir(input) != True:
-        raise Exception(str(argument) + ': ' + str(input) + ' is not a directory')
+        raise Exception(safestr(argument) + ': ' + safestr(input) + ' is not a directory')
 
     # Check input directory name is formatted correctly and fix if necessary
-    input = os.path.abspath(input)
+    input = safestr(os.path.abspath(input))
 
     if not input.endswith(os.path.sep):
         input += os.path.sep
@@ -112,10 +118,10 @@ def check_files(
 
     # Check that a file wasn't passed in
     if os.path.isfile(input) != True:
-        raise Exception(str(argument) + ': ' + str(input) + ' is not a file')
+        raise Exception(safestr(argument) + ': ' + safestr(input) + ' is not a file')
 
     # Check input directory name is formatted correctly and fix if necessary
-    input = os.path.abspath(input)
+    input = safestr(os.path.abspath(input))
 
     return input
 
@@ -130,14 +136,14 @@ def check_curate(
     or args_dict['organism_id'].lower() == 'none' \
     or args_dict['organism_id'].lower() == 'null':
 
-        print('\nIncorrect species identifier provided: ' + args_dict['organism_id'])
+        print('\nIncorrect species identifier provided: ' + safestr(args_dict['organism_id']))
         print('Please refer to https://reactome.org/ContentService/data/species/all for a valid list of organisms')
         should_exit = True
 
     if args_dict['output'] == None \
     or not os.path.exists(os.path.dirname(args_dict['output'])):
 
-        print('\nIncorrect output parameter provided: ' + args_dict['output'])
+        print('\nIncorrect output parameter provided: ' + safestr(args_dict['output']))
         should_exit = True
 
     if should_exit == True:
@@ -153,6 +159,7 @@ def argument_checks(
     if 'output' in args_dict \
     and args_dict['output'] == None:
         args_dict['output'] = os.getcwd()
+    args_dict['output'] = safestr(args_dict['output'])
 
     if not args_dict['output'].endswith(os.path.sep):
         args_dict['output'] = args_dict['output'] + os.path.sep

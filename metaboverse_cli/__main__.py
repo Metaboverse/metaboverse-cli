@@ -41,7 +41,7 @@ try:
     from curate.__main__ import __main__ as curate
     from analyze.__main__ import __main__ as analyze
     from mapper.__main__ import __main__ as mapper
-    from utils import progress_feed, update_session
+    from utils import progress_feed, update_session, safestr
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location("__version__", os.path.abspath("./metaboverse_cli/__init__.py"))
@@ -74,6 +74,7 @@ except:
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
     update_session = utils.update_session
+    safestr = utils.safestr
 
 """Run metaboverse-cli
 """
@@ -98,7 +99,7 @@ def main(
     # Run metaboverse-curate
     elif args_dict['cmd'] == 'curate':
 
-        if str(args_dict['organism_curation']) != 'None':
+        if safestr(args_dict['organism_curation']) != 'None':
             progress_feed(
                 args_dict=args_dict,
                 process="curate",
@@ -135,7 +136,7 @@ def main(
         else:
             print('Curating network model...')
             if 'model_file' in args_dict \
-            and str(args_dict['model_file']) == 'None':
+            and safestr(args_dict['model_file']) == 'None':
                 args_dict['model_file'] = args_dict['output'] \
                     + args_dict['organism_id'] \
                     + '.mvdb'
@@ -146,7 +147,7 @@ def main(
 
         print('Curating data onto the network model...')
         if 'output_file' in args_dict \
-        and str(args_dict['output_file']) == 'None':
+        and safestr(args_dict['output_file']) == 'None':
             args_dict['output_file'] = args_dict['output'] \
                 + args_dict['organism_id'] \
                 + '.mvrs'

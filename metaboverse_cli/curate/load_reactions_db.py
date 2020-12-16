@@ -35,7 +35,7 @@ import glob
 """Import internal dependencies
 """
 try:
-    from utils import progress_feed, update_session
+    from utils import progress_feed, update_session, safestr
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
@@ -43,6 +43,7 @@ except:
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
     update_session = utils.update_session
+    safestr = utils.safestr
 
 """Global variables
 """
@@ -135,12 +136,6 @@ def get_database(
     contents = pathway_contents.getroot()
 
     return contents
-
-def safestr(obj):
-    """Covert ascii text if needed
-    """
-
-    return str(obj).encode('ascii', 'ignore').decode('ascii')
 
 def get_metadata(
         reaction,
