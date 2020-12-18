@@ -739,7 +739,6 @@ def gather_synonyms(
 
     return mapper_id, parsed_syns_list
 
-
 def map_attributes(
         graph,
         data,
@@ -1436,6 +1435,7 @@ def __main__(
     removed_reaction = collapse_nodes(
         graph=G,
         reaction_dictionary=no_defective_reactions,
+        degree_dictionary=degree_dictionary,
         samples=len(categories),
         collapse_with_modifiers=args_dict['collapse_with_modifiers'])
     updated_pathway_dictionary = generate_updated_dictionary(
