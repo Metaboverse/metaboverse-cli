@@ -272,6 +272,7 @@ def check_neighbors(
         degree_dictionary,
         input_neighbors,
         output_neighbors,
+        blocklist,
         match_threshold,
         degree_threshold):
 
@@ -311,16 +312,16 @@ def check_neighbors(
     short_neighbor_products = []
 
     for r in real_reactants:
-        if degree_dictionary[r] <= degree_threshold:
+        if degree_dictionary[r] <= degree_threshold and r not in blocklist:
             short_reactants.append(r)
     for p in real_products:
-        if degree_dictionary[p] <= degree_threshold:
+        if degree_dictionary[p] <= degree_threshold and p not in blocklist:
             short_products.append(p)
     for rr in neighbor_reactants:
-        if degree_dictionary[rr] <= degree_threshold:
+        if degree_dictionary[rr] <= degree_threshold and rr not in blocklist:
             short_neighbor_reactants.append(rr)
     for pp in neighbor_products:
-        if degree_dictionary[pp] <= degree_threshold:
+        if degree_dictionary[pp] <= degree_threshold and pp not in blocklist:
             short_neighbor_products.append(pp)
 
     unity_reactants_nnReactants = get_unity_lists(
@@ -376,8 +377,9 @@ def collapse_nodes(
         degree_dictionary,
         samples,
         collapse_with_modifiers,
-        match_threshold=0.25,
-        degree_threshold=50):
+        blocklist,
+        degree_threshold=50,
+        match_threshold=0.3):
     """After values are broadcast, collapse network by creating new reaction
     dictionary
     Methods:
@@ -483,6 +485,7 @@ def collapse_nodes(
                         degree_dictionary=degree_dictionary,
                         input_neighbors=input_neighbors,
                         output_neighbors=output_neighbors,
+                        blocklist=blocklist,
                         match_threshold=match_threshold,
                         degree_threshold=degree_threshold)
 
@@ -895,6 +898,7 @@ def test():
                 degree_dictionary=degree_dictionary,
                 input_neighbors=input_neighbors,
                 output_neighbors=output_neighbors,
+                blocklist=blocklist,
                 match_threshold=match_threshold,
                 degree_threshold=degree_threshold)
             print("----")
