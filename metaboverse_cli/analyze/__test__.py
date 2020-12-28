@@ -991,14 +991,68 @@ collapser_database = {
     }
 }
 
+collapse_degree_dictionary = {
+    'R1':4,
+    'R2':3,
+    'R3':6,
+    'R4':5,
+    'R5':2,
+    'R6':4,
+    'R7':4,
+    'R8':4,
+    'R9':5,
+    'R10':7,
+    'R11':1,
+    'R12':3,
+    'R13':4,
+    'R14':2,
+    'R15':5,
+    'R16':3,
+    'R17':4,
+    'N1':7,
+    'N2':8,
+    'N3':5,
+    'N4':3,
+    'N5':8,
+    'N6':6,
+    'N7':4,
+    'N8':3,
+    'N9':6,
+    'N10':7,
+    'N11':8,
+    'N12':4,
+    'N13':5,
+    'N14':2,
+    'N15':4,
+    'N16':7,
+    'N17':8,
+    'N18':5,
+    'N19':3,
+    'N20':6,
+    'N21':8,
+    'N22':9,
+    'N23':3,
+    'N24':43,
+    'N25':7,
+    'N26':4,
+    'N27':7,
+    'N28':3,
+    'N29':3,
+    'N30':7,
+    'N100':3
+}
+
+
 # collapse_nodes()
 print("Testing collapse_nodes()")
 G_coll1 = G_collapse.copy()
 G_coll1, updated_rxns1, changed_rxns1, removed_rxn1 = collapse_nodes(
     graph=G_coll1,
     reaction_dictionary=collapser_database,
+    degree_dictionary=collapse_degree_dictionary,
     samples=1,
-    collapse_with_modifiers=False)
+    collapse_with_modifiers=False,
+    blocklist=[])
 
 final_reactions1 = [
     'R1',
@@ -1020,8 +1074,10 @@ G_coll2 = G_collapse.copy()
 G_coll2, updated_rxns2, changed_rxns2, removed_rxn2 = collapse_nodes(
     graph=G_coll2,
     reaction_dictionary=collapser_database,
+    degree_dictionary=collapse_degree_dictionary,
     samples=1,
-    collapse_with_modifiers=True)
+    collapse_with_modifiers=True,
+    blocklist=[])
 final_reactions2 = [
     'R1',
     'R2_R3',
