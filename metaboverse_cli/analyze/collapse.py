@@ -426,27 +426,31 @@ def collapse_nodes(
         # Collect values for effective inputs and outputs
         real_inputs = []
         for r in real_reactants:
-            for x in graph.nodes()[r]['values']:
-                real_inputs.append(x)
+            if degree_dictionary[r] <= degree_threshold and r not in blocklist:
+                for x in graph.nodes()[r]['values']:
+                    real_inputs.append(x)
         real_reactants_exist = any([False if x is None else True for x in real_inputs])
 
         effective_inputs = []
-        for r in effective_reactants:
-            for x in graph.nodes()[r]['values']:
-                effective_inputs.append(x)
-        effective_reactants_exist = any([False if x is None else True for x in effective_inputs])
+        for rr in effective_reactants:
+            if degree_dictionary[rr] <= degree_threshold and rr not in blocklist:
+                for xx in graph.nodes()[rr]['values']:
+                    effective_inputs.append(xx)
+        effective_reactants_exist = any([False if xx is None else True for xx in effective_inputs])
 
         real_outputs = []
-        for r in real_products:
-            for x in graph.nodes()[r]['values']:
-                real_outputs.append(x)
-        real_products_exist = any([False if x is None else True for x in real_outputs])
+        for p in real_products:
+            if degree_dictionary[p] <= degree_threshold and p not in blocklist:
+                for y in graph.nodes()[p]['values']:
+                    real_outputs.append(y)
+        real_products_exist = any([False if y is None else True for y in real_outputs])
 
         effective_outputs = []
-        for p in effective_products:
-            for y in graph.nodes()[p]['values']:
-                effective_outputs.append(y)
-        effective_products_exist = any([False if y is None else True for y in effective_outputs])
+        for pp in effective_products:
+            if degree_dictionary[pp] <= degree_threshold and pp not in blocklist:
+                for yy in graph.nodes()[pp]['values']:
+                    effective_outputs.append(yy)
+        effective_products_exist = any([False if yy is None else True for yy in effective_outputs])
 
         # If inputs and outputs both have at least one value, push to new dict
         # as is
