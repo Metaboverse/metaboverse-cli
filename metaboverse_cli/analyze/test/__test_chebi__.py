@@ -30,6 +30,24 @@ import networkx as nx
 import numpy as np
 import importlib.util
 
+print("Testing prepare_data.py")
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
+prepare_data = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(prepare_data)
+
+import zipfile
+zipped_net = os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA.zip')
+with zipfile.ZipFile(zipped_net, 'r') as zip_file:
+    zip_file.extractall(
+        os.path.abspath(
+            './metaboverse_cli/analyze/test'))
+
+network_url = os.path.abspath(
+    "./metaboverse_cli/analyze/test/HSA.mvdb")
+with open(network_url, 'rb') as network_file:
+    network = pickle.load(network_file)
+
 # CHEBI mapping
 print('Testing analyze/__main__.py for CHEBI mapping...')
 metabolomics_url = os.path.abspath(

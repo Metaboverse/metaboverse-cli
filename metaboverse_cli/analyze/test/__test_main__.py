@@ -57,6 +57,19 @@ args_dict = {
     'blocklist': ''
 }
 
+import zipfile
+zipped_net = os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA.zip')
+with zipfile.ZipFile(zipped_net, 'r') as zip_file:
+    zip_file.extractall(
+        os.path.abspath(
+            './metaboverse_cli/analyze/test'))
+
+network_url = os.path.abspath(
+    "./metaboverse_cli/analyze/test/HSA.mvdb")
+with open(network_url, 'rb') as network_file:
+    network = pickle.load(network_file)
+
 test_modeling(args_dict)
 
 rna_unmapped = os.path.abspath(
