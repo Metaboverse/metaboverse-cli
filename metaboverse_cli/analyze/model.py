@@ -1285,18 +1285,7 @@ def __main__(
         flag_data=False):
     """Generate graph object for visualization
     """
-
-    def test():
-
-        species_id = "HSA"
-        output_file = "C:\\Users\\jorda\\Desktop\\" + species_id + ".mvrs"
-        network_file = "C:\\Users\\jorda\\Desktop\\" + species_id + ".mvdb"
-        with open(network_file, 'rb') as network_file:
-            network = pickle.load(network_file)
-        args_dict = {}
-
-
-
+    
     print('Preparing metadata...')
     # Generate output file name
     graph_name = name_graph(
