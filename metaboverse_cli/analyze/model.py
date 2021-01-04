@@ -739,7 +739,6 @@ def gather_synonyms(
 
     return mapper_id, parsed_syns_list
 
-
 def map_attributes(
         graph,
         data,
@@ -1287,6 +1286,17 @@ def __main__(
     """Generate graph object for visualization
     """
 
+    def test():
+
+        species_id = "HSA"
+        output_file = "C:\\Users\\jorda\\Desktop\\" + species_id + ".mvrs"
+        network_file = "C:\\Users\\jorda\\Desktop\\" + species_id + ".mvdb"
+        with open(network_file, 'rb') as network_file:
+            network = pickle.load(network_file)
+        args_dict = {}
+
+
+
     print('Preparing metadata...')
     # Generate output file name
     graph_name = name_graph(
@@ -1431,13 +1441,36 @@ def __main__(
             no_defective_reactions[key] = network['reaction_database'][key]
 
     print('Compiling collapsed reaction reference...')
+    # Get hub threshold
+    degrees = []
+    for k in degree_dictionary.keys():
+        if 'reaction' not in k:
+            degrees.append(degree_dictionary[k])
+    degree_threshold = np.percentile(degrees, 98)
+
+    if 'blocklist' in args_dict \
+    and isinstance(args_dict['blocklist'], str):
+        _blocklist = args_dict['blocklist'].replace(' ', '').split(',')
+        blocklist = []
+        for b in _blocklist:
+            if b in network['name_database']:
+                blocklist.append(network['name_database'][b])
+    elif 'blocklist' in args_dict \
+    and isinstance(args_dict['blocklist'], list):
+        blocklist = args_dict['blocklist']
+    else:
+        blocklist = []
+
     # Collapse reactions
     G, updated_reactions, changed_reactions, \
     removed_reaction = collapse_nodes(
         graph=G,
         reaction_dictionary=no_defective_reactions,
+        degree_dictionary=degree_dictionary,
         samples=len(categories),
-        collapse_with_modifiers=args_dict['collapse_with_modifiers'])
+        collapse_with_modifiers=args_dict['collapse_with_modifiers'],
+        blocklist=blocklist,
+        degree_threshold=degree_threshold)
     updated_pathway_dictionary = generate_updated_dictionary(
         original_database=network['pathway_database'],
         update_dictionary=changed_reactions,

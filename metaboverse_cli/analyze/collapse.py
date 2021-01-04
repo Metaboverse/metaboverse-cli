@@ -76,7 +76,10 @@ def find_values(
         reaction_dictionary,
         neighbor,
         current_inputs,
-        collapse_with_modifiers):
+        collapse_with_modifiers,
+        degree_dictionary,
+        match_threshold,
+        degree_threshold):
     """Are there any values for either side of the reaction?
     - There can only be one side with values for this situation to be valid in
     this context
@@ -87,7 +90,14 @@ def find_values(
 
     # Check if values exist for the new side
     # Allow modifier values to count
-    if set(current_inputs) == set(reaction_dictionary[neighbor]['reactants']):
+    pass_match = get_instructions(
+        side1=current_inputs,
+        side2=reaction_dictionary[neighbor]['reactants'],
+        degree_dictionary=degree_dictionary,
+        collapse_with_modifiers=collapse_with_modifiers,
+        match_threshold=match_threshold,
+        degree_threshold=degree_threshold)
+    if pass_match == True:
         side_key = 'products'
         if collapse_with_modifiers == True or collapse_with_modifiers == "True":
             mod_key = 'catalyst'
@@ -170,11 +180,206 @@ def add_collapsed_components(
 
     return graph
 
+def get_reaction_values(
+        collapse_with_modifiers,
+        reaction):
+    """Get real and effect inputs and outputs lists
+    """
+
+    # Get effective components, where inputs and outputs include modifiers
+    # Get real components for reaction end matching
+    real_reactants = reaction['reactants']
+    real_products = reaction['products']
+    real_modifiers = reaction['modifiers']
+
+    if collapse_with_modifiers == "True" or collapse_with_modifiers == True:
+        effective_reactants = (
+            reaction['reactants'] \
+            + (
+                [x[0]
+                for x in reaction['modifiers']
+                    if x[1] == 'inhibitor']
+            )
+        )
+        effective_products = (
+            reaction['products'] \
+            + (
+                [x[0]
+                for x in reaction['modifiers']
+                    if x[1] == 'catalyst']
+            )
+        )
+    else:
+        effective_reactants = real_reactants
+        effective_products = real_products
+
+    return (
+        real_reactants,
+        effective_reactants,
+        real_products,
+        effective_products,
+        real_modifiers)
+
+def get_unity_lists(
+        reaction_list,
+        neighbor_list):
+
+    unity_len = len(list(set(reaction_list).intersection(neighbor_list)))
+    _max = max([len(reaction_list), len(neighbor_list)])
+    if _max <= 0:
+        _max = 1
+    _proportion = unity_len / _max
+
+    return _proportion
+
+def get_instructions(
+        side1,
+        side2,
+        degree_dictionary,
+        collapse_with_modifiers,
+        match_threshold,
+        degree_threshold):
+    """See which sides were matching for collapse
+    """
+
+    # Find side that doesn't match the current reaction outputs
+    short_side1 = []
+    short_side2 = []
+    for r in side1:
+        if degree_dictionary[r] <= degree_threshold:
+            short_side1.append(r)
+    for p in side2:
+        if degree_dictionary[p] <= degree_threshold:
+            short_side2.append(p)
+    unity_proportion = get_unity_lists(
+        reaction_list=short_side1,
+        neighbor_list=short_side2)
+
+    if unity_proportion >= match_threshold:
+        pass_match = True
+    else:
+        pass_match = False
+
+    return pass_match
+
+def check_neighbors(
+        key,
+        real_reactants,
+        real_products,
+        real_modifiers,
+        neighbor_key,
+        neighbor,
+        degree_dictionary,
+        input_neighbors,
+        output_neighbors,
+        blocklist,
+        match_threshold,
+        degree_threshold):
+
+    # Parse potential bridge inputs and outputs
+    neighbor_reactants = neighbor['reactants']
+    neighbor_products = neighbor['products']
+    neighbor_modifiers = neighbor['modifiers']
+
+    # Account for no modifiers in matching
+    if len(real_modifiers) == 0:
+        real_modifiers = 'impossible1'
+    if len(neighbor_modifiers) == 0:
+        neighbor_modifiers = 'impossible2'
+
+    # If the current reaction's neighbors inputs or outputs form a
+    # complete match, append that reaction to the current
+    # reaction's neighbors list
+    if (real_reactants == neighbor_reactants \
+            or real_reactants == neighbor_products) \
+    and real_reactants + real_products != \
+        neighbor_reactants + neighbor_products \
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key:
+        input_neighbors.append(neighbor_key)
+    if (real_products == neighbor_reactants \
+            or real_products == neighbor_products) \
+    and real_reactants + real_products != \
+        neighbor_reactants + neighbor_products \
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key:
+        output_neighbors.append(neighbor_key)
+
+    # Check for partial matches with hubs removed from consideration
+    short_reactants = []
+    short_products = []
+    short_neighbor_reactants = []
+    short_neighbor_products = []
+
+    for r in real_reactants:
+        if degree_dictionary[r] <= degree_threshold and r not in blocklist:
+            short_reactants.append(r)
+    for p in real_products:
+        if degree_dictionary[p] <= degree_threshold and p not in blocklist:
+            short_products.append(p)
+    for rr in neighbor_reactants:
+        if degree_dictionary[rr] <= degree_threshold and rr not in blocklist:
+            short_neighbor_reactants.append(rr)
+    for pp in neighbor_products:
+        if degree_dictionary[pp] <= degree_threshold and pp not in blocklist:
+            short_neighbor_products.append(pp)
+
+    unity_reactants_nnReactants = get_unity_lists(
+        reaction_list=short_reactants,
+        neighbor_list=short_neighbor_reactants)
+    unity_reactants_nnProducts = get_unity_lists(
+        reaction_list=short_reactants,
+        neighbor_list=short_neighbor_products)
+    unity_products_nnReactants = get_unity_lists(
+        reaction_list=short_products,
+        neighbor_list=short_neighbor_reactants)
+    unity_products_nnProducts = get_unity_lists(
+        reaction_list=short_products,
+        neighbor_list=short_neighbor_products)
+
+    # Check if short lists match and the length of the unity / shortest short
+    # list meets threshold
+    if short_reactants + short_products != \
+        short_neighbor_reactants + short_neighbor_products \
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_reactants_nnReactants >= match_threshold:
+        input_neighbors.append(neighbor_key)
+    if short_reactants + short_products != \
+        short_neighbor_reactants + short_neighbor_products \
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_reactants_nnProducts >= match_threshold:
+        input_neighbors.append(neighbor_key)
+
+    if short_reactants + short_products != \
+        short_neighbor_reactants + short_neighbor_products \
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_products_nnReactants >= match_threshold:
+        output_neighbors.append(neighbor_key)
+    if short_reactants + short_products != \
+        short_neighbor_reactants + short_neighbor_products \
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_products_nnProducts >= match_threshold:
+        output_neighbors.append(neighbor_key)
+
+    # Remove duplicates
+    input_neighbors_unique = list(set(input_neighbors))
+    output_neighbors_unique = list(set(output_neighbors))
+
+    return input_neighbors, output_neighbors
+
 def collapse_nodes(
         graph,
         reaction_dictionary,
+        degree_dictionary,
         samples,
-        collapse_with_modifiers):
+        collapse_with_modifiers,
+        blocklist,
+        degree_threshold=50,
+        match_threshold=0.3):
     """After values are broadcast, collapse network by creating new reaction
     dictionary
     Methods:
@@ -212,54 +417,44 @@ def collapse_nodes(
         additional_components = (
             reaction_dictionary[rxn]['additional_components'])
 
-        # Get effective components, where inputs and outputs include modifiers
-        # Get real components for reaction end matching
-        if collapse_with_modifiers == "True" or collapse_with_modifiers == True:
-            real_reactants = reaction_dictionary[rxn]['reactants']
-            effective_reactants = (
-                reaction_dictionary[rxn]['reactants'] \
-                + (
-                    [x[0]
-                    for x in reaction_dictionary[rxn]['modifiers']
-                        if x[1] == 'inhibitor']
-                )
-            )
-
-            real_products = reaction_dictionary[rxn]['products']
-            effective_products = (
-                reaction_dictionary[rxn]['products'] \
-                + (
-                    [x[0]
-                    for x in reaction_dictionary[rxn]['modifiers']
-                        if x[1] == 'catalyst']
-                )
-            )
-            real_modifiers = reaction_dictionary[rxn]['modifiers']
-        else:
-            real_reactants = effective_reactants = (
-                reaction_dictionary[rxn]['reactants']
-            )
-            real_products = effective_products = (
-                reaction_dictionary[rxn]['products']
-            )
-            real_modifiers = reaction_dictionary[rxn]['modifiers']
+        # Collect values
+        real_reactants, effective_reactants, real_products, \
+        effective_products, real_modifiers = get_reaction_values(
+            reaction=reaction_dictionary[rxn],
+            collapse_with_modifiers=collapse_with_modifiers)
 
         # Collect values for effective inputs and outputs
-        inputs = []
-        for r in effective_reactants:
-            for x in graph.nodes()[r]['values']:
-                inputs.append(x)
-        reactants_exist = any([False if x is None else True for x in inputs])
+        real_inputs = []
+        for r in real_reactants:
+            if degree_dictionary[r] <= degree_threshold and r not in blocklist:
+                for x in graph.nodes()[r]['values']:
+                    real_inputs.append(x)
+        real_reactants_exist = any([False if x is None else True for x in real_inputs])
 
-        outputs = []
-        for p in effective_products:
-            for y in graph.nodes()[p]['values']:
-                outputs.append(y)
-        products_exist = any([False if y is None else True for y in outputs])
+        effective_inputs = []
+        for rr in effective_reactants:
+            if degree_dictionary[rr] <= degree_threshold and rr not in blocklist:
+                for xx in graph.nodes()[rr]['values']:
+                    effective_inputs.append(xx)
+        effective_reactants_exist = any([False if xx is None else True for xx in effective_inputs])
+
+        real_outputs = []
+        for p in real_products:
+            if degree_dictionary[p] <= degree_threshold and p not in blocklist:
+                for y in graph.nodes()[p]['values']:
+                    real_outputs.append(y)
+        real_products_exist = any([False if y is None else True for y in real_outputs])
+
+        effective_outputs = []
+        for pp in effective_products:
+            if degree_dictionary[pp] <= degree_threshold and pp not in blocklist:
+                for yy in graph.nodes()[pp]['values']:
+                    effective_outputs.append(yy)
+        effective_products_exist = any([False if yy is None else True for yy in effective_outputs])
 
         # If inputs and outputs both have at least one value, push to new dict
         # as is
-        if reactants_exist and products_exist:
+        if real_reactants_exist and real_products_exist:
             changed_reactions[(key)] = key
             updated_reactions[key] = {
                 'collapsed': 'false',
@@ -281,51 +476,38 @@ def collapse_nodes(
             input_neighbors = []
             output_neighbors = []
 
-            # Check for reactions with matching sides
+            # Check for reactions with complete and partial matching sides
             for neighbor_key in reaction_dictionary.keys():
-
-                # Parse potential bridge inputs and outputs
-                neighbor_reactants = (
-                    reaction_dictionary[neighbor_key]['reactants'])
-                neighbor_products = (
-                    reaction_dictionary[neighbor_key]['products'])
-                neighbor_modifiers = (
-                    reaction_dictionary[neighbor_key]['modifiers'])
-
-                # Account for no modifiers in matching
-                if len(real_modifiers) == 0:
-                    real_modifiers = 'impossible1'
-                if len(neighbor_modifiers) == 0:
-                    neighbor_modifiers = 'impossible2'
-
-                # If the current reaction's neighbors inputs or outputs match,
-                # append that reaction to the current reaction's neighbors
-                # list
-                if (real_reactants == neighbor_reactants \
-                        or real_reactants == neighbor_products) \
-                        and real_reactants + real_products != \
-                            neighbor_reactants + neighbor_products \
-                        and real_modifiers != neighbor_modifiers \
-                        and neighbor_key != key:
-                    input_neighbors.append(neighbor_key)
-                if (real_products == neighbor_reactants \
-                        or real_products == neighbor_products) \
-                        and real_reactants + real_products != \
-                            neighbor_reactants + neighbor_products \
-                        and real_modifiers != neighbor_modifiers \
-                        and neighbor_key != key:
-                    output_neighbors.append(neighbor_key)
+                if key != neighbor_key:
+                    input_neighbors, output_neighbors = check_neighbors(
+                        key=key,
+                        real_reactants=real_reactants,
+                        real_products=real_products,
+                        real_modifiers=real_modifiers,
+                        neighbor_key=neighbor_key,
+                        neighbor=reaction_dictionary[neighbor_key],
+                        degree_dictionary=degree_dictionary,
+                        input_neighbors=input_neighbors,
+                        output_neighbors=output_neighbors,
+                        blocklist=blocklist,
+                        match_threshold=match_threshold,
+                        degree_threshold=degree_threshold)
 
             # Run one-sided bridging for reactions where inputs exist and
             # outputs have neighbors (could be with the neighbor's reactants
             # or products)
-            if reactants_exist and len(output_neighbors) != 0:
+            if effective_reactants_exist and len(output_neighbors) != 0:
 
                 # For all output reaction neighbor options...
                 for o in output_neighbors:
-                    # Find side that doesn't match the current reaction outputs
-                    if (set(real_products) \
-                            == set(reaction_dictionary[o]['reactants'])):
+                    pass_match = get_instructions(
+                        side1=real_products,
+                        side2=reaction_dictionary[o]['reactants'],
+                        degree_dictionary=degree_dictionary,
+                        collapse_with_modifiers=collapse_with_modifiers,
+                        match_threshold=match_threshold,
+                        degree_threshold=degree_threshold)
+                    if pass_match == True:
                         side_key = 'products'
                         if collapse_with_modifiers == True or collapse_with_modifiers == "True":
                             mod_key = 'catalyst'
@@ -337,7 +519,6 @@ def collapse_nodes(
                             mod_key = 'inhibitor'
                         else:
                             mod_key = 'impossible_key_to_match'
-
                     # Check if values exist for the new side
                     # Allow modifier values to count
                     outputs = []
@@ -404,14 +585,19 @@ def collapse_nodes(
 
             # Run one-sided bridging for reactions where outputs exist and
             # inputs have neighbors
-            elif products_exist and len(input_neighbors) != 0:
+            elif effective_products_exist and len(input_neighbors) != 0:
 
                 # For all input reaction neighbor options...
                 for i in input_neighbors:
-
                     # Find side that doesn't match the current reaction outputs
-                    if (set(reactants) \
-                            == set(reaction_dictionary[i]['reactants'])):
+                    pass_match = get_instructions(
+                        side1=reactants,
+                        side2=reaction_dictionary[i]['reactants'],
+                        degree_dictionary=degree_dictionary,
+                        collapse_with_modifiers=collapse_with_modifiers,
+                        match_threshold=match_threshold,
+                        degree_threshold=degree_threshold)
+                    if pass_match == True:
                         side_key = 'products'
                         if collapse_with_modifiers == True or collapse_with_modifiers == "True":
                             mod_key = 'catalyst'
@@ -491,27 +677,30 @@ def collapse_nodes(
             # Handle cases where both sides are missing values by searching to
             # see both neighbors have values that can be used to fill in
             else:
-
                 # If both neighbors can connect, do so
                 if len(input_neighbors) != 0 and len(output_neighbors) != 0:
-
                     # Cycle through all possible combinations of input and
                     # output neighbors and get their components
                     for i in input_neighbors:
                         for j in output_neighbors:
-
                             eval_i = find_values(
                                 graph=graph,
                                 reaction_dictionary=reaction_dictionary,
                                 neighbor=i,
                                 current_inputs=reactants,
-                                collapse_with_modifiers=collapse_with_modifiers)
+                                collapse_with_modifiers=collapse_with_modifiers,
+                                degree_dictionary=degree_dictionary,
+                                match_threshold=match_threshold,
+                                degree_threshold=degree_threshold)
                             eval_j = find_values(
                                 graph=graph,
                                 reaction_dictionary=reaction_dictionary,
                                 neighbor=j,
                                 current_inputs=products,
-                                collapse_with_modifiers=collapse_with_modifiers)
+                                collapse_with_modifiers=collapse_with_modifiers,
+                                degree_dictionary=degree_dictionary,
+                                match_threshold=match_threshold,
+                                degree_threshold=degree_threshold)
 
                             # If both neighbor reactions have values and the
                             # the collapsed reaction is not already in the

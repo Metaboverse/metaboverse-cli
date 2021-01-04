@@ -991,14 +991,67 @@ collapser_database = {
     }
 }
 
+collapse_degree_dictionary = {
+    'R1':4,
+    'R2':3,
+    'R3':6,
+    'R4':5,
+    'R5':2,
+    'R6':4,
+    'R7':4,
+    'R8':4,
+    'R9':5,
+    'R10':7,
+    'R11':1,
+    'R12':3,
+    'R13':4,
+    'R14':2,
+    'R15':5,
+    'R16':3,
+    'R17':4,
+    'N1':7,
+    'N2':8,
+    'N3':5,
+    'N4':3,
+    'N5':8,
+    'N6':6,
+    'N7':4,
+    'N8':3,
+    'N9':6,
+    'N10':7,
+    'N11':8,
+    'N12':4,
+    'N13':5,
+    'N14':2,
+    'N15':4,
+    'N16':7,
+    'N17':8,
+    'N18':5,
+    'N19':3,
+    'N20':6,
+    'N21':8,
+    'N22':9,
+    'N23':3,
+    'N24':43,
+    'N25':7,
+    'N26':4,
+    'N27':7,
+    'N28':3,
+    'N29':3,
+    'N30':7,
+    'N100':3
+}
+
 # collapse_nodes()
 print("Testing collapse_nodes()")
 G_coll1 = G_collapse.copy()
 G_coll1, updated_rxns1, changed_rxns1, removed_rxn1 = collapse_nodes(
     graph=G_coll1,
     reaction_dictionary=collapser_database,
+    degree_dictionary=collapse_degree_dictionary,
     samples=1,
-    collapse_with_modifiers=False)
+    collapse_with_modifiers=False,
+    blocklist=[])
 
 final_reactions1 = [
     'R1',
@@ -1020,8 +1073,10 @@ G_coll2 = G_collapse.copy()
 G_coll2, updated_rxns2, changed_rxns2, removed_rxn2 = collapse_nodes(
     graph=G_coll2,
     reaction_dictionary=collapser_database,
+    degree_dictionary=collapse_degree_dictionary,
     samples=1,
-    collapse_with_modifiers=True)
+    collapse_with_modifiers=True,
+    blocklist=[])
 final_reactions2 = [
     'R1',
     'R2_R3',
@@ -1036,6 +1091,274 @@ final_reactions2 = [
     'R17'
 ]
 assert list(updated_rxns2.keys()) == final_reactions2, 'collapse_nodes() failed'
+
+
+# collapse_nodes() for partial collapse
+print('Testing collapse_nodes() for partial collapse...')
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
+collapse = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(collapse)
+generate_updated_dictionary = collapse.generate_updated_dictionary
+collapse_nodes = collapse.collapse_nodes
+
+G_collapse_3 = nx.DiGraph()
+G_collapse_3.add_node('N1')
+G_collapse_3.nodes()['N1']['name'] = ['n_1']
+G_collapse_3.nodes()['N1']['values'] = [1]
+G_collapse_3.nodes()['N1']['stats'] = [0.1]
+G_collapse_3.add_node('N2')
+G_collapse_3.nodes()['N2']['name'] = ['n_2']
+G_collapse_3.nodes()['N2']['values'] = [None]
+G_collapse_3.nodes()['N2']['stats'] = [None]
+G_collapse_3.add_node('N3')
+G_collapse_3.nodes()['N3']['name'] = ['n_3']
+G_collapse_3.nodes()['N3']['values'] = [3]
+G_collapse_3.nodes()['N3']['stats'] = [0.3]
+G_collapse_3.add_node('N4')
+G_collapse_3.nodes()['N4']['name'] = ['n_4']
+G_collapse_3.nodes()['N4']['values'] = [4]
+G_collapse_3.nodes()['N4']['stats'] = [0.4]
+G_collapse_3.add_node('N5')
+G_collapse_3.nodes()['N5']['name'] = ['n_5']
+G_collapse_3.nodes()['N5']['values'] = [None]
+G_collapse_3.nodes()['N5']['stats'] = [None]
+G_collapse_3.add_node('N6')
+G_collapse_3.nodes()['N6']['name'] = ['n_6']
+G_collapse_3.nodes()['N6']['values'] = [6]
+G_collapse_3.nodes()['N6']['stats'] = [0.6]
+G_collapse_3.add_node('N7')
+G_collapse_3.nodes()['N7']['name'] = ['n_7']
+G_collapse_3.nodes()['N7']['values'] = [None]
+G_collapse_3.nodes()['N7']['stats'] = [None]
+G_collapse_3.add_node('N8')
+G_collapse_3.nodes()['N8']['name'] = ['n_8']
+G_collapse_3.nodes()['N8']['values'] = [None]
+G_collapse_3.nodes()['N8']['stats'] = [None]
+
+G_collapse_3.add_node('N9')
+G_collapse_3.nodes()['N9']['name'] = ['n_9']
+G_collapse_3.nodes()['N9']['values'] = [1]
+G_collapse_3.nodes()['N9']['stats'] = [0.1]
+G_collapse_3.add_node('N10')
+G_collapse_3.nodes()['N10']['name'] = ['n_10']
+G_collapse_3.nodes()['N10']['values'] = [None]
+G_collapse_3.nodes()['N10']['stats'] = [None]
+G_collapse_3.add_node('N11')
+G_collapse_3.nodes()['N11']['name'] = ['n_11']
+G_collapse_3.nodes()['N11']['values'] = [None]
+G_collapse_3.nodes()['N11']['stats'] = [None]
+G_collapse_3.add_node('N12')
+G_collapse_3.nodes()['N12']['name'] = ['n_12']
+G_collapse_3.nodes()['N12']['values'] = [None]
+G_collapse_3.nodes()['N12']['stats'] = [None]
+G_collapse_3.add_node('N13')
+G_collapse_3.nodes()['N13']['name'] = ['n_13']
+G_collapse_3.nodes()['N13']['values'] = [None]
+G_collapse_3.nodes()['N13']['stats'] = [None]
+G_collapse_3.add_node('N14')
+G_collapse_3.nodes()['N14']['name'] = ['n_14']
+G_collapse_3.nodes()['N14']['values'] = [None]
+G_collapse_3.nodes()['N14']['stats'] = [None]
+G_collapse_3.add_node('N15')
+G_collapse_3.nodes()['N15']['name'] = ['n_15']
+G_collapse_3.nodes()['N15']['values'] = [None]
+G_collapse_3.nodes()['N15']['stats'] = [None]
+G_collapse_3.add_node('N16')
+G_collapse_3.nodes()['N16']['name'] = ['n_16']
+G_collapse_3.nodes()['N16']['values'] = [16]
+G_collapse_3.nodes()['N16']['stats'] = [0.16]
+
+G_collapse_3.add_node('N17')
+G_collapse_3.nodes()['N17']['name'] = ['n_17']
+G_collapse_3.nodes()['N17']['values'] = [None]
+G_collapse_3.nodes()['N17']['stats'] = [None]
+
+G_collapse_3.add_node('N18')
+G_collapse_3.nodes()['N18']['name'] = ['n_18']
+G_collapse_3.nodes()['N18']['values'] = [1]
+G_collapse_3.nodes()['N18']['stats'] = [0.1]
+G_collapse_3.add_node('N19')
+G_collapse_3.nodes()['N19']['name'] = ['n_19']
+G_collapse_3.nodes()['N19']['values'] = [2]
+G_collapse_3.nodes()['N19']['stats'] = [0.2]
+G_collapse_3.add_node('N20')
+G_collapse_3.nodes()['N20']['name'] = ['n_20']
+G_collapse_3.nodes()['N20']['values'] = [3]
+G_collapse_3.nodes()['N20']['stats'] = [0.3]
+G_collapse_3.add_node('N21')
+G_collapse_3.nodes()['N21']['name'] = ['n_21']
+G_collapse_3.nodes()['N21']['values'] = [None]
+G_collapse_3.nodes()['N21']['stats'] = [None]
+G_collapse_3.add_node('N22')
+G_collapse_3.nodes()['N22']['name'] = ['n_22']
+G_collapse_3.nodes()['N22']['values'] = [None]
+G_collapse_3.nodes()['N22']['stats'] = [None]
+G_collapse_3.add_node('N23')
+G_collapse_3.nodes()['N23']['name'] = ['n_23']
+G_collapse_3.nodes()['N23']['values'] = [None]
+G_collapse_3.nodes()['N23']['stats'] = [None]
+G_collapse_3.add_node('N24')
+G_collapse_3.nodes()['N24']['name'] = ['n_24']
+G_collapse_3.nodes()['N24']['values'] = [24]
+G_collapse_3.nodes()['N24']['stats'] = [0.24]
+G_collapse_3.add_node('N25')
+G_collapse_3.nodes()['N25']['name'] = ['n_25']
+G_collapse_3.nodes()['N25']['values'] = [None]
+G_collapse_3.nodes()['N25']['stats'] = [None]
+G_collapse_3.add_node('N26')
+G_collapse_3.nodes()['N26']['name'] = ['n_26']
+G_collapse_3.nodes()['N26']['values'] = [17]
+G_collapse_3.nodes()['N26']['stats'] = [0.17]
+
+collapser_database_3 = {
+    'R1': {
+        'compartment':'none',
+        'id':'R1',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N1','N2'],
+        'products':['N3','N4','N5'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R2': {
+        'compartment':'none',
+        'id':'R2',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N3','N4','N5'],
+        'products':['N6','N7','N8'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R3': {
+        'compartment':'none',
+        'id':'R3',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N9','N10'],
+        'products':['N11','N12','N13'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R4': {
+        'compartment':'none',
+        'id':'R4',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N13','N14'],
+        'products':['N15','N16'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R5': {
+        'compartment':'none',
+        'id':'R5',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N13','N14'],
+        'products':['N15','N17'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R6': {
+        'compartment':'none',
+        'id':'R6',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N18','N19'],
+        'products':['N20','N21','N22','N23'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R7': {
+        'compartment':'none',
+        'id':'R7',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N23','N24'],
+        'products':['N25','N26'],
+        'modifiers':[],
+        'additional_components':[]
+    },
+    'R8': {
+        'compartment':'none',
+        'id':'R8',
+        'name':'none',
+        'reversible':'none',
+        'notes':'none',
+        'reactants':['N1'],
+        'products':['N26'],
+        'modifiers':[],
+        'additional_components':[]
+    }
+}
+
+degree_dict = {
+    'N1':1,
+    'N2':1,
+    'N3':100,
+    'N4':200,
+    'N5':2,
+    'N6':1,
+    'N7':1,
+    'N8':1,
+    'N9':1,
+    'N10':1,
+    'N11':1,
+    'N12':1,
+    'N13':2,
+    'N14':1,
+    'N15':1,
+    'N16':1,
+    'N17':1,
+    'N18':1,
+    'N19':1,
+    'N20':2,
+    'N21':1,
+    'N22':2,
+    'N23':1,
+    'N24':1,
+    'N25':1,
+    'N26':1,
+}
+
+blocklist_3 = ['N20']
+
+G_coll3 = G_collapse_3.copy()
+G_coll3, updated_rxns3, changed_rxns3, removed_rxn3 = collapse_nodes(
+    graph=G_coll3,
+    reaction_dictionary=collapser_database_3,
+    degree_dictionary=degree_dict,
+    samples=1,
+    collapse_with_modifiers=False,
+    blocklist=blocklist_3)
+
+final_reactions3 = [
+    'R1_R2',
+    'R2_R1',
+    'R3_R4',
+    'R4_R3',
+    'R5',
+    'R6_R7',
+    'R7_R6',
+    'R8'
+]
+
+test_var = True
+for k in list(updated_rxns3.keys()):
+    if k in final_reactions3:
+        pass
+    else:
+        test_var = False
+assert test_var == True, 'collapse_nodes() for partial collapse failed'
 
 # generate_updated_dictionary()
 print("Testing generate_updated_dictionary()")
@@ -1067,12 +1390,19 @@ assert updated_pathway_dictionary['Re1']['reactions'] == ['R1','R2_R3','R4'], 'g
 assert updated_pathway_dictionary['Re2']['reactions'] == ['R5_R6_R7','R8_R9_R10','R11','R12','R13'], 'generate_updated_dictionary() failed'
 assert updated_pathway_dictionary['Re3']['reactions'] == ['R14','R15','R16','R17'], 'generate_updated_dictionary() failed'
 
+os.remove(network_url)
+
+"""
+Removed until multiprocessing working
+
+
 # Run full test on data
-print("Testing __main__.py for modeling data")
+print("Testing analyze/__main__.py for modeling data")
 spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
 __main__ = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(__main__)
 test_modeling = __main__.__main__
+
 args_dict = {
     'database_source': 'reactome',
     'network': os.path.abspath(
@@ -1093,6 +1423,19 @@ args_dict = {
     'blocklist': ''
 }
 
+import zipfile
+zipped_net = os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA.zip')
+with zipfile.ZipFile(zipped_net, 'r') as zip_file:
+    zip_file.extractall(
+        os.path.abspath(
+            './metaboverse_cli/analyze/test'))
+
+network_url = os.path.abspath(
+    "./metaboverse_cli/analyze/test/HSA.mvdb")
+with open(network_url, 'rb') as network_file:
+    network = pickle.load(network_file)
+
 test_modeling(args_dict)
 
 rna_unmapped = os.path.abspath(
@@ -1110,9 +1453,30 @@ assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS', 'Phenylacetylglyci
 os.remove(metabolite_unmapped)
 
 os.remove(args_dict['output_file'])
+os.remove(args_dict['network'])
+
+
+
+print("Testing prepare_data.py")
+spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
+prepare_data = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(prepare_data)
+
+import zipfile
+zipped_net = os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA.zip')
+with zipfile.ZipFile(zipped_net, 'r') as zip_file:
+    zip_file.extractall(
+        os.path.abspath(
+            './metaboverse_cli/analyze/test'))
+
+network_url = os.path.abspath(
+    "./metaboverse_cli/analyze/test/HSA.mvdb")
+with open(network_url, 'rb') as network_file:
+    network = pickle.load(network_file)
 
 # CHEBI mapping
-print('Testing CHEBI mapping...')
+print('Testing analyze/__main__.py for CHEBI mapping...')
 metabolomics_url = os.path.abspath(
     "./metaboverse_cli/analyze/test/mixed_chebi_ids.txt")
 __main__ = prepare_data.__main__
@@ -1123,6 +1487,7 @@ data, stats, unmapped = __main__(
     metabolomics_url=metabolomics_url)
 assert data.shape == (8,1), "Mixed CHEBI ID mapping failed"
 """
+"""
 CHEBI:57972	                -0.187287     ->  "L-Ala"
 CHEBI:18012	                -0.200046     ->  "FUMA"
 CHEBI:30797	                -0.108502     ->  "MAL"
@@ -1131,6 +1496,7 @@ Fructose-6-phosphate	     0.066205     ->  "Fru(6)P"
 L-LacTic Acid	            -0.000151     ->  "LACT"
 SuCcINic acId	             0.068246     ->  "SUCCA"
 gibberish	                -0.110443     ->  N/A
+"""
 """
 
 args_chebi = {
@@ -1181,7 +1547,8 @@ for n in chebi_json['nodes']:
     if n['name'] == 'MAL':
         assert n['values'] == [-0.10850223], "Mixed CHEBI mapping failed"
 
-os.remove(args_dict['output_file'])
-os.remove(args_dict['network'])
+os.remove(args_chebi['output_file'])
+os.remove(args_chebi['network'])
+"""
 
 print('Tests completed')

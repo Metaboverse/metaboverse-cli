@@ -1,6 +1,6 @@
 # ![Metaboverse](https://raw.githubusercontent.com/Metaboverse/Metaboverse/master/docs/content/images/metaboverse_banner.png)
 
-[![Build Status](https://travis-ci.org/Metaboverse/metaboverse-cli.svg?branch=master)](https://travis-ci.org/Metaboverse/metaboverse-cli)
+[![Build Status](https://travis-ci.com/Metaboverse/metaboverse-cli.svg?branch=master)](https://travis-ci.com/Metaboverse/metaboverse-cli)
 [![Documentation Status](https://readthedocs.org/projects/metaboverse/badge/?version=latest)](https://metaboverse.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/Metaboverse/metaboverse-cli/branch/master/graph/badge.svg)](https://codecov.io/gh/Metaboverse/metaboverse-cli)
 [![bioRxiv preprint](https://img.shields.io/badge/bioRxiv-10.1101%2F2020.06.25.171850-BF2636)](https://www.biorxiv.org/content/10.1101/2020.06.25.171850v1)
