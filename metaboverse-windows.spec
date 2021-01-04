@@ -16,7 +16,8 @@ a = Analysis(
               ('README.md', '.')
              ],
              hiddenimports=[
-              'scipy.special.cython_special'],
+              'scipy.special.cython_special',
+              'scipy.spatial.transform._rotation_groups'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[
