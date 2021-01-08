@@ -96,6 +96,13 @@ def main(
         mapper(args_dict)
         sys.exit(1)
 
+    elif args_dict['cmd'] == 'electrum':
+
+        print('Generating Electrum-compatible database...')
+        args_dict['organism_curation'] = 'None'
+        args_dict = curate(args_dict)
+        sys.exit(1)
+
     # Run metaboverse-curate
     elif args_dict['cmd'] == 'curate':
 

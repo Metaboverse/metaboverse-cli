@@ -79,6 +79,8 @@ def check_arguments(
         check_curate(args_dict)
     elif args_dict['cmd'] == 'metaboliteMapper':
         pass
+    elif args_dict['cmd'] == 'electrum':
+        pass
     else:
         raise Exception('Invalid sub-module selected')
 
@@ -131,13 +133,49 @@ def parse_arguments(
     # Add sub-parsers
     subparser = parser.add_subparsers(dest = 'cmd')
 
+    # electrum parser
+    electrum_parser = subparser.add_parser(
+        'electrum',
+        description = 'Curate Electrum-compatible database',
+        add_help = False)
+
+    # electrum required arguments
+    electrum_reqs = electrum_parser.add_argument_group('required arguments')
+    electrum_reqs.add_argument(
+        '-o', '--output',
+        help = 'Path to output directory (default: current working directory)',
+        metavar = '<path>',
+        type = str,
+        required = True)
+    electrum_reqs.add_argument(
+        '-s', '--organism_id',
+        help = 'Reactome species ID',
+        metavar = '<organism_id>',
+        type = str,
+        default = 'HSA',
+        required = True)
+
+    # electrum optional arguments
+    electrum_opts = electrum_parser.add_argument_group('optional arguments')
+    electrum_opts.add_argument(
+        '-h', '--help',
+        action = 'help',
+        help = 'Show help message and exit')
+    electrum_opts.add_argument(
+        '--database_source',
+        help = 'A string indicating the database source (default: "reactome"; other options: "biomodels/bigg")',
+        metavar = '<source_name>',
+        type = str,
+        default = 'reactome',
+        required = False)
+
     # metaboliteMapper parser
     mapper_parser = subparser.add_parser(
         'metaboliteMapper',
         description = 'Curate metabolite mapper',
         add_help = False)
 
-    # Curate required arguments
+    # metaboliteMapper required arguments
     mapper_reqs = mapper_parser.add_argument_group('required arguments')
     mapper_reqs.add_argument(
         '-o', '--output',

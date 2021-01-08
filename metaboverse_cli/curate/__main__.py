@@ -27,6 +27,7 @@ import re
 import requests
 from datetime import date
 import pickle
+import json
 import pandas as pd
 
 """Import internal dependencies
@@ -309,11 +310,20 @@ def get_reactome_version():
     current_version = max(matches)
     return current_version
 
-def write_database(
-        output,
-        file,
-        database):
-    """Write reactions database to pickle file
+def add_genes(
+        name_database,
+        ensembl_reference):
+    """Self map all ensembl gene ids for network creation and mapping
+    """
+
+    for k, v in ensembl_reference.items():
+        name_database[v] = v
+
+    return name_database
+
+def prepare_output(
+        output):
+    """Get output directory prepared
     """
 
     # Check provided path exists
@@ -326,20 +336,35 @@ def write_database(
     else:
         dir = os.path.abspath(output) + os.path.sep
 
+    return dir
+
+def write_database(
+        output,
+        file,
+        database):
+    """Write reactions database to pickle file
+    """
+
+    dir = prepare_output(
+        output=output)
+
     # Write information to file
     with open(dir + file, 'wb') as file_product:
         pickle.dump(database, file_product)
 
-def add_genes(
-        name_database,
-        ensembl_reference):
-    """Self map all ensembl gene ids for network creation and mapping
+def write_database_json(
+        output,
+        file,
+        database):
+    """Write reactions database to JSON file
     """
 
-    for k, v in ensembl_reference.items():
-        name_database[v] = v
+    dir = prepare_output(
+        output=output)
 
-    return name_database
+    # Write information to file
+    with open(dir + file, 'wb') as file_product:
+        json.dump(database, file_product)
 
 def __main__(
         args_dict):
@@ -435,11 +460,20 @@ def __main__(
 
     # Write database to file
     print('Writing metaboverse database to file...')
-    args_dict['curation'] = _species_id + '.mvdb'
-    write_database(
-        output=args_dict['output'],
-        file=args_dict['curation'],
-        database=metaboverse_db)
+    if args_dict['cmd'] == 'curate':
+        args_dict['curation'] = _species_id + '.mvdb'
+        write_database(
+            output=args_dict['output'],
+            file=args_dict['curation'],
+            database=metaboverse_db)
+    elif args_dict['cmd'] == 'electrum':
+        args_dict['curation'] = _species_id + '.eldb'
+        write_database_json(
+            output=args_dict['output'],
+            file=args_dict['curation'],
+            database=metaboverse_db)
+    else:
+        raise Exception('Unable to output database file.')
     progress_feed(args_dict, "curate", 5)
     print('Metaboverse database curation complete.')
 
