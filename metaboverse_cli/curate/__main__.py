@@ -363,8 +363,8 @@ def write_database_json(
         output=output)
 
     # Write information to file
-    with open(dir + file, 'wb') as file_product:
-        json.dump(database, file_product)
+    with open(dir + file, 'w') as file_product:
+        json.dump(database, file_product, indent=4)
 
 def __main__(
         args_dict):
