@@ -24,7 +24,53 @@ from __future__ import print_function
 """
 import os
 import sys
+import pickle
 import json
+
+def prepare_output(
+        output):
+    """Get output directory prepared
+    """
+
+    # Check provided path exists
+    if not os.path.isdir(output):
+        os.makedirs(output)
+
+    # Clean up path
+    if os.path.abspath(output).endswith(os.path.sep):
+        dir = os.path.abspath(output)
+    else:
+        dir = os.path.abspath(output) + os.path.sep
+
+    return dir
+
+def write_database(
+        output,
+        file,
+        database):
+    """Write reactions database to pickle file
+    """
+
+    dir = prepare_output(
+        output=output)
+
+    # Write information to file
+    with open(dir + file, 'wb') as file_product:
+        pickle.dump(database, file_product)
+
+def write_database_json(
+        output,
+        file,
+        database):
+    """Write reactions database to JSON file
+    """
+
+    dir = prepare_output(
+        output=output)
+
+    # Write information to file
+    with open(dir + file, 'w') as file_product:
+        json.dump(database, file_product, indent=4)
 
 def safestr(obj):
     """Covert ascii text if needed

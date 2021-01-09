@@ -35,7 +35,7 @@ import pandas as pd
 try:
     from curate.load_reactions_db import __main__ as load_reactions
     from curate.load_complexes_db import __main__ as load_complexes
-    from utils import progress_feed, get_session_value
+    from utils import progress_feed, get_session_value, prepare_output, write_database, write_database_json
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/load_reactions_db.py"))
@@ -53,6 +53,9 @@ except:
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
     get_session_value = utils.get_session_value
+    prepare_output = utils.prepare_output
+    write_database = utils.write_database
+    write_database_json = utils.write_database_json
 
 def parse_table(
         reference,
@@ -320,51 +323,6 @@ def add_genes(
         name_database[v] = v
 
     return name_database
-
-def prepare_output(
-        output):
-    """Get output directory prepared
-    """
-
-    # Check provided path exists
-    if not os.path.isdir(output):
-        os.makedirs(output)
-
-    # Clean up path
-    if os.path.abspath(output).endswith(os.path.sep):
-        dir = os.path.abspath(output)
-    else:
-        dir = os.path.abspath(output) + os.path.sep
-
-    return dir
-
-def write_database(
-        output,
-        file,
-        database):
-    """Write reactions database to pickle file
-    """
-
-    dir = prepare_output(
-        output=output)
-
-    # Write information to file
-    with open(dir + file, 'wb') as file_product:
-        pickle.dump(database, file_product)
-
-def write_database_json(
-        output,
-        file,
-        database):
-    """Write reactions database to JSON file
-    """
-
-    dir = prepare_output(
-        output=output)
-
-    # Write information to file
-    with open(dir + file, 'w') as file_product:
-        json.dump(database, file_product, indent=4)
 
 def __main__(
         args_dict):

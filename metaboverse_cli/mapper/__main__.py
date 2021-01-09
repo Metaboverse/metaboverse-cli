@@ -30,23 +30,18 @@ import requests
 import xml.etree.ElementTree as et
 import pandas as pd
 
-def write_database(
-        output,
-        file,
-        database):
-    """Write reactions database to pickle file
-    """
-
-    # Check provided path exists
-    if not os.path.isdir(output):
-        os.makedirs(output)
-
-    # Clean up path
-    dir = os.path.abspath(output) + '/'
-
-    # Write information to file
-    with open(dir + file, 'wb') as file_product:
-        pickle.dump(database, file_product)
+"""Import internal dependencies
+"""
+try:
+    from utils import prepare_output, write_database, write_database_json
+except:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils)
+    prepare_output = utils.prepare_output
+    write_database = utils.write_database
+    write_database_json = utils.write_database_json
 
 def parse_hmdb_synonyms(
         output_dir,
@@ -142,8 +137,20 @@ def __main__(
     }
 
     print('Writing database to file...')
-    write_database(
-        output=args_dict['output'],
-        file='metabolite_mapping.pickle',
-        database=mapping_db
-    )
+    if args_dict['cmd'] == 'electrum':
+        write_database_json(
+            output=args_dict['output'],
+            file='metabolite_mapping.json',
+            database=mapping_db)
+    else:
+        write_database(
+            output=args_dict['output'],
+            file='metabolite_mapping.pickle',
+            database=mapping_db)
+
+def test():
+
+    args_dict = {}
+    args_dict['cmd'] = 'electrum'
+    args_dict['output'] = 'C:\\Users\\jorda\\Desktop\\'
+    __main__(args_dict)

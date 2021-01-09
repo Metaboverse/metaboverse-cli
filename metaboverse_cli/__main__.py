@@ -101,6 +101,9 @@ def main(
         print('Generating Electrum-compatible database...')
         args_dict['organism_curation'] = 'None'
         args_dict = curate(args_dict)
+
+        print('Generating metabolite mapper...')
+        mapper(args_dict)
         sys.exit(1)
 
     # Run metaboverse-curate
