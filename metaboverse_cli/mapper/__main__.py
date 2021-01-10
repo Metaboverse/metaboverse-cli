@@ -4,7 +4,7 @@ Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
 https://github.com/Metaboverse/metaboverse-cli/
 alias: metaboverse-cli
 
-Copyright (C) 2019-2020 Jordan A. Berg
+Copyright (C) 2019-2021 Jordan A. Berg
 Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
 
 This program is free software: you can redistribute it and/or modify it under
@@ -153,4 +153,5 @@ def test():
     args_dict = {}
     args_dict['cmd'] = 'electrum'
     args_dict['output'] = 'C:\\Users\\jorda\\Desktop\\'
+    output_dir = args_dict['output']
     __main__(args_dict)
