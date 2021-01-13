@@ -148,6 +148,12 @@ def parse_arguments(
         type = str,
         required = True)
     electrum_reqs.add_argument(
+        '-d', '--data',
+        help = 'Path and filename of MIDAS interaction database',
+        metavar = '<path/filename.txt>',
+        type = str,
+        required = True)
+    electrum_reqs.add_argument(
         '-s', '--organism_id',
         help = 'Reactome species ID',
         metavar = '<organism_id>',
@@ -167,6 +173,12 @@ def parse_arguments(
         metavar = '<source_name>',
         type = str,
         default = 'reactome',
+        required = False)
+    electrum_opts.add_argument(
+        '-c', '--organism_curation',
+        help = 'Path and name for organism curation file',
+        metavar = '<path/filename.mvdb; path/filename.xml; path/filename.sbml>',
+        type = str,
         required = False)
 
     # metaboliteMapper parser

@@ -137,16 +137,10 @@ def __main__(
     }
 
     print('Writing database to file...')
-    if args_dict['cmd'] == 'electrum':
-        write_database_json(
-            output=args_dict['output'],
-            file='metabolite_mapping.json',
-            database=mapping_db)
-    else:
-        write_database(
-            output=args_dict['output'],
-            file='metabolite_mapping.pickle',
-            database=mapping_db)
+    write_database(
+        output=args_dict['output'],
+        file='metabolite_mapping.pickle',
+        database=mapping_db)
 
 def test():
 

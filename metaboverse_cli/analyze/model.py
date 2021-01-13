@@ -89,6 +89,8 @@ def name_graph(
 
     if output_file[-5:].lower() == '.mvrs':
         graph_name = output_file
+    elif output_file[-5:].lower() == '.eldb':
+        graph_name = output_file
     else:
         graph_name = output_file + species_id + '_global_reactions.mvrs'
 
@@ -1274,6 +1276,50 @@ def load_metabolite_synonym_dictionary(
 
     return metabolite_mapper
 
+def build_name_reference(
+        ensembl,
+        uniprot):
+
+    name_reference = {}
+    for k, v in ensembl.items():
+        if 'phospho-' in v and '-phospho-' not in v:
+            v = v.replace('phospho-', '')
+        if '(' in v and ')' in v:
+            v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+        if '  ' in v:
+            v = v.replace('  ', ' ')
+        v = v.strip()
+        name_reference[v] = k
+        name_reference[k] = k
+    for k, v in uniprot.items():
+        if 'phospho-' in v and '-phospho-' not in v:
+            v = v.replace('phospho-', '')
+        if '(' in v and ')' in v:
+            v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+        if '  ' in v:
+            v = v.replace('  ', ' ')
+        v = v.strip()
+        name_reference[v] = k
+        name_reference[k] = k
+
+    return name_reference
+
+def build_chebi_reference(
+        chebi,
+        uniprot):
+
+    chebi_dictionary = {}
+    for k, v in chebi.items():
+        _k = ''.join(c.lower() for c in str(k) if c.isalnum())
+        chebi_dictionary[_k] = v
+        chebi_dictionary[k] = v
+    for k, v in uniprot.items():
+        _k = ''.join(c.lower() for c in str(k) if c.isalnum())
+        chebi_dictionary[_k] = v
+        chebi_dictionary[k] = v
+
+    return chebi_dictionary
+
 def __main__(
         args_dict,
         network,
@@ -1299,15 +1345,9 @@ def __main__(
         ensembl_reference=reverse_genes)
     progress_feed(args_dict, "model", 1)
 
-    chebi_dictionary = {}
-    for k, v in network['chebi_mapper'].items():
-        _k = ''.join(c.lower() for c in str(k) if c.isalnum())
-        chebi_dictionary[_k] = v
-        chebi_dictionary[k] = v
-    for k, v in network['uniprot_metabolites'].items():
-        _k = ''.join(c.lower() for c in str(k) if c.isalnum())
-        chebi_dictionary[_k] = v
-        chebi_dictionary[k] = v
+    chebi_dictionary = build_chebi_reference(
+        chebi=network['chebi_mapper'],
+        uniprot=network['uniprot_metabolites'])
 
     # Generate graph
     # Name mapping
@@ -1337,28 +1377,9 @@ def __main__(
     print('Mapping user data...')
     degree_dictionary = compile_node_degrees(
         graph=G)
-
-    name_reference = {}
-    for k, v in network['ensembl_synonyms'].items():
-        if 'phospho-' in v and '-phospho-' not in v:
-            v = v.replace('phospho-', '')
-        if '(' in v and ')' in v:
-            v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
-        if '  ' in v:
-            v = v.replace('  ', ' ')
-        v = v.strip()
-        name_reference[v] = k
-        name_reference[k] = k
-    for k, v in network['uniprot_synonyms'].items():
-        if 'phospho-' in v and '-phospho-' not in v:
-            v = v.replace('phospho-', '')
-        if '(' in v and ')' in v:
-            v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
-        if '  ' in v:
-            v = v.replace('  ', ' ')
-        v = v.strip()
-        name_reference[v] = k
-        name_reference[k] = k
+    name_reference = build_name_reference(
+        ensembl=network['ensembl_synonyms'],
+        uniprot=network['uniprot_synonyms'])
 
     # add any mapping IDs
     # Add synonyms

@@ -27,6 +27,18 @@ import sys
 import pickle
 import json
 
+def read_network(
+        network_url):
+    """Read in network from previous curation module
+    - was provided as a URL to the file and saved to args_dict['network'] in
+    "curate" sub-module
+    """
+
+    with open(network_url, 'rb') as network_file:
+        network = pickle.load(network_file)
+
+    return network
+    
 def prepare_output(
         output):
     """Get output directory prepared

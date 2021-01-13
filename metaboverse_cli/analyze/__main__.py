@@ -30,7 +30,7 @@ import pandas as pd
 try:
     from analyze.prepare_data import __main__ as prepare_data
     from analyze.model import __main__ as model
-    from utils import progress_feed
+    from utils import progress_feed, read_network
 except:
     import os
     import importlib.util
@@ -44,23 +44,12 @@ except:
     spec.loader.exec_module(model)
     model = model.__main__
 
-    spec = importlib.util.spec_from_file_location("progress_feed", os.path.abspath("./metaboverse_cli/utils.py"))
-    progress_feed = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(progress_feed)
-    progress_feed = progress_feed.progress_feed
-
-def read_network(
-        network_url):
-    """Read in network from previous curation module
-    - was provided as a URL to the file and saved to args_dict['network'] in
-    "curate" sub-module
-    """
-
-    with open(network_url, 'rb') as network_file:
-        network = pickle.load(network_file)
-
-    return network
-
+    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils)
+    progress_feed = utils.progress_feed
+    read_network = utils.read_network
+    
 def __main__(
         args_dict):
     """Analyze data on network model

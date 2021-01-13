@@ -41,6 +41,7 @@ try:
     from curate.__main__ import __main__ as curate
     from analyze.__main__ import __main__ as analyze
     from mapper.__main__ import __main__ as mapper
+    from target.__main__ import __main__ as curate_target
     from utils import progress_feed, update_session, safestr
 except:
     import importlib.util
@@ -69,6 +70,11 @@ except:
     spec.loader.exec_module(mapper)
     mapper = mapper.__main__
 
+    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/target/__main__.py"))
+    target = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(target)
+    curate_target = target.__main__
+
     spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
@@ -96,18 +102,13 @@ def main(
         mapper(args_dict)
         sys.exit(1)
 
-    elif args_dict['cmd'] == 'electrum':
-
-        print('Generating Electrum-compatible database...')
-        args_dict['organism_curation'] = 'None'
-        args_dict = curate(args_dict)
-
-        print('Generating metabolite mapper...')
-        mapper(args_dict)
-        sys.exit(1)
-
     # Run metaboverse-curate
-    elif args_dict['cmd'] == 'curate':
+    elif args_dict['cmd'] == 'curate' or args_dict['cmd'] == 'electrum':
+
+        if args_dict['cmd'] == 'curate':
+            print('Generating Metaboverse-compatible database...')
+        elif args_dict['cmd'] == 'electrum':
+            print('Generating Electrum-compatible database...')
 
         if safestr(args_dict['organism_curation']) != 'None':
             progress_feed(
@@ -155,14 +156,28 @@ def main(
             args_dict = curate(args_dict)
             #sys.stdout.flush()
 
-        print('Curating data onto the network model...')
         if 'output_file' in args_dict \
         and safestr(args_dict['output_file']) == 'None':
             args_dict['output_file'] = args_dict['output'] \
                 + args_dict['organism_id'] \
                 + '.mvrs'
 
-        analyze(args_dict)
+        print('Curating data onto the network model...')
+        if args_dict['cmd'] == 'curate':
+            if 'output_file' in args_dict \
+            and safestr(args_dict['output_file']) == 'None':
+                args_dict['output_file'] = args_dict['output'] \
+                    + args_dict['organism_id'] \
+                    + '.mvrs'
+            analyze(args_dict)
+        elif args_dict['cmd'] == 'electrum':
+            if 'output_file' in args_dict \
+            and safestr(args_dict['output_file']) == 'None':
+                args_dict['output_file'] = args_dict['output'] \
+                    + args_dict['organism_id'] \
+                    + '-latest.eldb'
+            curate_target(args_dict)
+
         sys.exit(1)
 
     # Print some error messaging
