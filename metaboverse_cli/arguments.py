@@ -180,6 +180,18 @@ def parse_arguments(
         metavar = '<path/filename.mvdb; path/filename.xml; path/filename.sbml>',
         type = str,
         required = False)
+    electrum_opts.add_argument(
+        '-i', '--model_file',
+        help = 'Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored.',
+        metavar = '<path/filename.mvdb>',
+        type = str,
+        required = False)
+    electrum_opts.add_argument(
+        '-f', '--output_file',
+        help = 'Path and name for output database file',
+        metavar = '<path/filename.mvrs>',
+        type = str,
+        required = False)
 
     # metaboliteMapper parser
     mapper_parser = subparser.add_parser(
