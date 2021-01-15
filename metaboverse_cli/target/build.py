@@ -166,15 +166,6 @@ def define_mapper(
 
     return metabolites
 
-def finalize_node(
-        graph,
-        id):
-    for k in graph.nodes()[id]:
-        if isinstance(graph.nodes()[id][k], set):
-            graph.nodes()[id][k] = list(graph.nodes()[id][k])
-
-    return graph
-
 def targeted_graph(
         metabolites,
         reactions,
@@ -191,9 +182,9 @@ def targeted_graph(
     """
 
     # Initialize graph object
-    graph = nx.DiGraph()
-    for _m in metabolites.keys():
+    reference = {}
 
+    for _m in metabolites.keys():
         # Find species_id
         species_ids, parsed_syns = get_species(
             metabolite=metabolites[_m],
@@ -202,163 +193,41 @@ def targeted_graph(
             metabolite_mapper=metabolite_mapper,
             uniprot_mapper=uniprot_mapper)
 
-        # Add node
-        graph.add_node(_m)
-        graph.nodes()[_m]['id'] = _m
-        graph.nodes()[_m]['map_id'] = _m
-        graph.nodes()[_m]['name'] = metabolites[_m]['name']
-        graph.nodes()[_m]['common_name'] = metabolites[_m]['common_name']
-        graph.nodes()[_m]['type'] = 'metabolite'
-        graph.nodes()[_m]['sub_type'] = 'midas_metabolite'
-        graph.nodes()[_m]['species_ids'] = species_ids
-        graph.nodes()[_m]['synonyms'] = parsed_syns
-        graph.nodes()[_m]['notes'] = ""
-        graph.nodes()[_m]['smiles'] = metabolites[_m]['smiles']
-        graph.nodes()[_m]['pathways'] = ""
-
         # Find nearest neighbor reactions
         _reaction_list = set()
+        _reactome_list = set()
         for _s in species_ids:
             for _k, _v in reactions.items():
                 if _s in _v['reactants'] \
                 or _s in _v['products']:
                     _reaction_list.add(_k)
+                    _reactome_list.add(reactions[_k]['reactome'])
                 for _mod in _v['modifiers']:
                     if _mod[0] == _s:
                         _reaction_list.add(_k)
-        graph.nodes()[_m]['reactome_reactions'] = list(_reaction_list)
-        graph = finalize_node(
-            graph=graph,
-            id=_m)
+                        _reactome_list.add(reactions[_k]['reactome'])
 
-        # Add reactions and components
-        for _r in _reaction_list:
+        _pathway_list = set()
+        for _p in pathways.keys():
+            _reactions = pathways[_p]['reactions']
+            _reactome_id = pathways[_p]['reactome']
+            for _r in _reaction_list:
+                if _r in _reactions:
+                    _pathway_list.add(_reactome_id)
 
-            # Add reaction node
-            graph.add_node(_r)
-            graph.nodes()[_r]['id'] = _r
-            graph.nodes()[_r]['map_id'] = _r
-            graph.nodes()[_r]['name'] = reactions[_r]['name']
-            graph.nodes()[_r]['common_name'] = ""
-            graph.nodes()[_r]['type'] = 'reaction'
-            graph.nodes()[_r]['sub_type'] = 'reaction'
-            graph.nodes()[_r]['species_ids'] = ""
-            graph.nodes()[_r]['synonyms'] = ""
-            graph.nodes()[_r]['notes'] = reactions[_r]['notes']
-            graph.nodes()[_m]['smiles'] = ""
-            graph.nodes()[_r]['pathways'] = set()
-            graph.nodes()[_r]['reactome_reactions'] = set()
+        reference[_m] = {
+            'id': _m,
+            'name': list(metabolites[_m]['name']),
+            'common_name': list(metabolites[_m]['common_name']),
+            'species_ids': list(species_ids),
+            'synonyms': list(parsed_syns),
+            'smiles': list(metabolites[_m]['smiles']),
+            'pathways': list(_pathway_list),
+            'reactions': list(_reaction_list),
+            'reactome_reactions': list(_reactome_list)
+        }
 
-            for _p in pathways.keys():
-                if _r in pathways[_p]['reactions']:
-                    graph.nodes()[_r]['pathways'].add(_p)
-            graph.nodes()[_r]['pathways'] = list(graph.nodes()[_r]['pathways'])
-            graph = finalize_node(
-                graph=graph,
-                id=_r)
-
-            # For all reactant, product, and mods, add node and edge to reaction node
-            _reactants = reactions[_r]['reactants']
-            _products = reactions[_r]['products']
-            _modifiers = reactions[_r]['modifiers']
-
-            for _reactant in _reactants:
-                _name = component_database[_reactant]['name']
-                _type = 'reactant'
-                _subtype = component_database[_reactant]['type']
-                graph = add_node(
-                    graph=graph,
-                    identifier=_reactant,
-                    name=_name,
-                    type=_type,
-                    sub_type=_subtype)
-                graph = add_edge(
-                    graph=graph,
-                    source=_reactant,
-                    target=_r,
-                    type=_type,
-                    sub_type=_subtype)
-                graph = finalize_node(
-                    graph=graph,
-                    id=_reactant)
-
-            for _product in _products:
-                _name = component_database[_product]['name']
-                _type = 'product'
-                _subtype = component_database[_product]['type']
-                graph = add_node(
-                    graph=graph,
-                    identifier=_product,
-                    name=_name,
-                    type=_type,
-                    sub_type=_subtype)
-                graph = add_edge(
-                    graph=graph,
-                    source=_r,
-                    target=_product,
-                    type=_type,
-                    sub_type=_subtype)
-                graph = finalize_node(
-                    graph=graph,
-                    id=_product)
-
-            for _modifier in _modifiers:
-                _name = component_database[_modifier[0]]['name']
-                _type = 'modifier'
-                _subtype = _modifier[1]
-                graph = add_node(
-                    graph=graph,
-                    identifier=_modifier[0],
-                    name=_name,
-                    type=_type,
-                    sub_type=_subtype)
-                graph = add_edge(
-                    graph=graph,
-                    source=_modifier[0],
-                    target=_r,
-                    type=_type,
-                    sub_type=_subtype)
-                graph = finalize_node(
-                    graph=graph,
-                    id=_modifier[0])
-
-    return graph
-
-def add_edge(
-        graph,
-        source,
-        target,
-        type,
-        sub_type):
-
-    graph.add_edges_from([(source, target)])
-    graph.edges()[(source, target)]['type'] = type
-    graph.edges()[(source, target)]['sub_type'] = sub_type
-
-    return graph
-
-def add_node(
-        graph,
-        identifier,
-        name,
-        type,
-        sub_type):
-
-    graph.add_node(identifier)
-    graph.nodes()[identifier]['id'] = identifier
-    graph.nodes()[identifier]['map_id'] = identifier
-    graph.nodes()[identifier]['name'] = name
-    graph.nodes()[identifier]['common_name'] = name
-    graph.nodes()[identifier]['type'] = type
-    graph.nodes()[identifier]['sub_type'] = sub_type
-    graph.nodes()[identifier]['species_ids'] = identifier
-    graph.nodes()[identifier]['synonyms'] = ""
-    graph.nodes()[identifier]['notes'] = ""
-    graph.nodes()[identifier]['smiles'] = ""
-    graph.nodes()[identifier]['pathways'] = set()
-    graph.nodes()[identifier]['reactome_reactions'] = set()
-
-    return graph
+    return reference
 
 def get_species(
         metabolite,
@@ -424,6 +293,7 @@ def test():
     gather_synonyms = model.gather_synonyms
 
     output_file = 'C:\\Users\\jorda\\Desktop\\HSA-latest.eldb'
+    species_id = 'HSA'
 
 def __main__(
         args_dict,
@@ -479,7 +349,7 @@ def __main__(
     # Generate graph
     # Name mapping
     print('Building network...')
-    G = targeted_graph(
+    reference = targeted_graph(
         metabolites=metabolites,
         reactions=network['reaction_database'],
         pathways=network['pathway_database'],
@@ -490,12 +360,19 @@ def __main__(
         component_database=network['components_database'])
     progress_feed(args_dict, "model", 9)
 
-    degree_dictionary = compile_node_degrees(
-        graph=G)
+    # May need a reaction id mapper for reactome IDs
+    reactome_mapper = {}
+    for _k in network['reaction_database'].keys():
+        _id = network['reaction_database'][_k]['id']
+        _reactome = network['reaction_database'][_k]['reactome']
+        reactome_mapper[_id] = _reactome
+        reactome_mapper[_reactome] = _id
 
-    output_database = json_graph.node_link_data(G)
+    output_database = {}
+    output_database['neighbors_dictionary'] = reference
     output_database['pathway_dictionary'] = network['pathway_database']
-    output_database['degree_dictionary'] = degree_dictionary
+    output_database['reaction_database'] = network['reaction_database']
+    output_database['reactome_mapper'] = reactome_mapper
     output_database['curation_date'] = date.today().strftime('%Y-%m-%d')
 
     with open(graph_name, 'w') as f:

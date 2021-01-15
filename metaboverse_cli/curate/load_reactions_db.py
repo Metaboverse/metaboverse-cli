@@ -165,7 +165,17 @@ def get_metadata(
         notes = ''
         print('No notes available for', name)
 
-    return compartment, id, name, reversible, notes
+    try:
+        for rank in reaction.iter(str(bqbiol_namespace + 'is')):
+            for _rank in rank.iter(str(rdf_namespace + 'li')):
+                item = _rank.attrib[str(rdf_namespace + 'resource')]
+                if 'reactome' in item.lower():
+                    reactome = item.split('/')[-1]
+    except:
+        reactome = ''
+        print('No notes available for', name)
+
+    return compartment, id, reactome, name, reversible, notes
 
 def add_reaction(
         pathway_database,
@@ -525,7 +535,7 @@ def process_components(
         for reaction in reactions:
 
             # Get metadata
-            compartment, id, name, reversible, notes = get_metadata(
+            compartment, id, reactome, name, reversible, notes = get_metadata(
                 reaction=reaction,
                 sbml_level=sbml_level,
                 sbml_version=sbml_version,
@@ -543,6 +553,7 @@ def process_components(
             reaction_database[id] = {
                 'compartment': compartment,
                 'id': id,
+                'reactome': reactome,
                 'name': name,
                 'reversible': reversible,
                 'notes': notes}
