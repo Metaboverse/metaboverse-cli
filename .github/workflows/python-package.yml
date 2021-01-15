@@ -1,4 +1,4 @@
-name: metaboverse-cli
+name: build
 
 on:
   [push]
