@@ -294,6 +294,7 @@ def test():
 
     output_file = 'C:\\Users\\jorda\\Desktop\\HSA-latest.eldb'
     species_id = 'HSA'
+    args_dict = {}
 
 def __main__(
         args_dict,
@@ -315,7 +316,6 @@ def __main__(
     protein_dictionary = uniprot_ensembl_reference(
         uniprot_reference=network['uniprot_synonyms'],
         ensembl_reference=reverse_genes)
-    progress_feed(args_dict, "model", 1)
 
     chebi_dictionary = build_chebi_reference(
         chebi=network['chebi_mapper'],
@@ -358,7 +358,6 @@ def __main__(
         metabolite_mapper=metabolite_mapper,
         uniprot_mapper=u,
         component_database=network['components_database'])
-    progress_feed(args_dict, "model", 9)
 
     # May need a reaction id mapper for reactome IDs
     reactome_mapper = {}
@@ -368,10 +367,24 @@ def __main__(
         reactome_mapper[_id] = _reactome
         reactome_mapper[_reactome] = _id
 
+    no_defective_reactions = {}
+    for key in network['reaction_database'].keys():
+        rxn_name = network['reaction_database'][key]['name'].lower()
+        if 'defective' not in rxn_name \
+        and 'mutant' not in rxn_name:
+            no_defective_reactions[key] = network['reaction_database'][key]
+
+    no_defective_pathways = {}
+    for key in network['pathway_database'].keys():
+        rxn_name = network['pathway_database'][key]['name'].lower()
+        if 'defective' not in rxn_name \
+        and 'mutant' not in rxn_name:
+            no_defective_pathways[key] = network['pathway_database'][key]
+
     output_database = {}
     output_database['neighbors_dictionary'] = reference
-    output_database['pathway_dictionary'] = network['pathway_database']
-    output_database['reaction_database'] = network['reaction_database']
+    output_database['pathway_dictionary'] = no_defective_pathways
+    output_database['reaction_database'] = no_defective_reactions
     output_database['reactome_mapper'] = reactome_mapper
     output_database['curation_date'] = date.today().strftime('%Y-%m-%d')
 
@@ -379,6 +392,5 @@ def __main__(
         json.dump(output_database, f, indent=4)
 
     print('Graphing complete.')
-    progress_feed(args_dict, "graph", 2)
 
     return graph_name
