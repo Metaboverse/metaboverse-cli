@@ -166,11 +166,23 @@ def define_mapper(
 
     return metabolites
 
+def fix_species_ids(
+        id_list):
+    """Fix specific IDs that are not mapping all synonyms' species IDs
+    """
+
+    # pyruvic acid -> pyruvate
+    if 'species_5357717' in id_list:
+        id_list.add('species_29398')
+
+    return id_list
+
 def targeted_graph(
         metabolites,
         reactions,
         pathways,
         species_reference,
+        reversed_species,
         name_database,
         metabolite_mapper,
         uniprot_mapper,
@@ -189,9 +201,12 @@ def targeted_graph(
         species_ids, parsed_syns = get_species(
             metabolite=metabolites[_m],
             species_reference=species_reference,
+            reversed_species=reversed_species,
             name_database=name_database,
             metabolite_mapper=metabolite_mapper,
             uniprot_mapper=uniprot_mapper)
+        species_ids = fix_species_ids(
+            id_list=species_ids)
 
         # Find nearest neighbor reactions
         _reaction_list = set()
@@ -232,6 +247,7 @@ def targeted_graph(
 def get_species(
         metabolite,
         species_reference,
+        reversed_species,
         name_database,
         metabolite_mapper,
         uniprot_mapper):
@@ -251,10 +267,20 @@ def get_species(
         name,
         common_name,
         kegg_id)
+    try:
+        _mapper = next(iter(metabolite['name'])).lower()
+        _mapper = metabolite_mapper['mapping_dictionary'][_mapper]
+    except:
+        try:
+            _mapper = next(iter(metabolite['chebi_id']))
+            if 'CHEBI:' not in _mapper:
+                _mapper = 'CHEBI:' + _mapper
+        except:
+            _mapper = next(iter(metabolite['name']))
 
     mapper_id, parsed_syns_list = gather_synonyms(
-        map_id=next(iter(metabolite['name'])),
-        init_syns=identifiers,
+        map_id=_mapper,
+        init_syns=list(identifiers),
         metabolite_mapper=metabolite_mapper,
         uniprot_mapper=uniprot_mapper,
         ignore_enantiomers=True)
@@ -263,11 +289,24 @@ def get_species(
     for _id in parsed_syns_list:
 
         if _id in species_reference:
-            species_ids.add(name_database[_id])
+            species_ids.add(species_reference[_id])
+        elif _id in reversed_species:
+            species_ids.add(reversed_species[_id])
         elif _id in name_database:
             species_ids.add(name_database[_id])
 
     return species_ids, parsed_syns_list
+
+def reverse_object(
+        data):
+    """
+    """
+
+    reverse_dictionary = {}
+    for k, v in data.items():
+        reverse_dictionary[v] = k
+
+    return reverse_dictionary
 
 def test():
 
@@ -346,6 +385,9 @@ def __main__(
         data=data,
         columns=columns)
 
+    reversed_species = reverse_object(
+        data=network['species_database'])
+
     # Generate graph
     # Name mapping
     print('Building network...')
@@ -354,6 +396,7 @@ def __main__(
         reactions=network['reaction_database'],
         pathways=network['pathway_database'],
         species_reference=network['species_database'],
+        reversed_species=reversed_species,
         name_database=network['name_database'],
         metabolite_mapper=metabolite_mapper,
         uniprot_mapper=u,
