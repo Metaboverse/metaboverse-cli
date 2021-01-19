@@ -584,6 +584,8 @@ output_graph(
     categories=[0],
     labels=['OO'],
     blocklist=[],
+    database_date='today',
+    curation_date='today',
     metadata={},
     unmapped={})
 if os.path.exists(test_args['output_file']):
