@@ -77,7 +77,9 @@ except:
     spec.loader.exec_module(progress_feed)
     progress_feed = progress_feed.progress_feed
 
-cmap = get_mpl_colormap('seismic')
+CMAP = get_mpl_colormap('seismic')
+REACTION_COLOR = (0.75, 0.75, 0.75, 1)
+MISSING_COLOR = (1, 1, 1, 1)
 
 """Graph utils
 """
@@ -761,8 +763,6 @@ def map_attributes(
     """
 
     n = len(data.columns.tolist())
-    reaction_color = (0.75, 0.75, 0.75, 1)
-    missing_color = (1, 1, 1, 1)
 
     # Re-index data and stats
     data_renamed, stats_renamed = reindex_data(data, stats)
@@ -840,7 +840,7 @@ def map_attributes(
 
         if graph.nodes()[x]['sub_type'] == 'reaction':
             graph.nodes()[x]['type'] = 'reaction'
-            colors = [reaction_color for x in range(n)]
+            colors = [REACTION_COLOR for x in range(n)]
             graph.nodes()[x]['values'] = [None for x in range(n)]
             graph.nodes()[x]['values_rgba'] = colors
             graph.nodes()[x]['values_js'] = convert_rgba(
@@ -930,7 +930,7 @@ def map_attributes(
                 graph.nodes()[x]['stats'] = stats_renamed.loc[map_id].tolist()
                 mapped_nodes.append(map_id)
             else:
-                colors = [missing_color for x in range(n)]
+                colors = [MISSING_COLOR for x in range(n)]
                 graph.nodes()[x]['values'] = [None for x in range(n)]
                 graph.nodes()[x]['values_rgba'] = colors
                 graph.nodes()[x]['values_js'] = convert_rgba(
@@ -938,7 +938,7 @@ def map_attributes(
                 graph.nodes()[x]['stats'] = [None for x in range(n)]
 
         else:
-            colors = [missing_color for x in range(n)]
+            colors = [MISSING_COLOR for x in range(n)]
             graph.nodes()[x]['values'] = [None for x in range(n)]
             graph.nodes()[x]['values_rgba'] = colors
             graph.nodes()[x]['values_js'] = convert_rgba(
@@ -965,7 +965,7 @@ def extract_value(
     rgba = []
     for x in value_array:
         position = (x + max_value) / (2 * max_value)
-        rgba_tuple = get_key_value(cmap, round(position, 3))
+        rgba_tuple = get_key_value(CMAP, round(position, 3))
         rgba.append(tuple(rgba_tuple))
 
     return rgba
@@ -986,6 +986,8 @@ def output_graph(
         categories,
         labels,
         blocklist,
+        database_date,
+        curation_date,
         metadata,
         unmapped):
     """Output graph and necessary metadata
@@ -1007,6 +1009,8 @@ def output_graph(
     data['blocklist'] = blocklist
     data['metadata'] = metadata
     data['unmapped'] = unmapped
+    data['database_date'] = database_date
+    data['curation_date'] = curation_date
 
     with open(output_name, 'w') as f:
         json.dump(data, f, indent=4) # Parse out as array for javascript
@@ -1320,6 +1324,37 @@ def build_chebi_reference(
 
     return chebi_dictionary
 
+def load_references(
+        args_dict,
+        ensembl,
+        uniprot,
+        chebi,
+        uniprot_metabolites):
+    """Load and prepare reference databases
+    """
+
+    # Prepare uniprot to ensembl name mapper
+    reverse_genes = {v:k for k,v in ensembl.items()}
+    protein_dictionary = uniprot_ensembl_reference(
+        uniprot_reference=uniprot,
+        ensembl_reference=reverse_genes)
+    progress_feed(args_dict, "model", 1)
+
+    chebi_dictionary = build_chebi_reference(
+        chebi=chebi,
+        uniprot=uniprot_metabolites)
+
+    name_reference = build_name_reference(
+        ensembl=ensembl,
+        uniprot=uniprot)
+
+    uniprot_mapper = {}
+    for k,v in uniprot_metabolites.items():
+        uniprot_mapper[v] = k
+
+    return reverse_genes, protein_dictionary, chebi_dictionary, \
+        name_reference, uniprot_mapper
+
 def __main__(
         args_dict,
         network,
@@ -1338,19 +1373,17 @@ def __main__(
         output_file=output_file,
         species_id=species_id)
 
-    # Prepare uniprot to ensembl name mapper
-    reverse_genes = {v:k for k,v in network['ensembl_synonyms'].items()}
-    protein_dictionary = uniprot_ensembl_reference(
-        uniprot_reference=network['uniprot_synonyms'],
-        ensembl_reference=reverse_genes)
-    progress_feed(args_dict, "model", 1)
-
-    chebi_dictionary = build_chebi_reference(
+    print('Preparing references...')
+    reverse_genes, protein_dictionary, chebi_dictionary, \
+    name_reference, uniprot_mapper = load_references(
+        args_dict=args_dict,
+        ensembl=network['ensembl_synonyms'],
+        uniprot=network['uniprot_synonyms'],
         chebi=network['chebi_mapper'],
-        uniprot=network['uniprot_metabolites'])
+        uniprot_metabolites=network['uniprot_metabolites'])
+    metabolite_mapper = load_metabolite_synonym_dictionary()
 
-    # Generate graph
-    # Name mapping
+    # Generate graph and name mapping
     print('Building network...')
     G, network['reaction_database'], network['pathway_database'] = build_graph(
         network=network['reaction_database'],
@@ -1368,28 +1401,27 @@ def __main__(
         #additional_reactions=args_dict['additional_reactions'])
     progress_feed(args_dict, "model", 9)
 
-    # For gene and protein components, add section to reaction database
-    #for additional_components and list
-    # Pull those in with everything else in JS
+    print('Post-processing graph metadata...')
+    # Remove disease reactions that are "defective" from reaction collapse
+    no_defective_reactions = {}
+    for key in network['reaction_database'].keys():
+        rxn_name = network['reaction_database'][key]['name'].lower()
+        if 'defective' not in rxn_name \
+        and 'mutant' not in rxn_name:
+            no_defective_reactions[key] = network['reaction_database'][key]
 
-    # Overlay data and stats, calculate heatmap values for p-value
-    # and expression value
-    print('Mapping user data...')
+    # Generate list of super pathways (those with more than 200 reactions)
+    print('Compiling super pathways...')
+    scale_factor = int(len(network['reaction_database'].keys()) * 0.0157)
+    super_pathways = compile_pathway_degree(
+        pathways=network['pathway_database'],
+        scale_factor=scale_factor)
+
+    print('Compiling network degree database...')
     degree_dictionary = compile_node_degrees(
         graph=G)
-    name_reference = build_name_reference(
-        ensembl=network['ensembl_synonyms'],
-        uniprot=network['uniprot_synonyms'])
 
-    # add any mapping IDs
-    # Add synonyms
-    # Change name to user provided if available
-    metabolite_mapper = load_metabolite_synonym_dictionary()
-
-    u = {}
-    for k,v in network['uniprot_metabolites'].items():
-        u[v] = k
-
+    print('Mapping user data...')
     G, max_value, max_stat, non_mappers = map_attributes(
         graph=G,
         data=data,
@@ -1398,10 +1430,11 @@ def __main__(
         degree_dictionary=degree_dictionary,
         chebi_dictionary=chebi_dictionary,
         chebi_synonyms=network['chebi_synonyms'],
-        uniprot_mapper=u,
+        uniprot_mapper=uniprot_mapper,
         metabolite_mapper=metabolite_mapper)
     progress_feed(args_dict, "graph", 5)
 
+    print('Outputting unmapped metabolomics values (if any exist)...')
     if args_dict['metabolomics'].lower() != 'none':
         m_data = pd.read_csv(
             args_dict['metabolomics'],
@@ -1414,13 +1447,7 @@ def __main__(
                 args_dict['metabolomics'][:-4] + '_unmapped.txt',
                 sep='\t')
 
-    if flag_data == True:
-        max_value = 5
-        max_stat = 1
-
     print('Broadcasting values where available...')
-    categories = data.columns.tolist()
-
     if 'broadcast_genes' in args_dict \
     and args_dict['broadcast_genes'] == True:
         broadcast_genes = True
@@ -1433,6 +1460,11 @@ def __main__(
     else:
         broadcast_metabolites = False
 
+    if flag_data == True:
+        max_value = 5
+        max_stat = 1
+
+    categories = data.columns.tolist()
     G = broadcast_values(
         graph=G,
         categories=categories,
@@ -1441,14 +1473,6 @@ def __main__(
         broadcast_genes=broadcast_genes,
         broadcast_metabolites=broadcast_metabolites)
     progress_feed(args_dict, "graph", 10)
-
-    # Remove disease reactions that are "defective" from reaction collapse
-    no_defective_reactions = {}
-    for key in network['reaction_database'].keys():
-        rxn_name = network['reaction_database'][key]['name'].lower()
-        if 'defective' not in rxn_name \
-        and 'mutant' not in rxn_name:
-            no_defective_reactions[key] = network['reaction_database'][key]
 
     print('Compiling collapsed reaction reference...')
     # Get hub threshold
@@ -1486,13 +1510,6 @@ def __main__(
         update_dictionary=changed_reactions,
         removed_reaction=removed_reaction)
     progress_feed(args_dict, "graph", 8)
-
-    # Generate list of super pathways (those with more than 200 reactions)
-    print('Compiling super pathways...')
-    scale_factor = int(len(network['reaction_database'].keys()) * 0.0157)
-    super_pathways = compile_pathway_degree(
-        pathways=network['pathway_database'],
-        scale_factor=scale_factor)
 
     motif_reaction_dictionary = make_motif_reaction_dictionary(
         network=network,
@@ -1534,6 +1551,8 @@ def __main__(
         categories=categories,
         labels=args_dict['labels'],
         blocklist=args_dict['blocklist'],
+        database_date=args_dict["database_date"],
+        curation_date=args_dict["curation_date"],
         metadata=args_dict,
         unmapped=non_mappers)
     print('Graphing complete.')
