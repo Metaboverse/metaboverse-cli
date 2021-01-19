@@ -69,3 +69,5 @@ for X in ${SPECIES[@]};
   do printf '\n\t'${X} >> $SCRDIR/README.txt ;
 done
 printf '\n'
+
+rm $SCRDIR/*.mvrs
