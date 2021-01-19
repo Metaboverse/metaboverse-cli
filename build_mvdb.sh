@@ -52,4 +52,20 @@ echo "+ Processing complete..."
 
 echo "+ Outputing metadata"
 cp $HOME/slurm_output/slurmjob-$SLURM_JOBID $SCRDIR
-echo '' > $SCRDIR-metadata.txt
+
+printf 'Metadata for bulk Metaboverse .mvdb curation:\n\n' >> $SCRDIR/README.txt
+
+printf '\nDate:' >> $SCRDIR/README.txt
+printf '+%Y-%m-%d %H:%M:%S' >> $SCRDIR/README.txt
+
+printf '\nMetaboverse version:' >> $SCRDIR/README.txt
+$MY_PATH/dist/metaboverse-cli-linux -v >> $SCRDIR/README.txt
+
+printf 'Reactome version:' >> $SCRDIR/README.txt
+curl -X GET --header 'Accept: text/plain' 'https://reactome.org/ContentService/data/database/version' >> $SCRDIR/README.txt
+
+printf '\n\nOrganisms curated:' >> $SCRDIR/README.txt
+for X in ${SPECIES[@]};
+  do printf '\n\t'${X} >> $SCRDIR/README.txt ;
+done
+printf '\n'
