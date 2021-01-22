@@ -32,7 +32,7 @@ source activate metaboverse_cli
 #conda install -y pandas numpy scipy scikit-learn matplotlib networkx requests
 
 # Build current version of metaboverse-cli
-pyinstaller $MY_PATH/metaboverse-linux.spec
+#pyinstaller $MY_PATH/metaboverse-linux.spec
 
 echo "+ Version info:"
 $MY_PATH/dist/metaboverse-cli-linux -v
@@ -56,7 +56,7 @@ cp $HOME/slurm_output/slurmjob-$SLURM_JOBID $SCRDIR
 printf 'Metadata for bulk Metaboverse .mvdb curation:\n\n' >> $SCRDIR/README.txt
 
 printf '\nDate:' >> $SCRDIR/README.txt
-printf '+%Y-%m-%d %H:%M:%S' >> $SCRDIR/README.txt
+date '+%Y-%m-%d %H:%M:%S' >> $SCRDIR/README.txt
 
 printf '\nMetaboverse version:' >> $SCRDIR/README.txt
 $MY_PATH/dist/metaboverse-cli-linux -v >> $SCRDIR/README.txt
