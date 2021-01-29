@@ -22,7 +22,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 """Import dependencies
 """
 
-from set up tools import setup
+from setuptools import setup
 import re
 import os
 __path__  =  os.path.dirname(os.path.realpath(__file__)) + '/'
