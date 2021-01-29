@@ -19,23 +19,22 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import pickle
-import pandas as pd
-import xml.etree.ElementTree as et
-import networkx as nx
-import numpy as np
+import json
+import zipfile
 import importlib.util
+import numpy as np
+import networkx as nx
+import xml.etree.ElementTree as et
+import pandas as pd
+import pickle
+import os
 
 print("Testing prepare_data.py")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
 prepare_data = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(prepare_data)
 
-import zipfile
 zipped_net = os.path.abspath(
     './metaboverse_cli/analyze/test/HSA.zip')
 with zipfile.ZipFile(zipped_net, 'r') as zip_file:
@@ -58,7 +57,7 @@ data, stats, unmapped = __main__(
     transcriptomics_url="None",
     proteomics_url="None",
     metabolomics_url=metabolomics_url)
-assert data.shape == (8,1), "Mixed CHEBI ID mapping failed"
+assert data.shape == (8, 1), "Mixed CHEBI ID mapping failed"
 """
 CHEBI:57972	                -0.187287     ->  "L-Ala"
 CHEBI:18012	                -0.200046     ->  "FUMA"
@@ -88,15 +87,15 @@ args_chebi = {
     'labels': '0',
     'blocklist': ''
 }
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
 __main__ = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(__main__)
 test_modeling = __main__.__main__
 test_modeling(args_chebi)
 
-import json
 with open(args_chebi['output_file']) as f:
-  chebi_json = json.load(f)
+    chebi_json = json.load(f)
 
 for n in chebi_json['nodes']:
     if n['name'] == 'L-Ala':

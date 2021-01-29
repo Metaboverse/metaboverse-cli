@@ -19,20 +19,19 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import pickle
-import pandas as pd
-import xml.etree.ElementTree as et
-import networkx as nx
-import numpy as np
+import zipfile
 import importlib.util
+import numpy as np
+import networkx as nx
+import xml.etree.ElementTree as et
+import pandas as pd
+import pickle
+import os
 
 # Run full test on data
 print("Testing analyze/__main__.py for modeling data")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
 __main__ = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(__main__)
 test_modeling = __main__.__main__
@@ -57,7 +56,6 @@ args_dict = {
     'blocklist': ''
 }
 
-import zipfile
 zipped_net = os.path.abspath(
     './metaboverse_cli/analyze/test/HSA.zip')
 with zipfile.ZipFile(zipped_net, 'r') as zip_file:
@@ -83,7 +81,8 @@ metabolite_unmapped = os.path.abspath(
     './metaboverse_cli/analyze/test/metabolite_mapping_test_unmapped.txt'
 )
 met = pd.read_csv(metabolite_unmapped, sep='\t', index_col=0)
-assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS', 'Phenylacetylglycine'], 'Metabolite mapping experienced error'
+assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS',
+                              'Phenylacetylglycine'], 'Metabolite mapping experienced error'
 os.remove(metabolite_unmapped)
 
 os.remove(args_dict['output_file'])

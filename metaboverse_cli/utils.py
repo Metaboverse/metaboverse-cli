@@ -19,13 +19,10 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import sys
-import pickle
 import json
+import pickle
+import sys
+import os
 
 def read_network(
         network_url):
@@ -38,7 +35,8 @@ def read_network(
         network = pickle.load(network_file)
 
     return network
-    
+
+
 def prepare_output(
         output):
     """Get output directory prepared
@@ -56,6 +54,7 @@ def prepare_output(
 
     return dir
 
+
 def write_database(
         output,
         file,
@@ -69,6 +68,7 @@ def write_database(
     # Write information to file
     with open(dir + file, 'wb') as file_product:
         pickle.dump(database, file_product)
+
 
 def write_database_json(
         output,
@@ -84,14 +84,18 @@ def write_database_json(
     with open(dir + file, 'w') as file_product:
         json.dump(database, file_product, indent=4)
 
+
 def safestr(obj):
     """Covert ascii text if needed
     """
 
     return str(obj).encode('ascii', 'ignore').decode('ascii')
 
+
 """Update session information
 """
+
+
 def update_session(
         session_file,
         key,
@@ -108,6 +112,7 @@ def update_session(
 
     else:
         print("Session file not found: " + str(session_file))
+
 
 def get_session_value(
         session_file,
@@ -127,8 +132,11 @@ def get_session_value(
         print("File at " + str(session_file) + " does not exist.")
         return 'unknown'
 
+
 """JS progress feed
 """
+
+
 def progress_feed(
         args_dict=None,
         process=None,
@@ -136,7 +144,7 @@ def progress_feed(
 
     if args_dict != None:
         if 'progress_log' in args_dict \
-        and str(args_dict['progress_log']) != 'None':
+                and str(args_dict['progress_log']) != 'None':
             feed_file = args_dict['progress_log']
 
             if os.path.exists(feed_file) and process != None:
@@ -150,15 +158,19 @@ def progress_feed(
     else:
         print('Could not access local variables during progress_feed() update.')
 
+
 """Check directory formatting
 """
+
+
 def check_directories(
         input,
         argument):
 
     # Check that a file wasn't passed in
     if os.path.isdir(input) != True:
-        raise Exception(safestr(argument) + ': ' + safestr(input) + ' is not a directory')
+        raise Exception(safestr(argument) + ': ' +
+                        safestr(input) + ' is not a directory')
 
     # Check input directory name is formatted correctly and fix if necessary
     input = safestr(os.path.abspath(input))
@@ -168,54 +180,66 @@ def check_directories(
 
     return input
 
+
 """Check file formatting
 """
+
+
 def check_files(
         input,
         argument):
 
     # Check that a file wasn't passed in
     if os.path.isfile(input) != True:
-        raise Exception(safestr(argument) + ': ' + safestr(input) + ' is not a file')
+        raise Exception(safestr(argument) + ': ' +
+                        safestr(input) + ' is not a file')
 
     # Check input directory name is formatted correctly and fix if necessary
     input = safestr(os.path.abspath(input))
 
     return input
 
+
 """Check curation arguments
 """
+
+
 def check_curate(
         args_dict):
 
     should_exit = False
 
     if args_dict['organism_id'] == None \
-    or args_dict['organism_id'].lower() == 'none' \
-    or args_dict['organism_id'].lower() == 'null':
+            or args_dict['organism_id'].lower() == 'none' \
+            or args_dict['organism_id'].lower() == 'null':
 
-        print('\nIncorrect species identifier provided: ' + safestr(args_dict['organism_id']))
+        print('\nIncorrect species identifier provided: ' +
+              safestr(args_dict['organism_id']))
         print('Please refer to https://reactome.org/ContentService/data/species/all for a valid list of organisms')
         should_exit = True
 
     if args_dict['output'] == None \
-    or not os.path.exists(os.path.dirname(args_dict['output'])):
+            or not os.path.exists(os.path.dirname(args_dict['output'])):
 
-        print('\nIncorrect output parameter provided: ' + safestr(args_dict['output']))
+        print('\nIncorrect output parameter provided: ' +
+              safestr(args_dict['output']))
         should_exit = True
 
     if should_exit == True:
         sys.exit(1)
 
+
 """Run general checks on arguments
 Not sub-module-specific
 """
+
+
 def argument_checks(
         args_dict):
 
     # Check output file
     if 'output' in args_dict \
-    and args_dict['output'] == None:
+            and args_dict['output'] == None:
         args_dict['output'] = os.getcwd()
     args_dict['output'] = safestr(args_dict['output'])
 
@@ -235,8 +259,8 @@ def argument_checks(
 
         elif os.path.isfile(str(value)) == True:
             args_dict[key] = check_files(
-            args_dict[key],
-            key)
+                args_dict[key],
+                key)
 
         else:
             pass

@@ -19,16 +19,13 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import io
-import pickle
-import zipfile
-import requests
-import xml.etree.ElementTree as et
 import pandas as pd
+import xml.etree.ElementTree as et
+import requests
+import zipfile
+import pickle
+import io
+import os
 
 """Import internal dependencies
 """
@@ -36,18 +33,20 @@ try:
     from utils import prepare_output, write_database, write_database_json
 except:
     import importlib.util
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     prepare_output = utils.prepare_output
     write_database = utils.write_database
     write_database_json = utils.write_database_json
 
+
 def parse_hmdb_synonyms(
         output_dir,
         url='https://hmdb.ca/system/downloads/current/hmdb_metabolites.zip',
         file_name='hmdb_metabolites',
-        xml_tag = '{http://www.hmdb.ca}'):
+        xml_tag='{http://www.hmdb.ca}'):
     """Retrieve HMDB chemical entity synonyms
     """
 
@@ -121,6 +120,7 @@ def parse_hmdb_synonyms(
 
     return hmdb_dictionary, display_dictionary, mapping_dictionary
 
+
 def __main__(
         args_dict):
     """Build metabolite name mapping dictionary
@@ -141,6 +141,7 @@ def __main__(
         output=args_dict['output'],
         file='metabolite_mapping.pickle',
         database=mapping_db)
+
 
 def test():
 

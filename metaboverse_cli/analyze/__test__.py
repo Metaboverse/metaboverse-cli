@@ -19,21 +19,20 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import pickle
-import pandas as pd
-import xml.etree.ElementTree as et
-import networkx as nx
-import numpy as np
+import zipfile
 import importlib.util
+import numpy as np
+import networkx as nx
+import xml.etree.ElementTree as et
+import pandas as pd
+import pickle
+import os
 
 """prepare_data.py
 """
 print("Testing prepare_data.py")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
 prepare_data = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(prepare_data)
 read_data = prepare_data.read_data
@@ -45,7 +44,6 @@ copy_columns = prepare_data.copy_columns
 catenate_data = prepare_data.catenate_data
 __main__ = prepare_data.__main__
 
-import zipfile
 zipped_net = os.path.abspath(
     './metaboverse_cli/analyze/test/HSA.zip')
 with zipfile.ZipFile(zipped_net, 'r') as zip_file:
@@ -119,8 +117,10 @@ print("Testing copy_columns()")
 data_col, stat_col = copy_columns(_v, _s, 6)
 assert len(_v.columns.tolist()) == 1, 'copy_columns() failed'
 assert len(data_col.columns.tolist()) == 6, 'copy_columns() failed'
-assert data_col[0].values.all() == data_col[5].values.all(), 'copy_columns() failed'
-assert stat_col[0].values.all() == stat_col[3].values.all(), 'copy_columns() failed'
+assert data_col[0].values.all(
+) == data_col[5].values.all(), 'copy_columns() failed'
+assert stat_col[0].values.all(
+) == stat_col[3].values.all(), 'copy_columns() failed'
 
 # catenate_data()
 print("Testing catenate_data()")
@@ -162,7 +162,8 @@ except KeyError:
 """utils.py
 """
 print("Testing utils.py")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
 utils = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(utils)
 file_path = utils.file_path
@@ -190,15 +191,17 @@ n = 2
 reaction_color = (0.75, 0.75, 0.75, 1)
 missing_color = (1, 1, 1, 1)
 color1 = [reaction_color for x in range(n)]
-assert convert_rgba(color1) == [(191,191,191,1),(191,191,191,1)], 'convert_rgba() failed'
+assert convert_rgba(color1) == [(191, 191, 191, 1),
+                                (191, 191, 191, 1)], 'convert_rgba() failed'
 n = 1
 color2 = [missing_color for x in range(n)]
-assert convert_rgba(color2) == [(255,255,255,1)], 'convert_rgba() failed'
+assert convert_rgba(color2) == [(255, 255, 255, 1)], 'convert_rgba() failed'
 
 """model.py
 """
 print("Testing model.py")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/model.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/model.py"))
 model = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(model)
 name_graph = model.name_graph
@@ -305,7 +308,7 @@ net_test = {
             'id': 'pathway_2',
             'reactome': 'R-HSA-2',
             'name': 'Test pathway',
-            'reactions': ['reaction_1', 'reaction_2','reaction_3', 'reaction_4']
+            'reactions': ['reaction_1', 'reaction_2', 'reaction_3', 'reaction_4']
         }
     }
 }
@@ -329,7 +332,8 @@ name = name_graph(
     output_file=test_args['bad_output_file'],
     species_id=test_args['organism_id']
 )
-assert name == test_args['bad_output_file'] + test_args['organism_id'] + '_global_reactions.mvrs', 'name_graph() failed'
+assert name == test_args['bad_output_file'] + test_args['organism_id'] + \
+    '_global_reactions.mvrs', 'name_graph() failed'
 
 # build_graph()
 print("Testing build_graph()")
@@ -345,16 +349,16 @@ gg1, net_copy, pathway_database = build_graph(
     complexes={},
     species_id={},
     gene_reference={},
-    compartment_reference={'compartment_1':'hello'},
+    compartment_reference={'compartment_1': 'hello'},
     component_database={
-        'species_1':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_2':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_3':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_4':{'is':'gene0', 'name':'gene0', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_5':{'is':'gene1', 'name':'geneA', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_6':{'is':'gene2', 'name':'geneB', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_7':{'is':'gene3', 'name':'geneC', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_8':{'is':'gene4', 'name':'geneD', 'compartment':'none', 'type':'gene', 'hasPart':[]}
+        'species_1': {'is': 'gene0', 'name': 'gene0', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_2': {'is': 'gene0', 'name': 'gene0', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_3': {'is': 'gene0', 'name': 'gene0', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_4': {'is': 'gene0', 'name': 'gene0', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_5': {'is': 'gene1', 'name': 'geneA', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_6': {'is': 'gene2', 'name': 'geneB', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_7': {'is': 'gene3', 'name': 'geneC', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_8': {'is': 'gene4', 'name': 'geneD', 'compartment': 'none', 'type': 'gene', 'hasPart': []}
     }
 )
 assert list(gg1.nodes()) == [
@@ -387,12 +391,12 @@ gg2, net_copy, key_hash, remove_keys = process_reactions(
     complex_reference={},
     species_id={},
     gene_reference={},
-    compartment_reference={'compartment_1':'hello'},
+    compartment_reference={'compartment_1': 'hello'},
     component_database={
-        'species_5':{'is':'gene1', 'name':'geneA', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_6':{'is':'gene2', 'name':'geneB', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_7':{'is':'gene3', 'name':'geneC', 'compartment':'none', 'type':'gene', 'hasPart':[]},
-        'species_8':{'is':'gene4', 'name':'geneD', 'compartment':'none', 'type':'gene', 'hasPart':[]}
+        'species_5': {'is': 'gene1', 'name': 'geneA', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_6': {'is': 'gene2', 'name': 'geneB', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_7': {'is': 'gene3', 'name': 'geneC', 'compartment': 'none', 'type': 'gene', 'hasPart': []},
+        'species_8': {'is': 'gene4', 'name': 'geneD', 'compartment': 'none', 'type': 'gene', 'hasPart': []}
     },
     key_hash=key_hash,
     remove_keys=remove_keys)
@@ -433,18 +437,18 @@ except:
 print("Testing check_complexes()")
 G_complex = G.copy()
 G_complex, add_components = check_complexes(
-        species_id='HSA',
-        graph=G_complex,
-        id='Epsilon',
-        complex_reference={'Epsilon':['x', 'y', 'z']},
-        species_reference={''},
-        name_reference={},
-        protein_reference={},
-        chebi_dictionary={},
-        uniprot_reference={},
-        gene_reference={},
-        component_database={'Epsilon':{'hasPart':['x', 'y', 'z']}},
-        compartment_reference={})
+    species_id='HSA',
+    graph=G_complex,
+    id='Epsilon',
+    complex_reference={'Epsilon': ['x', 'y', 'z']},
+    species_reference={''},
+    name_reference={},
+    protein_reference={},
+    chebi_dictionary={},
+    uniprot_reference={},
+    gene_reference={},
+    component_database={'Epsilon': {'hasPart': ['x', 'y', 'z']}},
+    compartment_reference={})
 try:
     G_complex.nodes()['x']
     G_complex.edges()[('x', 'Epsilon')]
@@ -455,12 +459,12 @@ except:
 
 # uniprot_ensembl_reference()
 print("Testing uniprot_ensembl_reference()")
-uni_ref = {'Alpha':'Beta', 'Epsilon':'F'}
-ens_ref = {'Beta':'Delta'}
+uni_ref = {'Alpha': 'Beta', 'Epsilon': 'F'}
+ens_ref = {'Beta': 'Delta'}
 ref_test = uniprot_ensembl_reference(
     uniprot_reference=uni_ref,
     ensembl_reference=ens_ref)
-assert ref_test == {'Alpha':'Delta'}, 'uniprot_ensembl_reference() failed'
+assert ref_test == {'Alpha': 'Delta'}, 'uniprot_ensembl_reference() failed'
 
 # compile_pathway_degree()
 print("Testing compile_pathway_degree()")
@@ -473,11 +477,11 @@ assert len(list(s_p.keys())) == 1, 'compile_pathway_degree() failed'
 # compile_node_degrees()
 print("Testing compile_node_degrees()")
 d_d = {
-    'Alpha':3,
-    'Beta':2,
-    'Gamma':3,
-    'Delta':1,
-    'Epsilon':1
+    'Alpha': 3,
+    'Beta': 2,
+    'Gamma': 3,
+    'Delta': 1,
+    'Epsilon': 1
 }
 degree_dictionary = compile_node_degrees(
     graph=G)
@@ -494,7 +498,7 @@ stats[0] = [.1, .3, .5]
 stats.index = ['Alpha', 'Gamma', 'epsilon']
 
 G_mapped, data_max, stats_max, non_mappers = map_attributes(
-    graph = G_map,
+    graph=G_map,
     data=data,
     stats=stats,
     name_reference={
@@ -597,14 +601,15 @@ else:
 print("Testing remove_nulls()")
 vals1 = [[None, 1, 6, None]]
 assert remove_nulls(vals1) == [], 'remove_nulls() failed'
-vals2 = [[None, 1, 6, None], [1,2,3]]
-assert remove_nulls(vals2) == [[1,2,3]], 'remove_nulls() failed'
+vals2 = [[None, 1, 6, None], [1, 2, 3]]
+assert remove_nulls(vals2) == [[1, 2, 3]], 'remove_nulls() failed'
 
 # infer_protein_values()
 print("Testing infer_protein_values()")
-vals = [[1],[2],[3],[3],[4]]
+vals = [[1], [2], [3], [3], [4]]
 length = 1
-assert infer_protein_values(vals, length) == [13 / 5], 'infer_protein_values() failed'
+assert infer_protein_values(vals, length) == [
+    13 / 5], 'infer_protein_values() failed'
 
 # infer_protein_stats()
 print("Testing infer_protein_stats()")
@@ -620,11 +625,16 @@ G_update = broadcast_values(
     max_stat=1,
     broadcast_genes=True,
     broadcast_metabolites=False)
-assert G_update.nodes()['Alpha'] == G.nodes()['Alpha'], 'broadcast_values() failed'
-assert G_update.nodes()['Beta'] == G.nodes()['Beta'], 'broadcast_values() failed'
-assert G_update.nodes()['Epsilon'] == G.nodes()['Epsilon'], 'broadcast_values() failed'
-assert G_update.nodes()['Gamma']['values'] == [9.0], 'broadcast_values() failed to broadcast proteins to complexes'
-assert G_update.nodes()['Delta']['stats'] == [0.5], 'broadcast_values() failed to broadcast genes to proteins'
+assert G_update.nodes()['Alpha'] == G.nodes()[
+    'Alpha'], 'broadcast_values() failed'
+assert G_update.nodes()['Beta'] == G.nodes()[
+    'Beta'], 'broadcast_values() failed'
+assert G_update.nodes()['Epsilon'] == G.nodes()[
+    'Epsilon'], 'broadcast_values() failed'
+assert G_update.nodes()['Gamma']['values'] == [
+    9.0], 'broadcast_values() failed to broadcast proteins to complexes'
+assert G_update.nodes()['Delta']['stats'] == [
+    0.5], 'broadcast_values() failed to broadcast genes to proteins'
 
 # Test casting metabolite values to protein complexes
 G_update = G.copy()
@@ -646,11 +656,16 @@ G_update = broadcast_values(
     max_stat=1,
     broadcast_genes=True,
     broadcast_metabolites=True)
-assert G_update.nodes()['Alpha'] == G.nodes()['Alpha'], 'broadcast_values() failed'
-assert G_update.nodes()['Beta'] == G.nodes()['Beta'], 'broadcast_values() failed'
-assert G_update.nodes()['Epsilon'] == G.nodes()['Epsilon'], 'broadcast_values() failed'
-assert G_update.nodes()['Gamma']['values'] == [8.0], 'broadcast_values() failed to broadcast metabolites to complexes'
-assert G_update.nodes()['Delta']['stats'] == [0.5], 'broadcast_values() failed to broadcast genes to proteins'
+assert G_update.nodes()['Alpha'] == G.nodes()[
+    'Alpha'], 'broadcast_values() failed'
+assert G_update.nodes()['Beta'] == G.nodes()[
+    'Beta'], 'broadcast_values() failed'
+assert G_update.nodes()['Epsilon'] == G.nodes()[
+    'Epsilon'], 'broadcast_values() failed'
+assert G_update.nodes()['Gamma']['values'] == [
+    8.0], 'broadcast_values() failed to broadcast metabolites to complexes'
+assert G_update.nodes()['Delta']['stats'] == [
+    0.5], 'broadcast_values() failed to broadcast genes to proteins'
 
 # make_motif_reaction_dictionary()
 print("Testing load_motif_reaction_dictionary()")
@@ -691,17 +706,20 @@ mot_dic = make_motif_reaction_dictionary(
     network=net_test,
     updated_reactions=updated_reactions,
     updated_pathway_dictionary=updated_pathway_dictionary)
-assert mot_dic == {'reaction_1_reaction_3': ['pathway_1'], 'reaction_2': ['pathway_1']}, 'make_motif_reaction_dictionary() failed'
+assert mot_dic == {'reaction_1_reaction_3': ['pathway_1'], 'reaction_2': [
+    'pathway_1']}, 'make_motif_reaction_dictionary() failed'
 
 # load_metabolite_synonym_dictionary()
 print("Testing load_metabolite_synonym_dictionary()")
 mapper = load_metabolite_synonym_dictionary()
-assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'load_metabolite_synonym_dictionary() failed'
+assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary',
+                               'mapping_dictionary'], 'load_metabolite_synonym_dictionary() failed'
 
 """collapse.py
 """
 print("Testing collapse.py")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
 collapse = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(collapse)
 generate_updated_dictionary = collapse.generate_updated_dictionary
@@ -804,244 +822,244 @@ G_collapse.nodes()['N100']['stats'] = [0.5]
 
 collapser_database = {
     'R1': {
-        'compartment':'none',
-        'id':'R1',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N1'],
-        'products':['N2'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R1',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N1'],
+        'products': ['N2'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R2': {
-        'compartment':'none',
-        'id':'R2',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N3'],
-        'products':['N4', 'N5'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R2',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N3'],
+        'products': ['N4', 'N5'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R3': {
-        'compartment':'none',
-        'id':'R3',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N4', 'N5'],
-        'products':['N6'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R3',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N4', 'N5'],
+        'products': ['N6'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R4': {
-        'compartment':'none',
-        'id':'R4',
-        'reactome':'Re4',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N7'],
-        'products':['N8'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R4',
+        'reactome': 'Re4',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N7'],
+        'products': ['N8'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R5': {
-        'compartment':'none',
-        'id':'R5',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N9'],
-        'products':['N10'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R5',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N9'],
+        'products': ['N10'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R6': {
-        'compartment':'none',
-        'id':'R6',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N10'],
-        'products':['N11'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R6',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N10'],
+        'products': ['N11'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R7': {
-        'compartment':'none',
-        'id':'R7',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N11'],
-        'products':['N12'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R7',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N11'],
+        'products': ['N12'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R8': {
-        'compartment':'none',
-        'id':'R8',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N13'],
-        'products':['N14', 'N15'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R8',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N13'],
+        'products': ['N14', 'N15'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R9': {
-        'compartment':'none',
-        'id':'R9',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N14', 'N15'],
-        'products':['N16', 'N17', 'N18'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R9',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N14', 'N15'],
+        'products': ['N16', 'N17', 'N18'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R10': {
-        'compartment':'none',
-        'id':'R10',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N16', 'N17', 'N18'],
-        'products':['N19', 'N20'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R10',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N16', 'N17', 'N18'],
+        'products': ['N19', 'N20'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R11': {
-        'compartment':'none',
-        'id':'R11',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N21'],
-        'products':['N22'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R11',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N21'],
+        'products': ['N22'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R12': {
-        'compartment':'none',
-        'id':'R12',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N22'],
-        'products':['N23'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R12',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N22'],
+        'products': ['N23'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R13': {
-        'compartment':'none',
-        'id':'R13',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N23'],
-        'products':['N24'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R13',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N23'],
+        'products': ['N24'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R14': {
-        'compartment':'none',
-        'id':'R14',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N25'],
-        'products':['N26', 'N27'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R14',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N25'],
+        'products': ['N26', 'N27'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R15': {
-        'compartment':'none',
-        'id':'R15',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N26', 'N27'],
-        'products':['N28'],
-        'modifiers':[['N100', 'inhibitor'], ['N100', 'catalyst']],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R15',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N26', 'N27'],
+        'products': ['N28'],
+        'modifiers': [['N100', 'inhibitor'], ['N100', 'catalyst']],
+        'additional_components': []
     },
     'R16': {
-        'compartment':'none',
-        'id':'R16',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N8'],
-        'products':['N29'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R16',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N8'],
+        'products': ['N29'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R17': {
-        'compartment':'none',
-        'id':'R17',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N29'],
-        'products':['N30'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R17',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N29'],
+        'products': ['N30'],
+        'modifiers': [],
+        'additional_components': []
     }
 }
 
 collapse_degree_dictionary = {
-    'R1':4,
-    'R2':3,
-    'R3':6,
-    'R4':5,
-    'R5':2,
-    'R6':4,
-    'R7':4,
-    'R8':4,
-    'R9':5,
-    'R10':7,
-    'R11':1,
-    'R12':3,
-    'R13':4,
-    'R14':2,
-    'R15':5,
-    'R16':3,
-    'R17':4,
-    'N1':7,
-    'N2':8,
-    'N3':5,
-    'N4':3,
-    'N5':8,
-    'N6':6,
-    'N7':4,
-    'N8':3,
-    'N9':6,
-    'N10':7,
-    'N11':8,
-    'N12':4,
-    'N13':5,
-    'N14':2,
-    'N15':4,
-    'N16':7,
-    'N17':8,
-    'N18':5,
-    'N19':3,
-    'N20':6,
-    'N21':8,
-    'N22':9,
-    'N23':3,
-    'N24':43,
-    'N25':7,
-    'N26':4,
-    'N27':7,
-    'N28':3,
-    'N29':3,
-    'N30':7,
-    'N100':3
+    'R1': 4,
+    'R2': 3,
+    'R3': 6,
+    'R4': 5,
+    'R5': 2,
+    'R6': 4,
+    'R7': 4,
+    'R8': 4,
+    'R9': 5,
+    'R10': 7,
+    'R11': 1,
+    'R12': 3,
+    'R13': 4,
+    'R14': 2,
+    'R15': 5,
+    'R16': 3,
+    'R17': 4,
+    'N1': 7,
+    'N2': 8,
+    'N3': 5,
+    'N4': 3,
+    'N5': 8,
+    'N6': 6,
+    'N7': 4,
+    'N8': 3,
+    'N9': 6,
+    'N10': 7,
+    'N11': 8,
+    'N12': 4,
+    'N13': 5,
+    'N14': 2,
+    'N15': 4,
+    'N16': 7,
+    'N17': 8,
+    'N18': 5,
+    'N19': 3,
+    'N20': 6,
+    'N21': 8,
+    'N22': 9,
+    'N23': 3,
+    'N24': 43,
+    'N25': 7,
+    'N26': 4,
+    'N27': 7,
+    'N28': 3,
+    'N29': 3,
+    'N30': 7,
+    'N100': 3
 }
 
 # collapse_nodes()
@@ -1069,7 +1087,8 @@ final_reactions1 = [
     'R16',
     'R17'
 ]
-assert list(updated_rxns1.keys()) == final_reactions1, 'collapse_nodes() failed'
+assert list(updated_rxns1.keys()
+            ) == final_reactions1, 'collapse_nodes() failed'
 
 G_coll2 = G_collapse.copy()
 G_coll2, updated_rxns2, changed_rxns2, removed_rxn2 = collapse_nodes(
@@ -1092,12 +1111,14 @@ final_reactions2 = [
     'R16',
     'R17'
 ]
-assert list(updated_rxns2.keys()) == final_reactions2, 'collapse_nodes() failed'
+assert list(updated_rxns2.keys()
+            ) == final_reactions2, 'collapse_nodes() failed'
 
 
 # collapse_nodes() for partial collapse
 print('Testing collapse_nodes() for partial collapse...')
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
+spec = importlib.util.spec_from_file_location(
+    "", os.path.abspath("./metaboverse_cli/analyze/collapse.py"))
 collapse = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(collapse)
 generate_updated_dictionary = collapse.generate_updated_dictionary
@@ -1214,122 +1235,122 @@ G_collapse_3.nodes()['N26']['stats'] = [0.17]
 
 collapser_database_3 = {
     'R1': {
-        'compartment':'none',
-        'id':'R1',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N1','N2'],
-        'products':['N3','N4','N5'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R1',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N1', 'N2'],
+        'products': ['N3', 'N4', 'N5'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R2': {
-        'compartment':'none',
-        'id':'R2',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N3','N4','N5'],
-        'products':['N6','N7','N8'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R2',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N3', 'N4', 'N5'],
+        'products': ['N6', 'N7', 'N8'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R3': {
-        'compartment':'none',
-        'id':'R3',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N9','N10'],
-        'products':['N11','N12','N13'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R3',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N9', 'N10'],
+        'products': ['N11', 'N12', 'N13'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R4': {
-        'compartment':'none',
-        'id':'R4',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N13','N14'],
-        'products':['N15','N16'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R4',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N13', 'N14'],
+        'products': ['N15', 'N16'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R5': {
-        'compartment':'none',
-        'id':'R5',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N13','N14'],
-        'products':['N15','N17'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R5',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N13', 'N14'],
+        'products': ['N15', 'N17'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R6': {
-        'compartment':'none',
-        'id':'R6',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N18','N19'],
-        'products':['N20','N21','N22','N23'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R6',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N18', 'N19'],
+        'products': ['N20', 'N21', 'N22', 'N23'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R7': {
-        'compartment':'none',
-        'id':'R7',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N23','N24'],
-        'products':['N25','N26'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R7',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N23', 'N24'],
+        'products': ['N25', 'N26'],
+        'modifiers': [],
+        'additional_components': []
     },
     'R8': {
-        'compartment':'none',
-        'id':'R8',
-        'name':'none',
-        'reversible':'none',
-        'notes':'none',
-        'reactants':['N1'],
-        'products':['N26'],
-        'modifiers':[],
-        'additional_components':[]
+        'compartment': 'none',
+        'id': 'R8',
+        'name': 'none',
+        'reversible': 'none',
+        'notes': 'none',
+        'reactants': ['N1'],
+        'products': ['N26'],
+        'modifiers': [],
+        'additional_components': []
     }
 }
 
 degree_dict = {
-    'N1':1,
-    'N2':1,
-    'N3':100,
-    'N4':200,
-    'N5':2,
-    'N6':1,
-    'N7':1,
-    'N8':1,
-    'N9':1,
-    'N10':1,
-    'N11':1,
-    'N12':1,
-    'N13':2,
-    'N14':1,
-    'N15':1,
-    'N16':1,
-    'N17':1,
-    'N18':1,
-    'N19':1,
-    'N20':2,
-    'N21':1,
-    'N22':2,
-    'N23':1,
-    'N24':1,
-    'N25':1,
-    'N26':1,
+    'N1': 1,
+    'N2': 1,
+    'N3': 100,
+    'N4': 200,
+    'N5': 2,
+    'N6': 1,
+    'N7': 1,
+    'N8': 1,
+    'N9': 1,
+    'N10': 1,
+    'N11': 1,
+    'N12': 1,
+    'N13': 2,
+    'N14': 1,
+    'N15': 1,
+    'N16': 1,
+    'N17': 1,
+    'N18': 1,
+    'N19': 1,
+    'N20': 2,
+    'N21': 1,
+    'N22': 2,
+    'N23': 1,
+    'N24': 1,
+    'N25': 1,
+    'N26': 1,
 }
 
 blocklist_3 = ['N20']
@@ -1366,31 +1387,34 @@ assert test_var == True, 'collapse_nodes() for partial collapse failed'
 print("Testing generate_updated_dictionary()")
 pathway_database = {
     'P1': {
-        'reactome':'Re1',
-        'id':'P1',
-        'name':'React1',
-        'reactions':['R1','R2','R3','R4']
+        'reactome': 'Re1',
+        'id': 'P1',
+        'name': 'React1',
+        'reactions': ['R1', 'R2', 'R3', 'R4']
     },
     'P2': {
-        'reactome':'Re2',
-        'id':'P2',
-        'name':'React2',
-        'reactions':['R5','R6','R7','R8','R9','R10','R11','R12','R13',]
+        'reactome': 'Re2',
+        'id': 'P2',
+        'name': 'React2',
+        'reactions': ['R5', 'R6', 'R7', 'R8', 'R9', 'R10', 'R11', 'R12', 'R13', ]
     },
     'P3': {
-        'reactome':'Re3',
-        'id':'P3',
-        'name':'React3',
-        'reactions':['R14','R15','R16','R17']
+        'reactome': 'Re3',
+        'id': 'P3',
+        'name': 'React3',
+        'reactions': ['R14', 'R15', 'R16', 'R17']
     }
 }
 updated_pathway_dictionary = generate_updated_dictionary(
     original_database=pathway_database,
     update_dictionary=changed_rxns1,
     removed_reaction=removed_rxn1)
-assert updated_pathway_dictionary['Re1']['reactions'] == ['R1','R2_R3','R4'], 'generate_updated_dictionary() failed'
-assert updated_pathway_dictionary['Re2']['reactions'] == ['R5_R6_R7','R8_R9_R10','R11','R12','R13'], 'generate_updated_dictionary() failed'
-assert updated_pathway_dictionary['Re3']['reactions'] == ['R14','R15','R16','R17'], 'generate_updated_dictionary() failed'
+assert updated_pathway_dictionary['Re1']['reactions'] == [
+    'R1', 'R2_R3', 'R4'], 'generate_updated_dictionary() failed'
+assert updated_pathway_dictionary['Re2']['reactions'] == [
+    'R5_R6_R7', 'R8_R9_R10', 'R11', 'R12', 'R13'], 'generate_updated_dictionary() failed'
+assert updated_pathway_dictionary['Re3']['reactions'] == [
+    'R14', 'R15', 'R16', 'R17'], 'generate_updated_dictionary() failed'
 
 os.remove(network_url)
 

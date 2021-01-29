@@ -19,19 +19,16 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import sys
-import pickle
-import requests
-import pandas
-import numpy
-import scipy
-import networkx
-import sklearn
 import argparse
+import sklearn
+import networkx
+import scipy
+import numpy
+import pandas
+import requests
+import pickle
+import sys
+import os
 
 """Import internal dependencies
 """
@@ -45,37 +42,44 @@ try:
     from utils import progress_feed, update_session, safestr
 except:
     import importlib.util
-    spec = importlib.util.spec_from_file_location("__version__", os.path.abspath("./metaboverse_cli/__init__.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__version__", os.path.abspath("./metaboverse_cli/__init__.py"))
     version = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(version)
     __version__ = version.__version__
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/arguments.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/arguments.py"))
     arguments = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(arguments)
     parse_arguments = arguments.parse_arguments
 
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/__main__.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/curate/__main__.py"))
     curate = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(curate)
     curate = curate.__main__
 
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
     analyze = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(analyze)
     analyze = analyze.__main__
 
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
     mapper = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mapper)
     mapper = mapper.__main__
 
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/target/__main__.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/target/__main__.py"))
     target = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(target)
     curate_target = target.__main__
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
@@ -84,6 +88,8 @@ except:
 
 """Run metaboverse-cli
 """
+
+
 def main(
         args=None):
 
@@ -120,8 +126,8 @@ def main(
                 network = pickle.load(network_file)
                 args_dict['organism_id'] = network['organism_id']
                 if args_dict['output_file'] == None \
-                or args_dict['output_file'] == "None" \
-                or args_dict['output_file'] == "find":
+                        or args_dict['output_file'] == "None" \
+                        or args_dict['output_file'] == "find":
                     args_dict['output_file'] = args_dict['output'] \
                         + args_dict['organism_id'] \
                         + '.mvrs'
@@ -141,23 +147,23 @@ def main(
                     session_file=session_file,
                     key='database_url',
                     value=args_dict['output_file'])
-            print('Skipping organism network modeling as one was provided by' \
-            + ' the user...')
+            print('Skipping organism network modeling as one was provided by'
+                  + ' the user...')
 
         else:
             print('Curating network model...')
             if 'model_file' in args_dict \
-            and safestr(args_dict['model_file']) == 'None':
+                    and safestr(args_dict['model_file']) == 'None':
                 args_dict['model_file'] = args_dict['output'] \
                     + args_dict['organism_id'] \
                     + '.mvdb'
 
             args_dict['network'] = args_dict['model_file']
             args_dict = curate(args_dict)
-            #sys.stdout.flush()
+            # sys.stdout.flush()
 
         if 'output_file' in args_dict \
-        and safestr(args_dict['output_file']) == 'None':
+                and safestr(args_dict['output_file']) == 'None':
             args_dict['output_file'] = args_dict['output'] \
                 + args_dict['organism_id'] \
                 + '.mvrs'
@@ -165,14 +171,14 @@ def main(
         print('Curating data onto the network model...')
         if args_dict['cmd'] == 'curate':
             if 'output_file' in args_dict \
-            and safestr(args_dict['output_file']) == 'None':
+                    and safestr(args_dict['output_file']) == 'None':
                 args_dict['output_file'] = args_dict['output'] \
                     + args_dict['organism_id'] \
                     + '.mvrs'
             analyze(args_dict)
         elif args_dict['cmd'] == 'electrum':
             if 'output_file' in args_dict \
-            and safestr(args_dict['output_file']) == 'None':
+                    and safestr(args_dict['output_file']) == 'None':
                 args_dict['output_file'] = args_dict['output'] \
                     + args_dict['organism_id'] \
                     + '-latest.eldb'
@@ -183,6 +189,7 @@ def main(
     # Print some error messaging
     else:
         raise Exception('Invalid sub-module selected')
+
 
 """Run main
 """

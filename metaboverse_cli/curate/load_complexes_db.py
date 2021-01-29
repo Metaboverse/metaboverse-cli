@@ -19,11 +19,8 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
 import pandas as pd
+import os
 
 """Import internal dependencies
 """
@@ -31,13 +28,16 @@ try:
     from curate.utils import get_table
 except:
     import importlib.util
-    spec = importlib.util.spec_from_file_location("get_table", os.path.abspath("./metaboverse_cli/curate/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "get_table", os.path.abspath("./metaboverse_cli/curate/utils.py"))
     get_table = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(get_table)
     get_table = get_table.get_table
 
 """Get tables
 """
+
+
 def __main__(
         output_dir):
 

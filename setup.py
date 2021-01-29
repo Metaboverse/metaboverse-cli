@@ -21,50 +21,50 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """Import dependencies
 """
-from setuptools import setup
+
+from set up tools import setup
 import re
 import os
-
 __path__  =  os.path.dirname(os.path.realpath(__file__)) + '/'
 
 """Get version"""
 with open(str(__path__) + 'metaboverse_cli/__init__.py', 'r') as fd:
     __version__ = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-                        fd.read(), re.MULTILINE).group(1)
+                            fd.read(), re.MULTILINE).group(1)
 
 """Setup arguments"""
 setup(
-    name = 'Metaboverse',
-    version = __version__,
-    description = 'A toolkit for navigating and analyzing biological networks',
-    author = 'Jordan A. Berg',
-    author_email = 'jordan.berg@biochem.utah.edu',
-    url = 'https://github.com/Metaboverse/metaboverse-cli',
-    packages = ['metaboverse_cli'],
-    exclude= [
+    name='Metaboverse',
+    version=__version__,
+    description='A toolkit for navigating and analyzing biological networks',
+    author='Jordan A. Berg',
+    author_email='jordan.berg@biochem.utah.edu',
+    url='https://github.com/Metaboverse/metaboverse-cli',
+    packages=['metaboverse_cli'],
+    exclude=[
         'metaboverse_cli/test',
         'metaboverse_cli/mapper/test',
         'metaboverse_cli/curate/test',
         'metaboverse_cli/analyze/test',
         'docs'],
-    package_dir = {'metaboverse_cli': '.'},
-    license = 'GPL-3.0',
-    zip_safe = False,
-    install_requires = [
-            'pandas',
-            'numpy',
+    package_dir={'metaboverse_cli': '.'},
+    license='GPL-3.0',
+    zip_safe=False,
+    install_requires=[
+        'pandas',
+        'numpy',
             'scipy',
             'scikit-learn',
             'networkx'
-        ],
+    ],
     entry_points={
         "console_scripts": [
             "metaboverse = metaboverse_cli.__main__:main"
-            ]
-        },
+        ]
+    },
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Bio-Informatics'
-        ]
-    )
+    ]
+)

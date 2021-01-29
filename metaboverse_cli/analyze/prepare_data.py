@@ -19,13 +19,10 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import sys
-import re
 import pandas as pd
+import re
+import sys
+import os
 
 def read_data(
         url,
@@ -42,6 +39,7 @@ def read_data(
         raise Exception('Improperly formatted datatable provided: ', url)
 
     return data
+
 
 def format_data(
         data,
@@ -73,6 +71,7 @@ def format_data(
 
     return data_output, data_unmapped
 
+
 def output_unmapped(
         data,
         url,
@@ -84,6 +83,7 @@ def output_unmapped(
         data.to_csv(
             url[:-4] + '_unmapped.txt',
             sep=delimiter)
+
 
 def extract_data(
         data):
@@ -101,6 +101,7 @@ def extract_data(
     _stats.columns = [x for x in range(len(_stats.columns))]
 
     return _values, _stats
+
 
 def broadcast_transcriptomics(
         transcriptomics,
@@ -133,6 +134,7 @@ def broadcast_transcriptomics(
 
     return proteomics, proteomics_stats
 
+
 def copy_columns(
         data,
         stats,
@@ -152,6 +154,7 @@ def copy_columns(
 
     return data_c, stats_c
 
+
 def catenate_data(
         array):
     """Combine data
@@ -164,7 +167,7 @@ def catenate_data(
     combined = combined.dropna(axis=0)
     combined = combined.sort_index()
 
-    removers = [] # Remove non-numbers
+    removers = []  # Remove non-numbers
     for idx, row in combined.iterrows():
         for x in row:
             try:
@@ -180,6 +183,7 @@ def catenate_data(
     combined = combined.groupby(combined.index).mean()
 
     return combined
+
 
 def __main__(
         network,
@@ -261,13 +265,13 @@ def __main__(
 
     # Check for broadcasting
     if proteomics_url.lower() == 'none' \
-    and transcriptomics_url.lower() != 'none':
+            and transcriptomics_url.lower() != 'none':
 
         proteomics, proteomics_stats = broadcast_transcriptomics(
-                transcriptomics=transcriptomics,
-                transcriptomics_stats=transcriptomics_stats,
-                gene_dictionary=network['ensembl_synonyms'],
-                protein_dictionary=network['uniprot_synonyms'])
+            transcriptomics=transcriptomics,
+            transcriptomics_stats=transcriptomics_stats,
+            gene_dictionary=network['ensembl_synonyms'],
+            protein_dictionary=network['uniprot_synonyms'])
 
     # Allow for unequal filling
     lengths = []
@@ -286,24 +290,24 @@ def __main__(
         _max = max(lengths)
 
         if transcriptomics_url.lower() != 'none' \
-        and len(transcriptomics.columns.tolist()) != _max \
-        and len(transcriptomics.columns.tolist()) == 1:
+                and len(transcriptomics.columns.tolist()) != _max \
+                and len(transcriptomics.columns.tolist()) == 1:
             transcriptomics, transcriptomics_stats = copy_columns(
                 data=transcriptomics,
                 stats=transcriptomics_stats,
                 _max=_max)
 
         if proteomics_url.lower() != 'none' \
-        and len(proteomics.columns.tolist()) != _max \
-        and len(proteomics.columns.tolist()) == 1:
+                and len(proteomics.columns.tolist()) != _max \
+                and len(proteomics.columns.tolist()) == 1:
             proteomics, proteomics_stats = copy_columns(
                 data=proteomics,
                 stats=proteomics_stats,
                 _max=_max)
 
         if metabolomics_url.lower() != 'none' \
-        and len(metabolomics.columns.tolist()) != _max \
-        and len(metabolomics.columns.tolist()) == 1:
+                and len(metabolomics.columns.tolist()) != _max \
+                and len(metabolomics.columns.tolist()) == 1:
             metabolomics, metabolomics_stats = copy_columns(
                 data=metabolomics,
                 stats=metabolomics_stats,

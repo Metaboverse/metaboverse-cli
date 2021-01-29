@@ -19,14 +19,12 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import pickle
-
 import importlib.util
-spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
+import pickle
+import os
+
+spec = importlib.util.spec_from_file_location(
+    "__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
 mapper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mapper)
 
@@ -43,16 +41,20 @@ mapper_url = os.path.abspath(
 with open(mapper_url, 'rb') as mapper_file:
     mapper = pickle.load(mapper_file)
 
-assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary', 'mapping_dictionary'], 'metabolite mapper failed to generate dictionaries'
+assert list(mapper.keys()) == ['hmdb_dictionary', 'display_dictionary',
+                               'mapping_dictionary'], 'metabolite mapper failed to generate dictionaries'
 
 key0 = list(mapper['hmdb_dictionary'].keys())[0]
-assert type(mapper['hmdb_dictionary'][key0]) == list, 'HMDB dictionary improperly formatted'
+assert type(mapper['hmdb_dictionary'][key0]
+            ) == list, 'HMDB dictionary improperly formatted'
 
 key1 = list(mapper['display_dictionary'].keys())[0]
-assert type(mapper['display_dictionary'][key1]) == list, 'Display dictionary improperly formatted'
+assert type(mapper['display_dictionary'][key1]
+            ) == list, 'Display dictionary improperly formatted'
 
 key2 = list(mapper['mapping_dictionary'].keys())[0]
-assert type(mapper['mapping_dictionary'][key2]) == str, 'Mapping dictionary improperly formatted'
+assert type(mapper['mapping_dictionary'][key2]
+            ) == str, 'Mapping dictionary improperly formatted'
 
 # Clean
 os.remove(

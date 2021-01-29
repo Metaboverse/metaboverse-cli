@@ -19,23 +19,22 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import re
-import pandas as pd
 from math import floor
+import pandas as pd
+import re
+import os
 
-# Check input is contains full path address
+
 def file_path(
         input):
+    # Check input is contains full path address
 
     return os.path.abspath(input)
 
-# Get file suffix
+
 def check_suffix(
         file):
+    # Get file suffix
 
     if file.split('.')[-1] == 'csv':
         suffix = ','
@@ -44,14 +43,15 @@ def check_suffix(
     elif file.split('.')[-1] == 'txt':
         suffix = '\t'
     else:
-        raise Exception('Invalid data file provided. Expected a tab- or comma-delimited file')
+        raise Exception(
+            'Invalid data file provided. Expected a tab- or comma-delimited file')
 
     return suffix
 
-# Input data type
+
 def add_data(
         file):
-
+    # Input data type
     # Check that file has full path
     file = file_path(file)
 
@@ -61,12 +61,13 @@ def add_data(
     # Import dataframe
     data = pd.read_csv(
         file,
-        sep = suffix,
-        header = 0,
-        index_col = 0,
-        low_memory = False)
+        sep=suffix,
+        header=0,
+        index_col=0,
+        low_memory=False)
 
     return data
+
 
 def convert_rgba(
         rgba_tuples,

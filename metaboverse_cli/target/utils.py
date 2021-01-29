@@ -19,9 +19,6 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
 import pandas as pd
 
 COLUMN_REFERENCE = {
@@ -46,6 +43,7 @@ COLUMN_REFERENCE = {
     'SMILES_metabolite': 18,
     'KEGG_pathway_association': 19
 }
+
 
 def import_midas(
         filename,

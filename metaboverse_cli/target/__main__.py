@@ -19,11 +19,8 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import pickle
 import pandas as pd
+import pickle
 
 """Import internal dependencies
 """
@@ -34,21 +31,25 @@ try:
 except:
     import os
     import importlib.util
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/target/build.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/target/build.py"))
     build = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build)
     build = build.__main__
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/target/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/target/utils.py"))
     build_utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build_utils)
     import_midas = build_utils.import_midas
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
     read_network = utils.read_network
+
 
 def __main__(
         args_dict):

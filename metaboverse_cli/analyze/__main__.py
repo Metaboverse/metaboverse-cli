@@ -19,11 +19,8 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import pickle
 import pandas as pd
+import pickle
 
 """Import internal dependencies
 """
@@ -34,22 +31,26 @@ try:
 except:
     import os
     import importlib.util
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
     prepare_data = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(prepare_data)
     prepare_data = prepare_data.__main__
 
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/analyze/model.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/analyze/model.py"))
     model = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(model)
     model = model.__main__
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
     read_network = utils.read_network
-    
+
+
 def __main__(
         args_dict):
     """Analyze data on network model
@@ -65,8 +66,8 @@ def __main__(
 
     # Read in data (if any)
     if str(args_dict['transcriptomics']).lower() != 'none' \
-    or str(args_dict['proteomics']).lower() != 'none' \
-    or str(args_dict['metabolomics']).lower() != 'none':
+            or str(args_dict['proteomics']).lower() != 'none' \
+            or str(args_dict['metabolomics']).lower() != 'none':
 
         data, stats, unmapped = prepare_data(
             network=network,
@@ -79,11 +80,11 @@ def __main__(
 
     else:
         data = pd.DataFrame()
-        data['NoSample'] = [0,0,0]
+        data['NoSample'] = [0, 0, 0]
         data.index = ['dummy_index1', 'dummy_index2', 'dummy_index3']
 
         stats = pd.DataFrame()
-        stats['NoSample'] = [0,0,0]
+        stats['NoSample'] = [0, 0, 0]
         stats.index = ['dummy_index1', 'dummy_index2', 'dummy_index3']
 
         unmapped = {

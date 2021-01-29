@@ -28,23 +28,24 @@ import json
 # Functions to test
 try:
     from metaboverse_cli.utils import update_session, \
-                                        progress_feed, \
-                                        check_directories, \
-                                        check_files, \
-                                        check_curate, \
-                                        argument_checks, \
-                                        get_session_value
+        progress_feed, \
+        check_directories, \
+        check_files, \
+        check_curate, \
+        argument_checks, \
+        get_session_value
 except:
     from utils import update_session, \
-                        progress_feed, \
-                        check_directories, \
-                        check_files, \
-                        check_curate, \
-                        argument_checks, \
-                        get_session_value
+        progress_feed, \
+        check_directories, \
+        check_files, \
+        check_curate, \
+        argument_checks, \
+        get_session_value
 
 # update_session()
-session_file = os.path.abspath(os.path.join(".", "metaboverse_cli", "test", "session_data.json"))
+session_file = os.path.abspath(os.path.join(
+    ".", "metaboverse_cli", "test", "session_data.json"))
 update_session(
     session_file=session_file,
     key='database_url',
@@ -190,7 +191,8 @@ val2 = get_session_value(
 assert val2 == "unknown", 'get_session_value() failed'
 
 val3 = get_session_value(
-    session_file= os.path.abspath(os.path.join(".", "metaboverse_cli", "test")) + os.path.sep + 'bad_file.json',
+    session_file=os.path.abspath(os.path.join(
+        ".", "metaboverse_cli", "test")) + os.path.sep + 'bad_file.json',
     key="database_url")
 assert val3 == "unknown", 'get_session_value() failed'
 

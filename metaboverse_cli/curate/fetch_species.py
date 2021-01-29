@@ -19,11 +19,8 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import re
 from urllib.request import Request, urlopen
+import re
 
 """Set globals
 """
@@ -34,6 +31,7 @@ avoid_string_start_2 = 'title=\"Community library of icons'
 avoid_string_start_3 = 'title=\"Back to Top'
 stop_string = 'No entries found for this species'
 url = 'https://www.reactome.org/content/schema/objects/Species?page='
+
 
 def fetch_species():
 
@@ -56,12 +54,13 @@ def fetch_species():
             elif search_string_start in line:
 
                 if avoid_string_start_1 in line \
-                or avoid_string_start_2 in line \
-                or avoid_string_start_3 in line:
+                        or avoid_string_start_2 in line \
+                        or avoid_string_start_3 in line:
                     pass
 
                 else:
-                    result = re.search(search_string_start + '(.*)' + search_string_stop, line)
+                    result = re.search(search_string_start +
+                                       '(.*)' + search_string_stop, line)
                     parsed_name = result.group(1)
                     organisms.append(parsed_name)
 

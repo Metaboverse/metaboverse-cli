@@ -19,16 +19,13 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import re
-import requests
-from datetime import date
-import pickle
-import json
 import pandas as pd
+import json
+import pickle
+from datetime import date
+import requests
+import re
+import os
 
 """Import internal dependencies
 """
@@ -38,17 +35,20 @@ try:
     from utils import progress_feed, get_session_value, prepare_output, write_database, write_database_json
 except:
     import importlib.util
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/load_reactions_db.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/curate/load_reactions_db.py"))
     load_reactions = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(load_reactions)
     load_reactions = load_reactions.__main__
 
-    spec = importlib.util.spec_from_file_location("__main__", os.path.abspath("./metaboverse_cli/curate/load_complexes_db.py"))
+    spec = importlib.util.spec_from_file_location(
+        "__main__", os.path.abspath("./metaboverse_cli/curate/load_complexes_db.py"))
     load_complexes = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(load_complexes)
     load_complexes = load_complexes.__main__
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
@@ -56,6 +56,7 @@ except:
     prepare_output = utils.prepare_output
     write_database = utils.write_database
     write_database_json = utils.write_database_json
+
 
 def parse_table(
         reference,
@@ -77,8 +78,10 @@ def parse_table(
             'reaction_name']
 
     reference_parsed = reference[key][column_names].copy()
-    reference_parsed['analyte'] = reference_parsed['analyte_name'].str.split(' \[').str[0]
-    reference_parsed['compartment'] = reference_parsed['analyte_name'].str.split(' \[').str[1].str.split('\]').str[0]
+    reference_parsed['analyte'] = reference_parsed['analyte_name'].str.split(
+        ' \[').str[0]
+    reference_parsed['compartment'] = reference_parsed['analyte_name'].str.split(
+        ' \[').str[1].str.split('\]').str[0]
 
     reference_dictionary = {}
 
@@ -93,7 +96,7 @@ def parse_table(
         reference_dictionary[row[0]]['reaction_name'] = row[3]
 
         if 'source_id' in reference[key].columns.tolist():
-            reference_dictionary[row[0]]['source_id']  = row[4]
+            reference_dictionary[row[0]]['source_id'] = row[4]
             reference_dictionary[row[0]]['analyte'] = row[5]
             reference_dictionary[row[0]]['compartment'] = row[6]
 
@@ -107,6 +110,7 @@ def parse_table(
         counter += 1
 
     return reference_dictionary
+
 
 def parse_complexes(
         reference):
@@ -124,9 +128,12 @@ def parse_complexes(
         'name',
         'participants',
         'participatingComplex']
-    complexes_information = reference['complex_participants'][column_names].copy()
-    complexes_information['complex'] = complexes_information['name'].str.split(' \[').str[0]
-    complexes_information['compartment'] = complexes_information['name'].str.split(' \[').str[1].str.split('\]').str[0]
+    complexes_information = reference['complex_participants'][column_names].copy(
+    )
+    complexes_information['complex'] = complexes_information['name'].str.split(
+        ' \[').str[0]
+    complexes_information['compartment'] = complexes_information['name'].str.split(
+        ' \[').str[1].str.split('\]').str[0]
 
     complex_dictionary = {}
 
@@ -143,8 +150,10 @@ def parse_complexes(
             complex_dictionary[row[0]]['participating_complex'] = row[3]
 
         if row[0] in pathway_dictionary.keys():
-            complex_dictionary[row[0]]['pathway'] = pathway_dictionary[row[0]]['pathway']
-            complex_dictionary[row[0]]['top_level_pathway'] = pathway_dictionary[row[0]]['top_level_pathway']
+            complex_dictionary[row[0]
+                               ]['pathway'] = pathway_dictionary[row[0]]['pathway']
+            complex_dictionary[row[0]
+                               ]['top_level_pathway'] = pathway_dictionary[row[0]]['top_level_pathway']
 
         complex_dictionary[row[0]]['participants'] = {}
         complex_dictionary[row[0]]['participants']['chebi'] = []
@@ -176,6 +185,7 @@ def parse_complexes(
 
     return complex_dictionary
 
+
 def parse_ensembl_synonyms(
         output_dir,
         species_id,
@@ -194,13 +204,15 @@ def parse_ensembl_synonyms(
         header=None)
     os.remove(output_dir + file_name)
 
-    ensembl[name_location] = ensembl[name_location].str.split(' \[').str[0].tolist()
+    ensembl[name_location] = ensembl[name_location].str.split(
+        ' \[').str[0].tolist()
     ensembl = ensembl[ensembl[reactome_location].str.contains(species_id)]
     ensembl_name_dictionary = pd.Series(
         ensembl[name_location].values,
         index=ensembl[id_location]).to_dict()
 
     return ensembl_name_dictionary
+
 
 def parse_uniprot_synonyms(
         output_dir,
@@ -220,13 +232,15 @@ def parse_uniprot_synonyms(
         header=None)
     os.remove(output_dir + file_name)
 
-    uniprot[name_location] = uniprot[name_location].str.split(' \[').str[0].tolist()
+    uniprot[name_location] = uniprot[name_location].str.split(
+        ' \[').str[0].tolist()
     uniprot = uniprot[uniprot[reactome_location].str.contains(species_id)]
     uniprot_name_dictionary = pd.Series(
         uniprot[name_location].values,
         index=uniprot[id_location]).to_dict()
 
     return uniprot_name_dictionary
+
 
 def parse_chebi_synonyms(
         output_dir,
@@ -268,28 +282,33 @@ def parse_chebi_synonyms(
         for index, row in chebi.iterrows():
 
             if 'KEGG' in row[source_index].upper() \
-            or 'CHEM' in row[source_index].upper() \
-            or 'JCBN' in row[source_index].upper() \
-            or 'CHEBI' in row[source_index].upper() \
-            or 'HMDB' in row[source_index].upper() \
-            or 'DRUG' in row[source_index].upper() \
-            or 'IUPAC' in row[source_index].upper() \
-            or 'LIPID' in row[source_index].upper() \
-            or 'METACYC' in row[source_index].upper() \
-            or 'SUBMITTER' in row[source_index].upper():
-                chebi_dictionary[row[name_index]] = 'CHEBI:' + str(row[id_index])
+                    or 'CHEM' in row[source_index].upper() \
+                    or 'JCBN' in row[source_index].upper() \
+                    or 'CHEBI' in row[source_index].upper() \
+                    or 'HMDB' in row[source_index].upper() \
+                    or 'DRUG' in row[source_index].upper() \
+                    or 'IUPAC' in row[source_index].upper() \
+                    or 'LIPID' in row[source_index].upper() \
+                    or 'METACYC' in row[source_index].upper() \
+                    or 'SUBMITTER' in row[source_index].upper():
+                chebi_dictionary[row[name_index]
+                                 ] = 'CHEBI:' + str(row[id_index])
                 if 'CHEBI:' + str(row[id_index]) in chebi_synonyms.keys():
-                    chebi_synonyms['CHEBI:' + str(row[id_index])].append(row[name_index])
+                    chebi_synonyms['CHEBI:' +
+                                   str(row[id_index])].append(row[name_index])
                 else:
-                    chebi_synonyms['CHEBI:' + str(row[id_index])] = [row[name_index]]
+                    chebi_synonyms['CHEBI:' +
+                                   str(row[id_index])] = [row[name_index]]
 
             else:
-                uniprot_metabolites[row[name_index]] = 'CHEBI:' + str(row[id_index])
+                uniprot_metabolites[row[name_index]
+                                    ] = 'CHEBI:' + str(row[id_index])
 
     else:
         print('Unable to parse CHEBI file as expected...')
 
     return chebi_dictionary, chebi_synonyms, uniprot_metabolites
+
 
 def reference_complex_species(
         reference,
@@ -304,14 +323,16 @@ def reference_complex_species(
 
     return new_dict
 
+
 def get_reactome_version():
     """Get most recent Reactome database version at time of curation
     """
     reactome_url = "https://reactome.org/tag/release"
     f = requests.get(reactome_url)
-    matches = re.findall("Version (.*) Released", f.text);
+    matches = re.findall("Version (.*) Released", f.text)
     current_version = max(matches)
     return current_version
+
 
 def add_genes(
         name_database,
@@ -324,6 +345,7 @@ def add_genes(
 
     return name_database
 
+
 def __main__(
         args_dict):
     """Curate database
@@ -334,13 +356,13 @@ def __main__(
     print('Loading reactions...')
     progress_feed(args_dict, "curate", 3)
     pathway_database, reaction_database, species_database, \
-    name_database, compartment_dictionary, \
-    components_database = load_reactions(
-        species_id=args_dict['organism_id'],
-        output_dir=args_dict['output'],
-        database_source=args_dict['database_source'],
-        sbml_url=args_dict['organism_curation'],
-        args_dict=args_dict)
+        name_database, compartment_dictionary, \
+        components_database = load_reactions(
+            species_id=args_dict['organism_id'],
+            output_dir=args_dict['output'],
+            database_source=args_dict['database_source'],
+            sbml_url=args_dict['organism_curation'],
+            args_dict=args_dict)
 
     print('Parsing ChEBI database...')
     chebi_mapper, chebi_synonyms, uniprot_metabolites = parse_chebi_synonyms(

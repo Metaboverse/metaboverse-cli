@@ -19,26 +19,24 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import sys
 import pandas as pd
+import sys
+import os
 
-"""Get reactome table from web
-"""
+
 def get_table(
         output_dir,
         url,
         column_names,
         organism='Homo sapiens',
         organism_key='organism'):
+    """Get reactome table from web
+    """
 
     # chebi_reactome_reactions
     file = unpack_table(
-            url=url,
-            output_dir=output_dir)
+        url=url,
+        output_dir=output_dir)
 
     if isinstance(column_names, list):
         header_type = None
@@ -52,7 +50,7 @@ def get_table(
         low_memory=False)
 
     if isinstance(column_names, list) \
-    or organism == None:
+            or organism == None:
         data.columns = column_names
         data_organism = data.loc[data[organism_key] == organism]
 
@@ -61,8 +59,11 @@ def get_table(
 
     return data_organism
 
+
 """Open reactome table from web
 """
+
+
 def unpack_table(
         url,
         output_dir='./'):

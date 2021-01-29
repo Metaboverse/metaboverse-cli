@@ -19,22 +19,19 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-
-"""Import dependencies
-"""
-import os
-import re
-import requests
-import zipfile
-from datetime import date
-import pandas as pd
-import numpy as np
-import json
-import pickle
-import itertools
-import networkx as nx
-from networkx.readwrite import json_graph
 from collections import Counter
+from networkx.readwrite import json_graph
+import networkx as nx
+import itertools
+import pickle
+import json
+import numpy as np
+import pandas as pd
+from datetime import date
+import zipfile
+import requests
+import re
+import os
 
 try:
     from analyze.model import build_chebi_reference, build_name_reference, load_metabolite_synonym_dictionary, uniprot_ensembl_reference, gather_synonyms, name_graph, compile_node_degrees
@@ -43,7 +40,7 @@ except:
     import importlib.util
     module_path = os.path.abspath(
         os.path.join(".", "metaboverse_cli", "analyze", "model.py"
-    ))
+                     ))
     spec = importlib.util.spec_from_file_location("", module_path)
     model = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(model)
@@ -57,11 +54,12 @@ except:
 
     module_path = os.path.abspath(
         os.path.join(".", "metaboverse_cli", "utils.py"
-    ))
+                     ))
     spec = importlib.util.spec_from_file_location("progress_feed", module_path)
     progress_feed = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(progress_feed)
     progress_feed = progress_feed.progress_feed
+
 
 def get_metabolites(
         data,
@@ -77,6 +75,7 @@ def get_metabolites(
 
     return list(common_names)
 
+
 def fetch_chebi_mappers(
         metabolites=[
             "1,3-Diaminopropane",
@@ -84,7 +83,7 @@ def fetch_chebi_mappers(
             "2-Hydroxybutyric acid",
             "2-Methoxyestrone"],
         metaboanalyst_api="http://api.xialab.ca/mapcompounds"
-        ):
+):
     """Adapted from R from MetaboAnalyst 5.0
     - https://www.metaboanalyst.ca/docs/RTutorial.xhtml#3.2%20Compound%20name%20mapping
     - https://www.metaboanalyst.ca/docs/APIs.xhtml
@@ -101,10 +100,11 @@ def fetch_chebi_mappers(
         headers={
             'Content-Type': "application/json",
             'cache-control': "no-cache",
-            }
-        )
+        }
+    )
 
     return query_results.json()
+
 
 def define_mapper(
         mapper,
@@ -166,6 +166,7 @@ def define_mapper(
 
     return metabolites
 
+
 def fix_species_ids(
         id_list):
     """Fix specific IDs that are not mapping all synonyms' species IDs
@@ -176,6 +177,7 @@ def fix_species_ids(
         id_list.add('species_29398')
 
     return id_list
+
 
 def targeted_graph(
         metabolites,
@@ -214,7 +216,7 @@ def targeted_graph(
         for _s in species_ids:
             for _k, _v in reactions.items():
                 if _s in _v['reactants'] \
-                or _s in _v['products']:
+                        or _s in _v['products']:
                     _reaction_list.add(_k)
                     _reactome_list.add(reactions[_k]['reactome'])
                 for _mod in _v['modifiers']:
@@ -243,6 +245,7 @@ def targeted_graph(
         }
 
     return reference
+
 
 def get_species(
         metabolite,
@@ -297,6 +300,7 @@ def get_species(
 
     return species_ids, parsed_syns_list
 
+
 def reverse_object(
         data):
     """
@@ -308,25 +312,29 @@ def reverse_object(
 
     return reverse_dictionary
 
+
 def test():
 
     import os
     import importlib.util
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     read_network = utils.read_network
     network = read_network(
         network_url='C:\\Users\\jorda\\Desktop\\HSA.mvdb')
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/target/utils.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/target/utils.py"))
     build_utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(build_utils)
     import_midas = build_utils.import_midas
     data, columns = import_midas(
         filename='C:\\Users\\jorda\\Desktop\\projects\\Electrum\\_data\\MIDAS-latest.txt')
 
-    spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/model.py"))
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath("./metaboverse_cli/analyze/model.py"))
     model = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(model)
     gather_synonyms = model.gather_synonyms
@@ -334,6 +342,7 @@ def test():
     output_file = 'C:\\Users\\jorda\\Desktop\\HSA-latest.eldb'
     species_id = 'HSA'
     args_dict = {}
+
 
 def __main__(
         args_dict,
@@ -351,7 +360,7 @@ def __main__(
         output_file=output_file,
         species_id=species_id)
 
-    reverse_genes = {v:k for k,v in network['ensembl_synonyms'].items()}
+    reverse_genes = {v: k for k, v in network['ensembl_synonyms'].items()}
     protein_dictionary = uniprot_ensembl_reference(
         uniprot_reference=network['uniprot_synonyms'],
         ensembl_reference=reverse_genes)
@@ -370,7 +379,7 @@ def __main__(
     metabolite_mapper = load_metabolite_synonym_dictionary()
 
     u = {}
-    for k,v in network['uniprot_metabolites'].items():
+    for k, v in network['uniprot_metabolites'].items():
         u[v] = k
 
     common_metabolites = get_metabolites(
@@ -414,14 +423,14 @@ def __main__(
     for key in network['reaction_database'].keys():
         rxn_name = network['reaction_database'][key]['name'].lower()
         if 'defective' not in rxn_name \
-        and 'mutant' not in rxn_name:
+                and 'mutant' not in rxn_name:
             no_defective_reactions[key] = network['reaction_database'][key]
 
     no_defective_pathways = {}
     for key in network['pathway_database'].keys():
         rxn_name = network['pathway_database'][key]['name'].lower()
         if 'defective' not in rxn_name \
-        and 'mutant' not in rxn_name:
+                and 'mutant' not in rxn_name:
             no_defective_pathways[key] = network['pathway_database'][key]
 
     output_database = {}
