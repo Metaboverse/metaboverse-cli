@@ -86,17 +86,13 @@ except:
     update_session = utils.update_session
     safestr = utils.safestr
 
-"""Run metaboverse-cli
-"""
-
 
 def main(
         args=None):
+    """Run metaboverse-cli
+    """
 
     # Read in arguments
-    print("0------")
-    print(args)
-
     args, args_dict = parse_arguments(
         args,
         __version__)
