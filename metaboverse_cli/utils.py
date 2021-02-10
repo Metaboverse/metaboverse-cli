@@ -200,12 +200,10 @@ def check_files(
     return input
 
 
-"""Check curation arguments
-"""
-
-
 def check_curate(
         args_dict):
+    """Check curation arguments
+    """
 
     should_exit = False
 
@@ -228,13 +226,11 @@ def check_curate(
         sys.exit(1)
 
 
-"""Run general checks on arguments
-Not sub-module-specific
-"""
-
-
 def argument_checks(
         args_dict):
+    """Run general checks on arguments
+    Not sub-module-specific
+    """
 
     # Check output file
     if 'output' in args_dict \
@@ -248,33 +244,20 @@ def argument_checks(
     # Check user-provided directory formatting
     for key, value in args_dict.items():
 
-        print('------------------->')
-        print(args_dict)
-        print(key)
-        print(value)
-
-        if key == 'cmd':
+        if key == 'cmd' or key == 'organism_id':
             pass
 
         elif os.path.isfile(str(value)) == True:
-            print('+')
             args_dict[key] = check_files(
                 args_dict[key],
                 key)
-            print(args_dict[key])
-            print(key)
 
         elif os.path.isdir(str(value)) == True:
-            print('-')
             args_dict[key] = check_directories(
                 args_dict[key],
                 key)
-            print(args_dict[key])
-            print(key)
 
         else:
             pass
 
-    print('5....')
-    print(args_dict)
     return args_dict

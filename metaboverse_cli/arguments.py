@@ -65,12 +65,10 @@ description_table = """\
         +-----------------------+--------------------------------------------+
 """
 
-"""Check arguments
-"""
-
-
 def check_arguments(
         args_dict):
+    """Check arguments
+    """
 
     # Run general checks
     args_dict = argument_checks(args_dict)
