@@ -73,9 +73,13 @@ def check_arguments(
         args_dict):
 
     # Run general checks
+    print("1------")
+    print(args_dict)
     args_dict = argument_checks(args_dict)
 
     # Run sub-module specific checks
+    print("2------")
+    print(args_dict)
     if args_dict['cmd'] == 'curate':
         check_curate(args_dict)
     elif args_dict['cmd'] == 'metaboliteMapper':
@@ -85,15 +89,21 @@ def check_arguments(
     else:
         raise Exception('Invalid sub-module selected')
 
+    print("3------")
+    print(args_dict)
     if 'output' not in args_dict \
             or args_dict['output'] == None \
             or args_dict['output'].lower() == 'none':
         args_dict['output'] = args_dict['output_file'].rsplit(os.path.sep, 1)[
             0]
 
+    print("4------")
+    print(args_dict)
     if not args_dict['output'].endswith(os.path.sep):
         args_dict['output'] = args_dict['output'] + os.path.sep
 
+    print("5------")
+    print(args_dict)
     args_dict['output'] = check_directories(
         input=args_dict['output'],
         argument='output')

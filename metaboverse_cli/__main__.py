@@ -94,6 +94,9 @@ def main(
         args=None):
 
     # Read in arguments
+    print("0------")
+    print(args)
+
     args, args_dict = parse_arguments(
         args,
         __version__)

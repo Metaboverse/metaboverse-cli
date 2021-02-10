@@ -12,7 +12,7 @@
 # - 4x RTX2080TI GPUs
 
 # Set instance variables
-echo "+ Setting environment..."
+printf "+ Setting environment...\n"
 HOME=/uufs/chpc.utah.edu/common/home/$USER
 MY_PATH=/uufs/chpc.utah.edu/common/home/$USER/programs/metaboverse-cli
 SCRDIR=/scratch/general/lustre/$USER/$SLURM_JOBID
@@ -34,43 +34,47 @@ cd $SCRDIR
 # Build current version of metaboverse-cli
 #pyinstaller $MY_PATH/metaboverse-linux.spec
 
-echo "+ Version info:"
+printf "+ Version info:\n"
 $MY_PATH/dist/metaboverse-cli-linux -v
 
 # Get species IDs from Reactome
 REACOME_API="https://reactome.org/ContentService/data/species/all"
 SPECIES=( $( curl -s $REACOME_API | jq -r '.[].abbreviation' ) )
-echo 'Processing database curation for: '
+
+printf "Processing database curation for:\n"
 for X in ${SPECIES[@]};
   do mkdir -p $SCRDIR/${X} ;
 done
-for X in ${SPECIES[@]};
-  do echo "${X}" ;
-done
 
 # Run
-echo "+ Running scripts..."
-parallel $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/{} -s {} ::: "${SPECIES[@]}"
-echo "+ Processing complete..."
+# parallel $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/{} -s {} ::: "${SPECIES[@]}"
+for Y in ${SPECIES[@]}; do
+        printf "${Y} \n"
+        printf "$MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/${Y} -s ${Y} \n"
+        $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/${Y} -s ${Y}
+        printf "====================================================================\n\n";
+done
 
-echo "+ Outputing metadata"
+printf "+ Processing complete...\n"
+
+printf "+ Outputing metadata\n"
 cp $HOME/slurm_output/slurmjob-$SLURM_JOBID $SCRDIR
 
-printf 'Metadata for bulk Metaboverse .mvdb curation:\n\n' >> $SCRDIR/README.txt
+printf "Metadata for bulk Metaboverse .mvdb curation: \n\n" >> $SCRDIR/README.txt
 
-printf '\nDate:' >> $SCRDIR/README.txt
+printf "\nDate: " >> $SCRDIR/README.txt
 date '+%Y-%m-%d %H:%M:%S' >> $SCRDIR/README.txt
 
-printf '\nMetaboverse version:' >> $SCRDIR/README.txt
+printf "\nMetaboverse version: " >> $SCRDIR/README.txt
 $MY_PATH/dist/metaboverse-cli-linux -v >> $SCRDIR/README.txt
 
-printf 'Reactome version:' >> $SCRDIR/README.txt
+printf "\nReactome version: " >> $SCRDIR/README.txt
 curl -X GET --header 'Accept: text/plain' 'https://reactome.org/ContentService/data/database/version' >> $SCRDIR/README.txt
 
-printf '\n\nOrganisms curated:' >> $SCRDIR/README.txt
+printf "\n\nOrganisms curated: " >> $SCRDIR/README.txt
 for X in ${SPECIES[@]};
-  do printf '\n\t'${X} >> $SCRDIR/README.txt ;
+  do printf "\n\t ${X}" >> $SCRDIR/README.txt ;
 done
-printf '\n'
+printf "\n"
 
 rm $SCRDIR/*.mvrs
