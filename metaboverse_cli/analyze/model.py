@@ -1479,7 +1479,7 @@ def __main__(
             index_col=0)
 
         m_non_mapper = m_data[m_data.index.isin(non_mappers)]
-        if len(m_non_mapper.index.tolist()):
+        if len(m_non_mapper.index.tolist()) > 0:
             m_non_mapper.to_csv(
                 args_dict['metabolomics'][:-4] + '_unmapped.txt',
                 sep='\t')
