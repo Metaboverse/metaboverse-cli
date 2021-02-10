@@ -210,16 +210,15 @@ def check_curate(
     should_exit = False
 
     if args_dict['organism_id'] == None \
-            or args_dict['organism_id'].lower() == 'none' \
-            or args_dict['organism_id'].lower() == 'null':
-
+    or args_dict['organism_id'].lower() == 'none' \
+    or args_dict['organism_id'].lower() == 'null':
         print('\nIncorrect species identifier provided: ' +
               safestr(args_dict['organism_id']))
         print('Please refer to https://reactome.org/ContentService/data/species/all for a valid list of organisms')
         should_exit = True
 
     if args_dict['output'] == None \
-            or not os.path.exists(os.path.dirname(args_dict['output'])):
+    or not os.path.exists(os.path.dirname(args_dict['output'])):
 
         print('\nIncorrect output parameter provided: ' +
               safestr(args_dict['output']))
@@ -252,13 +251,13 @@ def argument_checks(
         if key == 'cmd':
             pass
 
-        elif os.path.isdir(str(value)) == True:
-            args_dict[key] = check_directories(
+        elif os.path.isfile(str(value)) == True:
+            args_dict[key] = check_files(
                 args_dict[key],
                 key)
 
-        elif os.path.isfile(str(value)) == True:
-            args_dict[key] = check_files(
+        elif os.path.isdir(str(value)) == True:
+            args_dict[key] = check_directories(
                 args_dict[key],
                 key)
 
