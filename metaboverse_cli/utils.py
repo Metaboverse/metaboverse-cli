@@ -237,40 +237,40 @@ def argument_checks(
         args_dict):
 
     # Check output file
-    print('1....')
-    print(args_dict)
-
     if 'output' in args_dict \
             and args_dict['output'] == None:
         args_dict['output'] = os.getcwd()
     args_dict['output'] = safestr(args_dict['output'])
 
-    print('2....')
-    print(args_dict)
-
     if not args_dict['output'].endswith(os.path.sep):
         args_dict['output'] = args_dict['output'] + os.path.sep
 
-    print('3....')
-    print(args_dict)
     # Check user-provided directory formatting
     for key, value in args_dict.items():
 
-        print('4....')
+        print('------------------->')
         print(args_dict)
+        print(key)
+        print(value)
 
         if key == 'cmd':
             pass
 
         elif os.path.isfile(str(value)) == True:
+            print('+')
             args_dict[key] = check_files(
                 args_dict[key],
                 key)
+            print(args_dict[key])
+            print(key)
 
         elif os.path.isdir(str(value)) == True:
+            print('-')
             args_dict[key] = check_directories(
                 args_dict[key],
                 key)
+            print(args_dict[key])
+            print(key)
 
         else:
             pass

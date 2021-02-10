@@ -73,13 +73,9 @@ def check_arguments(
         args_dict):
 
     # Run general checks
-    print("1------")
-    print(args_dict)
     args_dict = argument_checks(args_dict)
 
     # Run sub-module specific checks
-    print("2------")
-    print(args_dict)
     if args_dict['cmd'] == 'curate':
         check_curate(args_dict)
     elif args_dict['cmd'] == 'metaboliteMapper':
