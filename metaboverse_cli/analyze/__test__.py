@@ -591,7 +591,9 @@ output_graph(
     database_date='today',
     curation_date='today',
     metadata={},
-    unmapped={})
+    unmapped={},
+    curate_version='test',
+    model_version='test')
 if os.path.exists(test_args['output_file']):
     os.remove(str(test_args['output_file']))
 else:
