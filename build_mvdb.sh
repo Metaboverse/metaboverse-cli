@@ -13,8 +13,8 @@
 
 # Set instance variables
 printf "+ Setting environment...\n"
-HOME=/uufs/chpc.utah.edu/common/home/$USER
-MY_PATH=/uufs/chpc.utah.edu/common/home/$USER/programs/metaboverse-cli
+HOME=/uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs
+MY_PATH=/uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/programs/metaboverse-cli
 SCRDIR=/scratch/general/lustre/$USER/$SLURM_JOBID
 mkdir -p $SCRDIR
 cd $SCRDIR
