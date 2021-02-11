@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --time=100:00:00
 #SBATCH --nodes=1
-#SBATCH -o /uufs/chpc.utah.edu/common/home/u0690617/slurm_output/slurmjob-%j
+#SBATCH -o /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-%j
 #SBATCH --account=rutter-gpu-np
 #SBATCH --partition=rutter-gpu-np
 #SBATCH --mem=0
@@ -13,7 +13,6 @@
 
 # Set instance variables
 printf "+ Setting environment...\n"
-HOME=/uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs
 MY_PATH=/uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/programs/metaboverse-cli
 SCRDIR=/scratch/general/lustre/$USER/$SLURM_JOBID
 mkdir -p $SCRDIR
@@ -52,7 +51,7 @@ parallel $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/{} -s {} ::: "${S
 printf "+ Processing complete...\n"
 
 printf "+ Outputing metadata\n"
-cp $HOME/slurm_output/slurmjob-$SLURM_JOBID $SCRDIR
+cp /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-$SLURM_JOBID $SCRDIR
 
 printf "Metadata for bulk Metaboverse .mvdb curation: \n\n" >> $SCRDIR/README.txt
 
