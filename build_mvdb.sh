@@ -47,13 +47,7 @@ for X in ${SPECIES[@]};
 done
 
 # Run
-# parallel $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/{} -s {} ::: "${SPECIES[@]}"
-for Y in ${SPECIES[@]}; do
-        printf "${Y} \n"
-        printf "$MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/${Y} -s ${Y} \n"
-        $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/${Y} -s ${Y}
-        printf "====================================================================\n\n";
-done
+parallel $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/{} -s {} ::: "${SPECIES[@]}"
 
 printf "+ Processing complete...\n"
 

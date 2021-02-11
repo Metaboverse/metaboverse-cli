@@ -1517,7 +1517,10 @@ def __main__(
     for k in degree_dictionary.keys():
         if 'reaction' not in k:
             degrees.append(degree_dictionary[k])
-    degree_threshold = np.percentile(degrees, 98)
+    if len(degrees) > 0:
+        degree_threshold = np.percentile(degrees, 98)
+    else:
+        degree_threshold = 0
 
     if 'blocklist' in args_dict \
             and isinstance(args_dict['blocklist'], str):
