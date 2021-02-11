@@ -38,7 +38,7 @@ try:
     from analyze.collapse import generate_updated_dictionary
     from analyze.mpl_colormaps import get_mpl_colormap
     from analyze.utils import convert_rgba
-    from utils import progress_feed
+    from utils import progress_feed, get_metaboverse_cli_version
 except:
     import importlib.util
     module_path = os.path.abspath(
@@ -67,12 +67,13 @@ except:
     convert_rgba = convert_rgba.convert_rgba
 
     module_path = os.path.abspath(
-        os.path.join(".", "metaboverse_cli", "utils.py"
-                     ))
-    spec = importlib.util.spec_from_file_location("progress_feed", module_path)
-    progress_feed = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(progress_feed)
-    progress_feed = progress_feed.progress_feed
+        os.path.join(".", "metaboverse_cli", "utils.py"))
+    spec = importlib.util.spec_from_file_location("", module_path)
+    utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils)
+    progress_feed = utils.progress_feed
+    get_metaboverse_cli_version = utils.get_metaboverse_cli_version
+
 
 CMAP = get_mpl_colormap('seismic')
 REACTION_COLOR = (0.75, 0.75, 0.75, 1)
@@ -1009,7 +1010,9 @@ def output_graph(
         database_date,
         curation_date,
         metadata,
-        unmapped):
+        unmapped,
+        curate_version,
+        model_version):
     """Output graph and necessary metadata
     """
 
@@ -1031,6 +1034,8 @@ def output_graph(
     data['unmapped'] = unmapped
     data['database_date'] = database_date
     data['curation_date'] = curation_date
+    data['Metaboverse-cli_curation_version'] = curate_version
+    data['Metaboverse-cli_model_version'] = model_version
 
     with open(output_name, 'w') as f:
         json.dump(data, f, indent=4)  # Parse out as array for javascript
@@ -1574,7 +1579,8 @@ def __main__(
     args_dict["max_stat"] = max_stat
     args_dict["database_date"] = date.today().strftime('%Y-%m-%d')
     args_dict["curation_date"] = network["curation_date"]
-    #args_dict["database_version"] = network["database_version"]
+    args_dict["metaboverse-curate_version"] = network["metaboverse-curate_version"]
+    args_dict["metaboverse-model_version"] = get_metaboverse_cli_version()
     output_graph(
         graph=G,
         output_name=graph_name,
@@ -1594,7 +1600,9 @@ def __main__(
         database_date=args_dict["database_date"],
         curation_date=args_dict["curation_date"],
         metadata=args_dict,
-        unmapped=non_mappers)
+        unmapped=non_mappers,
+        curate_version=args_dict["metaboverse-curate_version"],
+        model_version=args_dict["metaboverse-model_version"])
     print('Graphing complete.')
     progress_feed(args_dict, "graph", 2)
 

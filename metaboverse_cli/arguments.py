@@ -362,4 +362,8 @@ def parse_arguments(
     args_dict = check_arguments(
         args_dict)
 
+    print('Back-end parsed arguments:')
+    print(args_dict)
+    print()
+
     return args, args_dict

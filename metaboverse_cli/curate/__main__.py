@@ -32,7 +32,8 @@ import os
 try:
     from curate.load_reactions_db import __main__ as load_reactions
     from curate.load_complexes_db import __main__ as load_complexes
-    from utils import progress_feed, get_session_value, prepare_output, write_database, write_database_json
+    from utils import progress_feed, get_session_value, prepare_output, \
+    write_database, write_database_json, safestr, get_metaboverse_cli_version
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -56,6 +57,8 @@ except:
     prepare_output = utils.prepare_output
     write_database = utils.write_database
     write_database_json = utils.write_database_json
+    safestr = utils.safestr
+    get_metaboverse_cli_version = utils.get_metaboverse_cli_version
 
 
 def parse_table(
@@ -351,6 +354,13 @@ def __main__(
     """Curate database
     """
 
+    if 'model_file' in args_dict \
+            and safestr(args_dict['model_file']) == 'None':
+        args_dict['model_file'] = args_dict['output'] \
+            + args_dict['organism_id'] \
+            + '.mvdb'
+    args_dict['network'] = args_dict['model_file']
+
     # Load reactions
     print('Curating reaction network database. Please be patient, this will take several minutes...')
     print('Loading reactions...')
@@ -435,7 +445,8 @@ def __main__(
         'compartment_dictionary': compartment_dictionary,
         'components_database': components_database,
         'curation_date': date.today().strftime('%Y-%m-%d'),
-        'database_version': database_version
+        'database_version': database_version,
+        'metaboverse-curate_version': get_metaboverse_cli_version()
     }
 
     # Write database to file

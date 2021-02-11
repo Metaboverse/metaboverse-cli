@@ -23,6 +23,82 @@ import json
 import pickle
 import sys
 import os
+import re
+
+try:
+    from __init__ import __version__
+except:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "__version__", os.path.abspath("./metaboverse_cli/__init__.py"))
+    init = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(init)
+    __version__ = init.__version__
+
+
+def init_mvrs_file(args_dict):
+
+    if args_dict['cmd'] == 'electrum':
+        if 'output_file' in args_dict \
+                and safestr(args_dict['output_file']) == 'None':
+            args_dict['output_file'] = args_dict['output'] \
+                + args_dict['organism_id'] \
+                + '-latest.eldb'
+    else:
+        if 'output_file' in args_dict \
+                and safestr(args_dict['output_file']) == 'None':
+            args_dict['output_file'] = args_dict['output'] \
+                + args_dict['organism_id'] \
+                + '.mvrs'
+
+    return args_dict
+
+
+def get_metaboverse_cli_version():
+    """Get this version of metaboverse-cli
+    """
+
+    return __version__
+
+
+def update_network_vars(args_dict):
+    """Update internal network variables when a pre-curated file is provided
+    """
+
+    with open(args_dict['organism_curation'], 'rb') as network_file:
+        network = pickle.load(network_file)
+        args_dict['organism_id'] = network['organism_id']
+        if args_dict['output_file'] == None \
+                or args_dict['output_file'] == "None" \
+                or args_dict['output_file'] == "find":
+            args_dict['output_file'] = args_dict['output'] \
+                + args_dict['organism_id'] \
+                + '.mvrs'
+        args_dict['network'] = args_dict['organism_curation']
+
+    return args_dict
+
+
+def update_session_vars(args_dict):
+    """Update session variables when a pre-curated file is provided
+    """
+
+    session_file = args_dict['session_data']
+    update_session(
+        session_file=session_file,
+        key='organism_id',
+        value=args_dict['organism_id'])
+    update_session(
+        session_file=session_file,
+        key='output_file',
+        value=args_dict['output_file'])
+    update_session(
+        session_file=session_file,
+        key='database_url',
+        value=args_dict['output_file'])
+
+    return args_dict
+
 
 def read_network(
         network_url):

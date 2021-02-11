@@ -39,7 +39,9 @@ try:
     from analyze.__main__ import __main__ as analyze
     from mapper.__main__ import __main__ as mapper
     from target.__main__ import __main__ as curate_target
-    from utils import progress_feed, update_session, safestr
+    from utils import progress_feed, update_session, \
+        safestr, get_metaboverse_cli_version, init_mvrs_file, \
+        update_network_vars, update_session_vars
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -85,7 +87,12 @@ except:
     progress_feed = utils.progress_feed
     update_session = utils.update_session
     safestr = utils.safestr
+    get_metaboverse_cli_version = utils.get_metaboverse_cli_version
+    init_mvrs_file = utils.init_mvrs_file
+    update_network_vars = utils.update_network_vars
+    update_session_vars = utils.update_session_vars
 
+SOURCEFORGE_URL='https://sourceforge.net/projects/metaboverse/files/mvdb_files/'
 
 def main(
         args=None):
@@ -97,15 +104,17 @@ def main(
         args,
         __version__)
 
-    print('Back-end parsed arguments:')
-    print(args_dict)
-    print()
+    # Get info on archived database versions available for direct download
+    this_version = get_metaboverse_cli_version()
+    test_url = (
+        SOURCEFORGE_URL
+        + this_version + '/'
+        + args_dict['organism_id'] + '.mvdb/download')
+    url_response = requests.head(test_url)
 
     if args_dict['cmd'] == 'metaboliteMapper':
-
         print('Generating metabolite mapper...')
         mapper(args_dict)
-        sys.exit(1)
 
     # Run metaboverse-curate
     elif args_dict['cmd'] == 'curate' or args_dict['cmd'] == 'electrum':
@@ -115,83 +124,60 @@ def main(
         elif args_dict['cmd'] == 'electrum':
             print('Generating Electrum-compatible database...')
 
-        if safestr(args_dict['organism_curation']) != 'None':
+        # MVDB file provided by user
+        if 'organism_curation' in args_dict \
+        and safestr(args_dict['organism_curation']) != 'None' \
+        and safestr(args_dict['organism_curation']) != None:
+            # Update args_dict with path for network model
+            args_dict = update_network_vars(args_dict)
+            args_dict = update_session_vars(args_dict)
+            print('Skipping organism network modeling as one was provided by'
+                + ' the user...')
             progress_feed(
                 args_dict=args_dict,
                 process="curate",
                 amount=50)
-            # Update args_dict with path for network model
-            with open(args_dict['organism_curation'], 'rb') as network_file:
-                network = pickle.load(network_file)
-                args_dict['organism_id'] = network['organism_id']
-                if args_dict['output_file'] == None \
-                        or args_dict['output_file'] == "None" \
-                        or args_dict['output_file'] == "find":
-                    args_dict['output_file'] = args_dict['output'] \
-                        + args_dict['organism_id'] \
-                        + '.mvrs'
-                args_dict['network'] = args_dict['organism_curation']
 
-                # add variables back to session data json file
-                session_file = args_dict['session_data']
-                update_session(
-                    session_file=session_file,
-                    key='organism_id',
-                    value=args_dict['organism_id'])
-                update_session(
-                    session_file=session_file,
-                    key='output_file',
-                    value=args_dict['output_file'])
-                update_session(
-                    session_file=session_file,
-                    key='database_url',
-                    value=args_dict['output_file'])
-            print('Skipping organism network modeling as one was provided by'
-                  + ' the user...')
+        # MVDB file exists in repo
+        elif url_response.status_code != 404:
+            try:
+                file = os.path.join(
+                    args_dict['output'],
+                    args_dict['organism_id'] + '.mvdb')
+                args_dict['organism_curation'] = file
+                os.system('curl -L ' + test_url + ' -o \"' + file + '\"')
+                args_dict = update_network_vars(args_dict)
+                args_dict = update_session_vars(args_dict)
+                print('Skipping organism network modeling as one was found...')
+                progress_feed(
+                    args_dict=args_dict,
+                    process="curate",
+                    amount=50)
 
+            except:
+                print('Curating network model...')
+                args_dict = curate(args_dict)
+
+        # Curate MVDB file from scratch
         else:
             print('Curating network model...')
-            if 'model_file' in args_dict \
-                    and safestr(args_dict['model_file']) == 'None':
-                args_dict['model_file'] = args_dict['output'] \
-                    + args_dict['organism_id'] \
-                    + '.mvdb'
-
-            args_dict['network'] = args_dict['model_file']
             args_dict = curate(args_dict)
-            # sys.stdout.flush()
 
-        if 'output_file' in args_dict \
-                and safestr(args_dict['output_file']) == 'None':
-            args_dict['output_file'] = args_dict['output'] \
-                + args_dict['organism_id'] \
-                + '.mvrs'
+        args_dict = init_mvrs_file(args_dict)
 
+        # Curate data overlaid on organism network
         print('Curating data onto the network model...')
         if args_dict['cmd'] == 'curate':
-            if 'output_file' in args_dict \
-                    and safestr(args_dict['output_file']) == 'None':
-                args_dict['output_file'] = args_dict['output'] \
-                    + args_dict['organism_id'] \
-                    + '.mvrs'
             analyze(args_dict)
         elif args_dict['cmd'] == 'electrum':
-            if 'output_file' in args_dict \
-                    and safestr(args_dict['output_file']) == 'None':
-                args_dict['output_file'] = args_dict['output'] \
-                    + args_dict['organism_id'] \
-                    + '-latest.eldb'
             curate_target(args_dict)
-
-        sys.exit(1)
 
     # Print some error messaging
     else:
         raise Exception('Invalid sub-module selected')
 
 
-"""Run main
-"""
 if __name__ == '__main__':
-
+    """Run main
+    """
     sys.exit(main() or 0)
