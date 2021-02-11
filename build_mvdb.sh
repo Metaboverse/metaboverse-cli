@@ -71,4 +71,12 @@ for X in ${SPECIES[@]};
 done
 printf "\n"
 
-rm $SCRDIR/*.mvrs
+for X in ${SPECIES[@]};
+  do rm $SCRDIR/${X}.mvrs ;
+done
+
+# Afterwards, upload to sourceforge
+# $ cd $SCRDIR
+# $ scp -r */*.mvdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
+# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
+# scp slurmjob-xxxxxxx j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
