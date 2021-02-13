@@ -79,28 +79,28 @@ CMAP = get_mpl_colormap('seismic')
 REACTION_COLOR = (0.75, 0.75, 0.75, 1)
 MISSING_COLOR = (1, 1, 1, 1)
 
-"""Graph utils
-"""
-
 
 def name_graph(
         output_file,
-        species_id):
+        species_id,
+        template=False):
     """Name graph
     """
 
-    if output_file[-5:].lower() == '.mvrs':
+    if template == True:
+        graph_name = os.path.join(
+            os.path.dirname(output_file),
+            species_id + '_template.mvrs')
+    elif output_file[-5:].lower() == '.mvrs':
         graph_name = output_file
     elif output_file[-5:].lower() == '.eldb':
         graph_name = output_file
     else:
-        graph_name = output_file + species_id + '_global_reactions.mvrs'
+        graph_name = os.path.join(
+            os.path.dirname(output_file),
+            species_id + '_global_reactions.mvrs')
 
     return graph_name
-
-
-"""Graph building
-"""
 
 
 def build_graph(
@@ -759,6 +759,41 @@ def gather_synonyms(
     return mapper_id, parsed_syns_list
 
 
+def prepare_mapping_data(graph, data, stats):
+    """
+    """
+
+    n = len(data.columns.tolist())
+
+    # Re-index data and stats
+    data_renamed, stats_renamed = reindex_data(data, stats)
+    data_max = abs(data_renamed).max().max()
+    stats_logged = -1 * np.log10(stats_renamed + 1e-100)
+    stats_max = abs(stats_logged).max().max()
+
+    # Make data dict with values and whether or not used
+    temp_idx = [
+        ''.join(
+            c.lower() for c in str(i) if c.isalnum())
+        for i in data_renamed.index.tolist()]
+    temp_idx_set = set(temp_idx)
+
+    # Get cross-species CHEBI synonyms
+    chebi_mapping = {}
+    for current_id in list(graph.nodes()):
+        map_id = graph.nodes()[current_id]['map_id']
+        name = graph.nodes()[current_id]['name']
+        if 'chebi' in map_id.lower():
+            if name in chebi_mapping:
+                chebi_mapping[name].add(map_id)
+            else:
+                chebi_mapping[name] = set()
+                chebi_mapping[name].add(map_id)
+
+    return data_renamed, stats_renamed, data_max, stats_max, n, \
+        temp_idx, temp_idx_set, chebi_mapping
+
+
 def map_attributes(
         graph,
         data,
@@ -778,33 +813,13 @@ def map_attributes(
     database
     """
 
-    n = len(data.columns.tolist())
+    data_renamed, stats_renamed, data_max, stats_max, n, \
+    temp_idx, temp_idx_set, chebi_mapping = prepare_mapping_data(
+        graph=graph,
+        data=data,
+        stats=stats)
 
-    # Re-index data and stats
-    data_renamed, stats_renamed = reindex_data(data, stats)
-    data_max = abs(data_renamed).max().max()
-    stats_logged = -1 * np.log10(stats_renamed + 1e-100)
-    stats_max = abs(stats_logged).max().max()
-
-    # Make data dict with values and whether or not used
     mapped_nodes = []
-    temp_idx = [
-        ''.join(
-            c.lower() for c in str(i) if c.isalnum())
-        for i in data_renamed.index.tolist()]
-    temp_idx_set = set(temp_idx)
-
-    # Get cross-species CHEBI synonyms
-    chebi_mapping = {}
-    for current_id in list(graph.nodes()):
-        map_id = graph.nodes()[current_id]['map_id']
-        name = graph.nodes()[current_id]['name']
-        if 'chebi' in map_id.lower():
-            if name in chebi_mapping:
-                chebi_mapping[name].add(map_id)
-            else:
-                chebi_mapping[name] = set()
-                chebi_mapping[name].add(map_id)
 
     # Map values to nodes
     for current_id in list(graph.nodes()):
@@ -818,17 +833,20 @@ def map_attributes(
         graph.nodes()[x]['synonyms'] = []
 
         # Add synonyms to node
-        if map_id != 'none' and map_id in name_reference \
-            and (graph.nodes()[x]['type'] == 'protein_component'
-                 or graph.nodes()[x]['type'] == 'gene_component'):
+        if map_id != 'none' \
+        and map_id in name_reference \
+        and (graph.nodes()[x]['type'] == 'protein_component'
+        or graph.nodes()[x]['type'] == 'gene_component'):
             graph.nodes()[x]['synonyms'].append(map_id)
 
-        elif map_id != 'none' and backup_mapper in name_reference \
-            and (graph.nodes()[x]['type'] == 'protein_component'
+        elif map_id != 'none' \
+        and backup_mapper in name_reference \
+        and (graph.nodes()[x]['type'] == 'protein_component'
                  or graph.nodes()[x]['type'] == 'gene_component'):
             graph.nodes()[x]['synonyms'].append(backup_mapper)
 
-        elif map_id != 'none' and map_id in chebi_synonyms:
+        elif map_id != 'none' \
+        and map_id in chebi_synonyms:
             graph.nodes()[x]['type'] = 'metabolite_component'
             graph.nodes()[x]['synonyms'].append(map_id)
 
@@ -864,10 +882,10 @@ def map_attributes(
             graph.nodes()[x]['stats'] = [None for x in range(n)]
 
         elif map_id in set(data_renamed.index.tolist()) \
-                and map_id in set(stats_renamed.index.tolist()) \
-                and map_id != 'none' \
-                and len(map_id) > 1 \
-                and graph.nodes()[x]['type'] != 'metabolite_component':
+        and map_id in set(stats_renamed.index.tolist()) \
+        and map_id != 'none' \
+        and len(map_id) > 1 \
+        and graph.nodes()[x]['type'] != 'metabolite_component':
             graph.nodes()[x]['values'] = data_renamed.loc[map_id].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
                 value_array=data_renamed.loc[map_id].tolist(),
@@ -878,10 +896,10 @@ def map_attributes(
             mapped_nodes.append(map_id)
 
         elif backup_mapper in set(data_renamed.index.tolist()) \
-                and backup_mapper in set(stats_renamed.index.tolist()) \
-                and backup_mapper != 'none' \
-                and len(backup_mapper) > 1 \
-                and graph.nodes()[x]['type'] != 'metabolite_component':
+        and backup_mapper in set(stats_renamed.index.tolist()) \
+        and backup_mapper != 'none' \
+        and len(backup_mapper) > 1 \
+        and graph.nodes()[x]['type'] != 'metabolite_component':
             graph.nodes()[
                 x]['values'] = data_renamed.loc[backup_mapper].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
@@ -895,7 +913,7 @@ def map_attributes(
 
         # elif map_id in chebi_synonyms
         elif ('chebi' in map_id.lower() or map_id in chebi_synonyms) \
-                and graph.nodes()[x]['type'] == 'metabolite_component':
+        and graph.nodes()[x]['type'] == 'metabolite_component':
             _idx = None
             all_synonyms = graph.nodes()[x]['synonyms']
             if graph.nodes()[x]['name'] in chebi_mapping:
@@ -927,7 +945,7 @@ def map_attributes(
                     x]['hmdb_mapper']]
 
             if _idx != None \
-                    and len(_idx) > 1:
+            and len(_idx) > 1:
                 graph.nodes()[x]['values'] = data_renamed.loc[_idx].tolist()
                 graph.nodes()[x]['values_rgba'] = extract_value(
                     value_array=data_renamed.loc[_idx].tolist(),
@@ -937,9 +955,9 @@ def map_attributes(
                 graph.nodes()[x]['stats'] = stats_renamed.loc[_idx].tolist()
                 mapped_nodes.append(_idx)
             elif map_id in set(data_renamed.index.tolist()) \
-                    and map_id in set(stats_renamed.index.tolist()) \
-                    and map_id != 'none' \
-                    and len(map_id) > 1:
+            and map_id in set(stats_renamed.index.tolist()) \
+            and map_id != 'none' \
+            and len(map_id) > 1:
                 graph.nodes()[x]['values'] = data_renamed.loc[map_id].tolist()
                 graph.nodes()[x]['values_rgba'] = extract_value(
                     value_array=data_renamed.loc[map_id].tolist(),
@@ -1397,23 +1415,34 @@ def load_references(
         name_reference, uniprot_mapper
 
 
-def __main__(
+def remove_defective_reactions(
+        network):
+    """
+    """
+    no_defective_reactions = {}
+    for key in network['reaction_database'].keys():
+        rxn_name = network['reaction_database'][key]['name'].lower()
+        if 'defective' not in rxn_name \
+                and 'mutant' not in rxn_name:
+            no_defective_reactions[key] = network['reaction_database'][key]
+
+    return no_defective_reactions
+
+
+def __template__(
         args_dict,
         network,
-        data,
-        stats,
         species_id,
-        output_file,
-        unmapped,
-        flag_data=False):
-    """Generate graph object for visualization
+        output_file):
+    """
     """
 
     print('Preparing metadata...')
     # Generate output file name
     graph_name = name_graph(
         output_file=output_file,
-        species_id=species_id)
+        species_id=species_id,
+        template=True)
 
     print('Preparing references...')
     reverse_genes, protein_dictionary, chebi_dictionary, \
@@ -1443,15 +1472,6 @@ def __main__(
     # additional_reactions=args_dict['additional_reactions'])
     progress_feed(args_dict, "model", 9)
 
-    print('Post-processing graph metadata...')
-    # Remove disease reactions that are "defective" from reaction collapse
-    no_defective_reactions = {}
-    for key in network['reaction_database'].keys():
-        rxn_name = network['reaction_database'][key]['name'].lower()
-        if 'defective' not in rxn_name \
-                and 'mutant' not in rxn_name:
-            no_defective_reactions[key] = network['reaction_database'][key]
-
     # Generate list of super pathways (those with more than 200 reactions)
     print('Compiling super pathways...')
     scale_factor = int(len(network['reaction_database'].keys()) * 0.0157)
@@ -1463,9 +1483,73 @@ def __main__(
     degree_dictionary = compile_node_degrees(
         graph=G)
 
+    print('Exporting template...')
+    args_dict["max_value"] = 0
+    args_dict["max_stat"] = 1
+    args_dict["database_date"] = date.today().strftime('%Y-%m-%d')
+    args_dict["curation_date"] = network["curation_date"]
+    args_dict["metaboverse-curate_version"] = network["metaboverse-curate_version"]
+    args_dict["metaboverse-model_version"] = get_metaboverse_cli_version()
+    output_graph(
+        graph=G,
+        output_name=graph_name,
+        pathway_dictionary=network['pathway_database'],
+        collapsed_pathway_dictionary=network['pathway_database'],
+        super_pathways=super_pathways,
+        reaction_dictionary=network['reaction_database'],
+        collapsed_reaction_dictionary=network['reaction_database'],
+        motif_reaction_dictionary=network['reaction_database'],
+        mod_collapsed_pathways={},
+        degree_dictionary=degree_dictionary,
+        max_value=0,
+        max_stat=1,
+        categories=[],
+        labels=args_dict['labels'],
+        blocklist=args_dict['blocklist'],
+        database_date=args_dict["database_date"],
+        curation_date=args_dict["curation_date"],
+        metadata=args_dict,
+        unmapped=[],
+        curate_version=args_dict["metaboverse-curate_version"],
+        model_version=args_dict["metaboverse-model_version"])
+    print('Graphing complete.')
+
+    return G, args_dict, network, name_reference, degree_dictionary, \
+        super_pathways, chebi_dictionary, uniprot_mapper, metabolite_mapper
+
+
+def __model__(
+        graph,
+        args_dict,
+        network,
+        data,
+        stats,
+        species_id,
+        output_file,
+        name_reference,
+        degree_dictionary,
+        chebi_dictionary,
+        uniprot_mapper,
+        metabolite_mapper,
+        super_pathways,
+        unmapped,
+        flag_data=False):
+    """Generate graph object for visualization
+    """
+
+    # Generate output file name
+    graph_name = name_graph(
+        output_file=output_file,
+        species_id=species_id)
+
+    print('Post-processing graph metadata...')
+    # Remove disease reactions that are "defective" from reaction collapse
+    no_defective_reactions = remove_defective_reactions(
+        network=network)
+
     print('Mapping user data...')
     G, max_value, max_stat, non_mappers = map_attributes(
-        graph=G,
+        graph=graph,
         data=data,
         stats=stats,
         name_reference=name_reference,

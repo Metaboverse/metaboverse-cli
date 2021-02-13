@@ -349,28 +349,28 @@ def check_neighbors(
     # list meets threshold
     if short_reactants + short_products != \
             short_neighbor_reactants + short_neighbor_products \
-            and real_modifiers != neighbor_modifiers \
-            and neighbor_key != key \
-            and unity_reactants_nnReactants >= match_threshold:
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_reactants_nnReactants >= match_threshold:
         input_neighbors.append(neighbor_key)
     if short_reactants + short_products != \
             short_neighbor_reactants + short_neighbor_products \
-            and real_modifiers != neighbor_modifiers \
-            and neighbor_key != key \
-            and unity_reactants_nnProducts >= match_threshold:
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_reactants_nnProducts >= match_threshold:
         input_neighbors.append(neighbor_key)
 
     if short_reactants + short_products != \
             short_neighbor_reactants + short_neighbor_products \
-            and real_modifiers != neighbor_modifiers \
-            and neighbor_key != key \
-            and unity_products_nnReactants >= match_threshold:
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_products_nnReactants >= match_threshold:
         output_neighbors.append(neighbor_key)
     if short_reactants + short_products != \
             short_neighbor_reactants + short_neighbor_products \
-            and real_modifiers != neighbor_modifiers \
-            and neighbor_key != key \
-            and unity_products_nnProducts >= match_threshold:
+    and real_modifiers != neighbor_modifiers \
+    and neighbor_key != key \
+    and unity_products_nnProducts >= match_threshold:
         output_neighbors.append(neighbor_key)
 
     # Remove duplicates

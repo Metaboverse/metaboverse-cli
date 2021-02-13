@@ -139,7 +139,9 @@ def main(
                 amount=50)
 
         # MVDB file exists in repo
-        elif url_response.status_code != 404:
+        elif (args_dict['force_new_curation'] == False \
+        or args_dict['force_new_curation'] == "False") \
+        and url_response.status_code != 404:
             try:
                 file = os.path.join(
                     args_dict['output'],
