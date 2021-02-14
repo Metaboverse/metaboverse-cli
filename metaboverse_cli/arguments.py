@@ -298,6 +298,11 @@ def parse_arguments(
         action='store_true',
         required=False)
     curate_opts.add_argument(
+        '--generate_neighbor_dictionary',
+        help='Make and output a neighbor dictionary for all graph nodes.',
+        action='store_true',
+        required=False)
+    curate_opts.add_argument(
         '--collapse_with_modifiers',
         help='Include modifiers when considering a potential reaction collapse.',
         action='store_true',

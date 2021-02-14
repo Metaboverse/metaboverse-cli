@@ -35,7 +35,8 @@ try:
     from analyze.model import __model__
     from analyze.model import load_references
     from analyze.model import load_metabolite_synonym_dictionary
-    from utils import progress_feed, read_network, get_metaboverse_cli_version
+    from utils import progress_feed, read_network, \
+        get_metaboverse_cli_version, write_database
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -60,10 +61,11 @@ except:
     progress_feed = utils.progress_feed
     read_network = utils.read_network
     get_metaboverse_cli_version = utils.get_metaboverse_cli_version
+    write_database = utils.write_database
 
 
-SOURCEFORGE_URL='https://sourceforge.net/projects/metaboverse/files/mvrs_files/'
-
+TEMPLATE_URL='https://sourceforge.net/projects/metaboverse/files/mvrs_files/'
+NEIGHBOR_URL='https://sourceforge.net/projects/metaboverse/files/nbdb_files/'
 
 def process_data(
         network,
@@ -144,6 +146,52 @@ def read_template(
         uniprot_mapper, metabolite_mapper
 
 
+def download_neighbors_dictionary(
+        args_dict,
+        url):
+    """
+    """
+    print('Downloading Metaboverse neighbors dictionary for organism...')
+
+    file = os.path.join(
+        args_dict['output'],
+        args_dict['organism_id'] + '.nbdb')
+    os.system('curl -L ' + url + ' -o \"' + file + '\"')
+
+    neighbors_dictionary = read_network(
+        network_url=file)
+
+    return neighbors_dictionary
+
+
+def make_neighbors_dictionary(
+        args_dict,
+        graph):
+    """
+    """
+    print('Generating Metaboverse neighbors dictionary for organism...')
+
+    adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(graph).todense()
+    df = pd.DataFrame(
+            adj_matrix,
+            index=list(graph.nodes()),
+            columns=list(graph.nodes())).apply(pd.to_numeric)
+
+    neighbors_dictionary = {}
+    col_labels = df_copy.columns.tolist()
+
+    for name, row in df_copy.iterrows():
+        indices = [i for i, x in enumerate(row) if x == 1]
+        neighbor_dict[name] = [col_labels[_i] for _i in indices]
+
+    write_database(
+            output=args_dict['output'],
+            file=args_dict['organism_id'] + '.nbdb',
+            database=neighbors_dictionary)
+
+    return neighbors_dictionary
+
+
 def __main__(
         args_dict):
     """Analyze data on network model
@@ -166,7 +214,7 @@ def __main__(
     # Generate graph template
     this_version = get_metaboverse_cli_version()
     test_url = (
-        SOURCEFORGE_URL
+        TEMPLATE_URL
         + this_version + '/'
         + args_dict['organism_id'] + '_template.mvrs/download')
     url_response = requests.head(test_url)
@@ -189,6 +237,25 @@ def __main__(
             species_id=args_dict['organism_id'],
             output_file=args_dict['output_file'])
 
+
+    # Generate graph template
+    neighbors_url = (
+        NEIGHBOR_URL
+        + this_version + '/'
+        + args_dict['organism_id'] + '.nbdb/download')
+    neighbor_response = requests.head(neighbors_url)
+
+    if (args_dict['generate_neighbor_dictionary'] == False \
+    or args_dict['generate_neighbor_dictionary'] == "False") \
+    and neighbor_response.status_code != 404:
+        neighbors_dictionary = download_neighbors_dictionary(
+            args_dict=args_dict,
+            url=neighbors_url)
+    else:
+        neighbors_dictionary = make_neighbors_dictionary(
+            args_dict=args_dict,
+            graph=graph)
+
     # Overlay data on graph and collapse as able
     graph_name = __model__(
         graph=graph,
@@ -198,6 +265,7 @@ def __main__(
         stats=stats,
         species_id=args_dict['organism_id'],
         output_file=args_dict['output_file'],
+        neighbors_dictionary=neighbors_dictionary,
         name_reference=name_reference,
         degree_dictionary=degree_dictionary,
         chebi_dictionary=chebi_dictionary,
@@ -212,34 +280,16 @@ def __main__(
 
 def test():
     network = read_network(
-        network_url="C:\\Users\\jorda\\Desktop\\HSA.mvdb")
+        network_url=args_dict['url'])
     len(list(network['reaction_database'].keys()))
 
     args_dict = {
         'output': "C:\\Users\\jorda\\Desktop",
+        'url': "C:\\Users\\jorda\\Desktop\\HSA.mvdb",
+        'organism_id': 'HSA'}
+    args_dict = {
+        'output': "C:\\Users\\u0690617\\Desktop",
+        'url': "C:\\Users\\u0690617\\Desktop\\HSA.mvdb",
         'organism_id': 'HSA'}
 
-
-    graph
-    adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(graph).todense()
-
-    len(list(graph.nodes()))
-
-    type(adj_matrix[0])
-
-    import pandas as pd
-    df = pd.DataFrame(
-            adj_matrix,
-            index=list(graph.nodes()),
-            columns=list(graph.nodes())).apply(pd.to_numeric)
-
-    # make this dictionary with the template stage to save a couple minutes of processing time
-    df_copy = df.copy()
-    #df_copy.iloc[:, :].replace(1, pd.Series(df_copy.columns, df_copy.columns))
-
-    neighbor_dict = {}
-    col_labels = df_copy.columns.tolist()
-
-    for name, row in df_copy.iterrows():
-        indices = [i for i, x in enumerate(row) if x == 1]
-        neighbor_dict[name] = [col_labels[_i] for _i in indices]
+    url = test_url

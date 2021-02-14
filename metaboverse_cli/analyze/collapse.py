@@ -384,6 +384,7 @@ def check_neighbors(
 def collapse_nodes(
         graph,
         reaction_dictionary,
+        neighbors_dictionary,
         degree_dictionary,
         samples,
         collapse_with_modifiers,
@@ -491,21 +492,38 @@ def collapse_nodes(
             output_neighbors = []
 
             # Check for reactions with complete and partial matching sides
-            for neighbor_key in reaction_dictionary.keys():
-                if key != neighbor_key:
-                    input_neighbors, output_neighbors = check_neighbors(
-                        key=key,
-                        real_reactants=real_reactants,
-                        real_products=real_products,
-                        real_modifiers=real_modifiers,
-                        neighbor_key=neighbor_key,
-                        neighbor=reaction_dictionary[neighbor_key],
-                        degree_dictionary=degree_dictionary,
-                        input_neighbors=input_neighbors,
-                        output_neighbors=output_neighbors,
-                        blocklist=blocklist,
-                        match_threshold=match_threshold,
-                        degree_threshold=degree_threshold)
+            if key in neighbors_dictionary.keys():
+                for neighbor_key in neighbors_dictionary[key]:
+                    if key != neighbor_key:
+                        input_neighbors, output_neighbors = check_neighbors(
+                            key=key,
+                            real_reactants=real_reactants,
+                            real_products=real_products,
+                            real_modifiers=real_modifiers,
+                            neighbor_key=neighbor_key,
+                            neighbor=reaction_dictionary[neighbor_key],
+                            degree_dictionary=degree_dictionary,
+                            input_neighbors=input_neighbors,
+                            output_neighbors=output_neighbors,
+                            blocklist=blocklist,
+                            match_threshold=match_threshold,
+                            degree_threshold=degree_threshold)
+            else:
+                for neighbor_key in reaction_dictionary.keys():
+                    if key != neighbor_key:
+                        input_neighbors, output_neighbors = check_neighbors(
+                            key=key,
+                            real_reactants=real_reactants,
+                            real_products=real_products,
+                            real_modifiers=real_modifiers,
+                            neighbor_key=neighbor_key,
+                            neighbor=reaction_dictionary[neighbor_key],
+                            degree_dictionary=degree_dictionary,
+                            input_neighbors=input_neighbors,
+                            output_neighbors=output_neighbors,
+                            blocklist=blocklist,
+                            match_threshold=match_threshold,
+                            degree_threshold=degree_threshold)
 
             # Run one-sided bridging for reactions where inputs exist and
             # outputs have neighbors (could be with the neighbor's reactants

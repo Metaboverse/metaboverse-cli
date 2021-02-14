@@ -142,7 +142,7 @@ def write_database(
         output=output)
 
     # Write information to file
-    with open(dir + file, 'wb') as file_product:
+    with open(os.path.join(dir, file), 'wb') as file_product:
         pickle.dump(database, file_product)
 
 

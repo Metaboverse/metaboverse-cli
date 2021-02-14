@@ -1526,6 +1526,7 @@ def __model__(
         stats,
         species_id,
         output_file,
+        neighbors_dictionary,
         name_reference,
         degree_dictionary,
         chebi_dictionary,
@@ -1629,6 +1630,7 @@ def __model__(
         removed_reaction = collapse_nodes(
             graph=G,
             reaction_dictionary=no_defective_reactions,
+            neighbors_dictionary=neighbors_dictionary,
             degree_dictionary=degree_dictionary,
             samples=len(categories),
             collapse_with_modifiers=args_dict['collapse_with_modifiers'],
