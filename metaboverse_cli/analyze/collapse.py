@@ -197,7 +197,8 @@ def get_reaction_values(
     real_products = reaction['products']
     real_modifiers = reaction['modifiers']
 
-    if collapse_with_modifiers == "True" or collapse_with_modifiers == True:
+    if collapse_with_modifiers == "True" \
+    or collapse_with_modifiers == True:
         effective_reactants = (
             reaction['reactants']
             + (

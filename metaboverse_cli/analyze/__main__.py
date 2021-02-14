@@ -208,3 +208,38 @@ def __main__(
         flag_data=flag_data)
 
     progress_feed(args_dict, "model", 10)
+
+
+def test():
+    network = read_network(
+        network_url="C:\\Users\\jorda\\Desktop\\HSA.mvdb")
+    len(list(network['reaction_database'].keys()))
+
+    args_dict = {
+        'output': "C:\\Users\\jorda\\Desktop",
+        'organism_id': 'HSA'}
+
+
+    graph
+    adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(graph).todense()
+
+    len(list(graph.nodes()))
+
+    type(adj_matrix[0])
+
+    import pandas as pd
+    df = pd.DataFrame(
+            adj_matrix,
+            index=list(graph.nodes()),
+            columns=list(graph.nodes())).apply(pd.to_numeric)
+
+    # make this dictionary with the template stage to save a couple minutes of processing time
+    df_copy = df.copy()
+    #df_copy.iloc[:, :].replace(1, pd.Series(df_copy.columns, df_copy.columns))
+
+    neighbor_dict = {}
+    col_labels = df_copy.columns.tolist()
+
+    for name, row in df_copy.iterrows():
+        indices = [i for i, x in enumerate(row) if x == 1]
+        neighbor_dict[name] = [col_labels[_i] for _i in indices]
