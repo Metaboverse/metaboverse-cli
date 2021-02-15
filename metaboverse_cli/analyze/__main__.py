@@ -182,7 +182,7 @@ def make_neighbors_dictionary(
 
     for name, row in df.iterrows():
         indices = [i for i, x in enumerate(row) if x == 1]
-        neighbor_dict[name] = [col_labels[_i] for _i in indices]
+        neighbors_dictionary[name] = [col_labels[_i] for _i in indices]
 
     write_database(
             output=args_dict['output'],
