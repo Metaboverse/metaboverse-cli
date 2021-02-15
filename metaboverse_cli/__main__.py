@@ -45,7 +45,7 @@ try:
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "__version__", os.path.abspath("./metaboverse_cli/__init__.py"))
+        "", os.path.abspath("./metaboverse_cli/__init__.py"))
     version = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(version)
     __version__ = version.__version__
@@ -92,7 +92,9 @@ except:
     update_network_vars = utils.update_network_vars
     update_session_vars = utils.update_session_vars
 
+
 SOURCEFORGE_URL='https://sourceforge.net/projects/metaboverse/files/mvdb_files/'
+
 
 def main(
         args=None):
@@ -176,7 +178,6 @@ def main(
     # Print some error messaging
     else:
         raise Exception('Invalid sub-module selected')
-
 
 if __name__ == '__main__':
     """Run main
