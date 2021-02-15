@@ -320,12 +320,17 @@ def __main__(
                 user_provided=True)
         except:
             neighbors_dictionary = {}
-    elif (args_dict['generate_neighbor_dictionary'] == False \
+    elif (args_dict['force_new_curation'] == False \
+    or args_dict['force_new_curation'] == "False") \
+    and (args_dict['generate_neighbor_dictionary'] == False \
     or args_dict['generate_neighbor_dictionary'] == "False") \
     and neighbor_response.status_code != 404:
-        neighbors_dictionary = download_neighbors_dictionary(
-            args_dict=args_dict,
-            url=neighbors_url)
+        try:
+            neighbors_dictionary = download_neighbors_dictionary(
+                args_dict=args_dict,
+                url=neighbors_url)
+        except:
+            neighbors_dictionary = {}
     else:
         no_defective_reactions = remove_defective_reactions(
             network=network)
