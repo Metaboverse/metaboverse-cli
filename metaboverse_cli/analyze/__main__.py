@@ -279,10 +279,6 @@ def __main__(
 
 
 def test():
-    network = read_network(
-        network_url=args_dict['url'])
-    len(list(network['reaction_database'].keys()))
-
     args_dict = {
         'output': "C:\\Users\\jorda\\Desktop",
         'url': "C:\\Users\\jorda\\Desktop\\HSA.mvdb",
@@ -291,3 +287,7 @@ def test():
         'output': "C:\\Users\\u0690617\\Desktop",
         'url': "C:\\Users\\u0690617\\Desktop\\HSA.mvdb",
         'organism_id': 'HSA'}
+
+    network = read_network(
+        network_url=args_dict['url'])
+    len(list(network['reaction_database'].keys()))
