@@ -178,9 +178,9 @@ def make_neighbors_dictionary(
             columns=list(graph.nodes())).apply(pd.to_numeric)
 
     neighbors_dictionary = {}
-    col_labels = df_copy.columns.tolist()
+    col_labels = df.columns.tolist()
 
-    for name, row in df_copy.iterrows():
+    for name, row in df.iterrows():
         indices = [i for i, x in enumerate(row) if x == 1]
         neighbor_dict[name] = [col_labels[_i] for _i in indices]
 
@@ -291,5 +291,3 @@ def test():
         'output': "C:\\Users\\u0690617\\Desktop",
         'url': "C:\\Users\\u0690617\\Desktop\\HSA.mvdb",
         'organism_id': 'HSA'}
-
-    url = test_url
