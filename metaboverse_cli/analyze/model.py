@@ -37,7 +37,7 @@ try:
     from analyze.collapse import collapse_nodes
     from analyze.collapse import generate_updated_dictionary
     from analyze.mpl_colormaps import get_mpl_colormap
-    from analyze.utils import convert_rgba
+    from analyze.utils import convert_rgba, remove_defective_reactions
     from utils import progress_feed, get_metaboverse_cli_version
 except:
     import importlib.util
@@ -61,10 +61,11 @@ except:
     module_path = os.path.abspath(
         os.path.join(".", "metaboverse_cli", "analyze", "utils.py"
                      ))
-    spec = importlib.util.spec_from_file_location("convert_rgba", module_path)
-    convert_rgba = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(convert_rgba)
-    convert_rgba = convert_rgba.convert_rgba
+    spec = importlib.util.spec_from_file_location("", module_path)
+    analyze_utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(analyze_utils)
+    convert_rgba = analyze_utils.convert_rgba
+    remove_defective_reactions = analyze_utils.remove_defective_reactions
 
     module_path = os.path.abspath(
         os.path.join(".", "metaboverse_cli", "utils.py"))
@@ -1413,20 +1414,6 @@ def load_references(
 
     return reverse_genes, protein_dictionary, chebi_dictionary, \
         name_reference, uniprot_mapper
-
-
-def remove_defective_reactions(
-        network):
-    """
-    """
-    no_defective_reactions = {}
-    for key in network['reaction_database'].keys():
-        rxn_name = network['reaction_database'][key]['name'].lower()
-        if 'defective' not in rxn_name \
-                and 'mutant' not in rxn_name:
-            no_defective_reactions[key] = network['reaction_database'][key]
-
-    return no_defective_reactions
 
 
 def __template__(

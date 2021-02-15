@@ -354,12 +354,12 @@ def __main__(
     """Curate database
     """
 
-    if 'model_file' in args_dict \
-            and safestr(args_dict['model_file']) == 'None':
-        args_dict['model_file'] = args_dict['output'] \
+    if 'organism_curation_file' in args_dict \
+            and safestr(args_dict['organism_curation_file']) == 'None':
+        args_dict['organism_curation_file'] = args_dict['output'] \
             + args_dict['organism_id'] \
             + '.mvdb'
-    args_dict['network'] = args_dict['model_file']
+    args_dict['network'] = args_dict['organism_curation_file']
 
     # Load reactions
     print('Curating reaction network database. Please be patient, this will take several minutes...')
@@ -371,7 +371,7 @@ def __main__(
             species_id=args_dict['organism_id'],
             output_dir=args_dict['output'],
             database_source=args_dict['database_source'],
-            sbml_url=args_dict['organism_curation'],
+            sbml_url=args_dict['organism_curation_file'],
             args_dict=args_dict)
 
     print('Parsing ChEBI database...')

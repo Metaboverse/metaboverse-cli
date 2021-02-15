@@ -88,3 +88,17 @@ def convert_rgba(
         js.append(tuple(rgba_new))
 
     return js
+
+
+def remove_defective_reactions(
+        network):
+    """
+    """
+    no_defective_reactions = {}
+    for key in network['reaction_database'].keys():
+        rxn_name = network['reaction_database'][key]['name'].lower()
+        if 'defective' not in rxn_name \
+                and 'mutant' not in rxn_name:
+            no_defective_reactions[key] = network['reaction_database'][key]
+
+    return no_defective_reactions

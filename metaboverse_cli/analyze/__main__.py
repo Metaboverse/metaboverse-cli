@@ -35,8 +35,9 @@ try:
     from analyze.model import __model__
     from analyze.model import load_references
     from analyze.model import load_metabolite_synonym_dictionary
+    from analyze.utils import remove_defective_reactions
     from utils import progress_feed, read_network, \
-        get_metaboverse_cli_version, write_database
+        get_metaboverse_cli_version, write_database, safestr
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -54,6 +55,14 @@ except:
     load_references = model.load_references
     load_metabolite_synonym_dictionary = model.load_metabolite_synonym_dictionary
 
+    module_path = os.path.abspath(
+        os.path.join(".", "metaboverse_cli", "analyze", "utils.py"
+                     ))
+    spec = importlib.util.spec_from_file_location("", module_path)
+    analyze_utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(analyze_utils)
+    remove_defective_reactions = analyze_utils.remove_defective_reactions
+
     spec = importlib.util.spec_from_file_location(
         "", os.path.abspath("./metaboverse_cli/utils.py"))
     utils = importlib.util.module_from_spec(spec)
@@ -62,6 +71,7 @@ except:
     read_network = utils.read_network
     get_metaboverse_cli_version = utils.get_metaboverse_cli_version
     write_database = utils.write_database
+    safestr = utils.safestr
 
 
 TEMPLATE_URL='https://sourceforge.net/projects/metaboverse/files/mvrs_files/'
@@ -105,15 +115,23 @@ def process_data(
 def read_template(
         args_dict,
         network,
-        url):
+        url,
+        user_provided=False):
     """
     """
+    def get_template_file(url, args_dict):
+        file = os.path.join(
+            args_dict['output'],
+            args_dict['organism_id'] + '_template.mvrs')
+        os.system('curl -L ' + url + ' -o \"' + file + '\"')
+        return file
+
     print('Downloading Metaboverse graph template for organism...')
 
-    file = os.path.join(
-        args_dict['output'],
-        args_dict['organism_id'] + '_template.mvrs')
-    os.system('curl -L ' + url + ' -o \"' + file + '\"')
+    if user_provided == False:
+        file = get_template_file(url, args_dict)
+    else:
+        file = url
 
     with open(file) as graph_template:
         graph_data = json.load(graph_template)
@@ -148,15 +166,23 @@ def read_template(
 
 def download_neighbors_dictionary(
         args_dict,
-        url):
+        url,
+        user_provided=False):
     """
     """
     print('Downloading Metaboverse neighbors dictionary for organism...')
 
-    file = os.path.join(
-        args_dict['output'],
-        args_dict['organism_id'] + '.nbdb')
-    os.system('curl -L ' + url + ' -o \"' + file + '\"')
+    def get_neighbor_file(url, args_dict):
+        file = os.path.join(
+            args_dict['output'],
+            args_dict['organism_id'] + '.nbdb')
+        os.system('curl -L ' + url + ' -o \"' + file + '\"')
+        return file
+
+    if user_provided == False:
+        file = get_neighbor_file(url, args_dict)
+    else:
+        file = url
 
     neighbors_dictionary = read_network(
         network_url=file)
@@ -166,30 +192,47 @@ def download_neighbors_dictionary(
 
 def make_neighbors_dictionary(
         args_dict,
-        graph):
+        graph,
+        reaction_dictionary,
+        reaction_keyword='reaction'):
     """
     """
     print('Generating Metaboverse neighbors dictionary for organism...')
 
-    adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(graph).todense()
+    adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(
+        graph.to_undirected()).todense()
     df = pd.DataFrame(
             adj_matrix,
             index=list(graph.nodes()),
             columns=list(graph.nodes())).apply(pd.to_numeric)
 
-    neighbors_dictionary = {}
     col_labels = df.columns.tolist()
 
+    neighbors_dictionary = {}
     for name, row in df.iterrows():
         indices = [i for i, x in enumerate(row) if x == 1]
         neighbors_dictionary[name] = [col_labels[_i] for _i in indices]
 
+    reaction_neighbors_dictionary = {}
+    for neighbor in neighbors_dictionary.keys():
+        if reaction_keyword in neighbor.lower():
+            components = neighbors_dictionary[neighbor]
+
+            connected_reactions = set()
+            for _c in components:
+                for _c_ in neighbors_dictionary[_c]:
+                    if reaction_keyword in _c_:
+                        connected_reactions.add(_c_)
+            connected_reactions = list(connected_reactions)
+
+            reaction_neighbors_dictionary[neighbor] = connected_reactions
+
     write_database(
             output=args_dict['output'],
             file=args_dict['organism_id'] + '.nbdb',
-            database=neighbors_dictionary)
+            database=reaction_neighbors_dictionary)
 
-    return neighbors_dictionary
+    return reaction_neighbors_dictionary
 
 
 def __main__(
@@ -202,7 +245,7 @@ def __main__(
         network_url=args_dict['network'])
     progress_feed(args_dict, "model", 2)
 
-    if args_dict['organism_curation'] != 'None':
+    if args_dict['organism_curation_file'] != 'None':
         args_dict['organism_id'] = network['organism_id']
 
     # Read in data (if any)
@@ -221,6 +264,27 @@ def __main__(
 
     if (args_dict['force_new_curation'] == False \
     or args_dict['force_new_curation'] == "False") \
+    and 'graph_template_file' in args_dict \
+    and safestr(args_dict['graph_template_file']) != None \
+    and safestr(args_dict['graph_template_file']) != 'None':
+        try:
+            graph, args_dict, network, name_reference, \
+            degree_dictionary, super_pathways, chebi_dictionary, \
+            uniprot_mapper, metabolite_mapper = read_template(
+                args_dict=args_dict,
+                network=network,
+                url=args_dict['graph_template_file'],
+                user_provided=True)
+        except:
+            graph, args_dict, network, name_reference, \
+            degree_dictionary, super_pathways, chebi_dictionary, \
+            uniprot_mapper, metabolite_mapper = __template__(
+                args_dict=args_dict,
+                network=network,
+                species_id=args_dict['organism_id'],
+                output_file=args_dict['output_file'])
+    elif (args_dict['force_new_curation'] == False \
+    or args_dict['force_new_curation'] == "False") \
     and url_response.status_code != 404:
         graph, args_dict, network, name_reference, \
         degree_dictionary, super_pathways, chebi_dictionary, \
@@ -237,7 +301,6 @@ def __main__(
             species_id=args_dict['organism_id'],
             output_file=args_dict['output_file'])
 
-
     # Generate graph template
     neighbors_url = (
         NEIGHBOR_URL
@@ -245,16 +308,31 @@ def __main__(
         + args_dict['organism_id'] + '.nbdb/download')
     neighbor_response = requests.head(neighbors_url)
 
-    if (args_dict['generate_neighbor_dictionary'] == False \
+    if (args_dict['force_new_curation'] == False \
+    or args_dict['force_new_curation'] == "False") \
+    and 'neighbor_dictionary_file' in args_dict \
+    and safestr(args_dict['neighbor_dictionary_file']) != None \
+    and safestr(args_dict['neighbor_dictionary_file']) != 'None':
+        try:
+            neighbors_dictionary = download_neighbors_dictionary(
+                args_dict=args_dict,
+                url=args_dict['neighbor_dictionary_file'],
+                user_provided=True)
+        except:
+            neighbors_dictionary = {}
+    elif (args_dict['generate_neighbor_dictionary'] == False \
     or args_dict['generate_neighbor_dictionary'] == "False") \
     and neighbor_response.status_code != 404:
         neighbors_dictionary = download_neighbors_dictionary(
             args_dict=args_dict,
             url=neighbors_url)
     else:
+        no_defective_reactions = remove_defective_reactions(
+            network=network)
         neighbors_dictionary = make_neighbors_dictionary(
             args_dict=args_dict,
-            graph=graph)
+            graph=graph,
+            reaction_dictionary=no_defective_reactions)
 
     # Overlay data on graph and collapse as able
     graph_name = __model__(
@@ -282,12 +360,18 @@ def test():
     args_dict = {
         'output': "C:\\Users\\jorda\\Desktop",
         'url': "C:\\Users\\jorda\\Desktop\\HSA.mvdb",
+        'neighbor_dictionary_file': "C:\\Users\\jorda\\Desktop\\HSA.nbdb",
         'organism_id': 'HSA'}
     args_dict = {
         'output': "C:\\Users\\u0690617\\Desktop",
         'url': "C:\\Users\\u0690617\\Desktop\\HSA.mvdb",
+        'neighbor_dictionary_file': "C:\\Users\\u0690617\\Desktop\\HSA.nbdb",
         'organism_id': 'HSA'}
 
     network = read_network(
         network_url=args_dict['url'])
-    len(list(network['reaction_database'].keys()))
+
+    neighbors_dictionary = download_neighbors_dictionary(
+        args_dict=args_dict,
+        url=args_dict['neighbor_dictionary_file'],
+        user_provided=True)
