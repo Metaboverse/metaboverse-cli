@@ -41,7 +41,7 @@ try:
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "__main__", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
+        "", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
     prepare_data = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(prepare_data)
     prepare_data = prepare_data.__main__
@@ -76,6 +76,7 @@ except:
 
 TEMPLATE_URL='https://sourceforge.net/projects/metaboverse/files/mvrs_files/'
 NEIGHBOR_URL='https://sourceforge.net/projects/metaboverse/files/nbdb_files/'
+
 
 def process_data(
         network,
