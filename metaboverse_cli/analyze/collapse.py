@@ -494,7 +494,8 @@ def collapse_nodes(
             # Check for reactions with complete and partial matching sides
             if key in neighbors_dictionary.keys():
                 for neighbor_key in neighbors_dictionary[key]:
-                    if key != neighbor_key:
+                    if key != neighbor_key \
+                    and neighbor_key in reaction_dictionary:
                         input_neighbors, output_neighbors = check_neighbors(
                             key=key,
                             real_reactants=real_reactants,
