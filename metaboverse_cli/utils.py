@@ -65,7 +65,7 @@ def update_network_vars(args_dict):
     """Update internal network variables when a pre-curated file is provided
     """
 
-    with open(args_dict['organism_curation'], 'rb') as network_file:
+    with open(args_dict['organism_curation_file'], 'rb') as network_file:
         network = pickle.load(network_file)
         args_dict['organism_id'] = network['organism_id']
         if args_dict['output_file'] == None \
@@ -74,7 +74,7 @@ def update_network_vars(args_dict):
             args_dict['output_file'] = args_dict['output'] \
                 + args_dict['organism_id'] \
                 + '.mvrs'
-        args_dict['network'] = args_dict['organism_curation']
+        args_dict['network'] = args_dict['organism_curation_file']
 
     return args_dict
 
@@ -293,9 +293,32 @@ def check_curate(
 
     if args_dict['output'] == None \
     or not os.path.exists(os.path.dirname(args_dict['output'])):
-
         print('\nIncorrect output parameter provided: ' +
               safestr(args_dict['output']))
+        should_exit = True
+
+    if 'organism_curation_file' in args_dict \
+    and safestr(args_dict['organism_curation_file']) != 'None' \
+    and safestr(args_dict['organism_curation_file']) != None \
+    and safestr(args_dict['organism_curation_file']).split('.')[-1] != 'mvdb':
+        print('\nIncorrect organism curation file type provided : ' +
+              safestr(args_dict['organism_curation_file']))
+        should_exit = True
+
+    if 'neighbor_dictionary_file' in args_dict \
+    and safestr(args_dict['neighbor_dictionary_file']) != 'None' \
+    and safestr(args_dict['neighbor_dictionary_file']) != None \
+    and safestr(args_dict['neighbor_dictionary_file']).split('.')[-1] != 'nbdb':
+        print('\nIncorrect neighbor dictionary file type provided : ' +
+              safestr(args_dict['neighbor_dictionary_file']))
+        should_exit = True
+
+    if 'graph_template_file' in args_dict \
+    and safestr(args_dict['graph_template_file']) != 'None' \
+    and safestr(args_dict['graph_template_file']) != None \
+    and safestr(args_dict['graph_template_file']).split('.')[-1] != 'mvrs':
+        print('\nIncorrect graph template file type provided : ' +
+              safestr(args_dict['graph_template_file']))
         should_exit = True
 
     if should_exit == True:

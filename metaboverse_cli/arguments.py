@@ -240,15 +240,21 @@ def parse_arguments(
         action='help',
         help='Show help message and exit')
     curate_opts.add_argument(
-        '-c', '--organism_curation',
-        help='Path and name for organism curation file',
-        metavar='<path/filename.mvdb; path/filename.xml; path/filename.sbml>',
+        '--organism_curation_file',
+        help='Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored.',
+        metavar='<path/filename.mvdb>',
         type=str,
         required=False)
     curate_opts.add_argument(
-        '-i', '--model_file',
-        help='Path and name for organism curation file output. If --organism_curation is used, this argument will be ignored.',
-        metavar='<path/filename.mvdb>',
+        '--neighbor_dictionary_file',
+        help='Path and name for organism neighbor dictionary file. If not provided, Metaboverse will search the SourceForge archives for a compatible version.',
+        metavar='<path/filename.nbdb>',
+        type=str,
+        required=False)
+    curate_opts.add_argument(
+        '--graph_template_file',
+        help='Path and name for organism graph template file. If not provided, Metaboverse will search the SourceForge archives for a compatible version.',
+        metavar='<path/filename_template.mvrs>',
         type=str,
         required=False)
     curate_opts.add_argument(

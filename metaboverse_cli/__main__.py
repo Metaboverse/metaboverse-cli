@@ -125,14 +125,13 @@ def main(
             print('Generating Electrum-compatible database...')
 
         # MVDB file provided by user
-        if 'organism_curation' in args_dict \
-        and safestr(args_dict['organism_curation']) != 'None' \
-        and safestr(args_dict['organism_curation']) != None:
+        if 'organism_curation_file' in args_dict \
+        and safestr(args_dict['organism_curation_file']) != 'None' \
+        and safestr(args_dict['organism_curation_file']) != None:
             # Update args_dict with path for network model
             args_dict = update_network_vars(args_dict)
             args_dict = update_session_vars(args_dict)
-            print('Skipping organism network modeling as one was provided by'
-                + ' the user...')
+            print('Skipping organism network modeling as one was provided by the user...')
             progress_feed(
                 args_dict=args_dict,
                 process="curate",
@@ -146,7 +145,7 @@ def main(
                 file = os.path.join(
                     args_dict['output'],
                     args_dict['organism_id'] + '.mvdb')
-                args_dict['organism_curation'] = file
+                args_dict['organism_curation_file'] = file
                 os.system('curl -L ' + test_url + ' -o \"' + file + '\"')
                 args_dict = update_network_vars(args_dict)
                 args_dict = update_session_vars(args_dict)
