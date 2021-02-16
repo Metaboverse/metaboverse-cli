@@ -65,16 +65,23 @@ def update_network_vars(args_dict):
     """Update internal network variables when a pre-curated file is provided
     """
 
-    with open(args_dict['organism_curation_file'], 'rb') as network_file:
-        network = pickle.load(network_file)
-        args_dict['organism_id'] = network['organism_id']
-        if args_dict['output_file'] == None \
-                or args_dict['output_file'] == "None" \
-                or args_dict['output_file'] == "find":
-            args_dict['output_file'] = args_dict['output'] \
-                + args_dict['organism_id'] \
-                + '.mvrs'
-        args_dict['network'] = args_dict['organism_curation_file']
+    # check if file exists
+    if os.path.isfile(args_dict['organism_curation_file']):
+        with open(args_dict['organism_curation_file'], 'rb') as network_file:
+            try:
+                network = pickle.load(network_file)
+                args_dict['organism_id'] = network['organism_id']
+                if args_dict['output_file'] == None \
+                        or args_dict['output_file'] == "None" \
+                        or args_dict['output_file'] == "find":
+                    args_dict['output_file'] = args_dict['output'] \
+                        + args_dict['organism_id'] \
+                        + '.mvrs'
+                args_dict['network'] = args_dict['organism_curation_file']
+            except:
+                print(
+                    "Warning: Unable to open organism reference file: " \
+                    + args_dict['organism_curation_file'])
 
     return args_dict
 

@@ -84,8 +84,8 @@ def check_arguments(
         raise Exception('Invalid sub-module selected')
 
     if 'output' not in args_dict \
-            or args_dict['output'] == None \
-            or args_dict['output'].lower() == 'none':
+    or args_dict['output'] == None \
+    or args_dict['output'].lower() == 'none':
         args_dict['output'] = args_dict['output_file'].rsplit(os.path.sep, 1)[
             0]
 
