@@ -93,8 +93,21 @@ except:
     update_session_vars = utils.update_session_vars
 
 
-SOURCEFORGE_URL='https://sourceforge.net/projects/metaboverse/files/mvdb_files/'
+REFERENCE_URL='https://sourceforge.net/projects/metaboverse/files/mvdb_files/'
+REFERENCE_EXTENSION='.mvdb/download'
 
+def get_reference(
+        args_dict,
+        reference_url):
+    """Download curation reference
+    """
+
+    file = os.path.join(
+        args_dict['output'],
+        args_dict['organism_id'] + '.mvdb')
+    os.system('curl -L ' + reference_url + ' -o \"' + file + '\"')
+
+    return file
 
 def main(
         args=None):
@@ -108,11 +121,11 @@ def main(
 
     # Get info on archived database versions available for direct download
     this_version = get_metaboverse_cli_version()
-    test_url = (
-        SOURCEFORGE_URL
+    reference_url = (
+        REFERENCE_URL
         + this_version + '/'
-        + args_dict['organism_id'] + '.mvdb/download')
-    url_response = requests.head(test_url)
+        + args_dict['organism_id'] + REFERENCE_EXTENSION)
+    url_response = requests.head(reference_url)
 
     if args_dict['cmd'] == 'metaboliteMapper':
         print('Generating metabolite mapper...')
@@ -144,11 +157,10 @@ def main(
         or args_dict['force_new_curation'] == "False") \
         and url_response.status_code != 404:
             try:
-                file = os.path.join(
-                    args_dict['output'],
-                    args_dict['organism_id'] + '.mvdb')
+                file = get_reference(
+                    args_dict=args_dict,
+                    reference_url=reference_url)
                 args_dict['organism_curation_file'] = file
-                os.system('curl -L ' + test_url + ' -o \"' + file + '\"')
                 args_dict = update_network_vars(args_dict)
                 args_dict = update_session_vars(args_dict)
                 print('Skipping organism network modeling as one was found...')

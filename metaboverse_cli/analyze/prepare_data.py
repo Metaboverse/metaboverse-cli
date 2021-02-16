@@ -290,24 +290,24 @@ def __main__(
         _max = max(lengths)
 
         if transcriptomics_url.lower() != 'none' \
-                and len(transcriptomics.columns.tolist()) != _max \
-                and len(transcriptomics.columns.tolist()) == 1:
+        and len(transcriptomics.columns.tolist()) != _max \
+        and len(transcriptomics.columns.tolist()) == 1:
             transcriptomics, transcriptomics_stats = copy_columns(
                 data=transcriptomics,
                 stats=transcriptomics_stats,
                 _max=_max)
 
         if proteomics_url.lower() != 'none' \
-                and len(proteomics.columns.tolist()) != _max \
-                and len(proteomics.columns.tolist()) == 1:
+        and len(proteomics.columns.tolist()) != _max \
+        and len(proteomics.columns.tolist()) == 1:
             proteomics, proteomics_stats = copy_columns(
                 data=proteomics,
                 stats=proteomics_stats,
                 _max=_max)
 
         if metabolomics_url.lower() != 'none' \
-                and len(metabolomics.columns.tolist()) != _max \
-                and len(metabolomics.columns.tolist()) == 1:
+        and len(metabolomics.columns.tolist()) != _max \
+        and len(metabolomics.columns.tolist()) == 1:
             metabolomics, metabolomics_stats = copy_columns(
                 data=metabolomics,
                 stats=metabolomics_stats,

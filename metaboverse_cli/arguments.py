@@ -264,7 +264,7 @@ def parse_arguments(
         type=str,
         required=False)
     curate_opts.add_argument(
-        '-r', '--transcriptomics',
+        '-t', '--transcriptomics',
         help='Path and filename of RNA-Seq data - refer to documentation for details on formatting and normalization',
         metavar='<path/filename>',
         type=str,
@@ -304,11 +304,6 @@ def parse_arguments(
         action='store_true',
         required=False)
     curate_opts.add_argument(
-        '--generate_neighbor_dictionary',
-        help='Make and output a neighbor dictionary for all graph nodes.',
-        action='store_true',
-        required=False)
-    curate_opts.add_argument(
         '--collapse_with_modifiers',
         help='Include modifiers when considering a potential reaction collapse.',
         action='store_true',
@@ -324,7 +319,7 @@ def parse_arguments(
         action='store_true',
         required=False)
     curate_opts.add_argument(
-        '-e', '--experiment_type',
+        '--experiment_type',
         help='Specify experiment type',
         metavar='<default/timecourse/flux/multi-condition>',
         type=str,
@@ -348,13 +343,13 @@ def parse_arguments(
         type=str,
         required=False)
     curate_opts.add_argument(
-        '-n', '--session_data',
+        '--session_data',
         help='Path and filename to session data file',
         metavar='<path/filename>',
         type=str,
         required=False)
     curate_opts.add_argument(
-        '-l', '--progress_log',
+        '--progress_log',
         help='Path and filename to progress log file',
         metavar='<path/filename>',
         type=str,

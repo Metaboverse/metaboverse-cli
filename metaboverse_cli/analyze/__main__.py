@@ -323,8 +323,6 @@ def __main__(
             neighbors_dictionary = {}
     elif (args_dict['force_new_curation'] == False \
     or args_dict['force_new_curation'] == "False") \
-    and (args_dict['generate_neighbor_dictionary'] == False \
-    or args_dict['generate_neighbor_dictionary'] == "False") \
     and neighbor_response.status_code != 404:
         try:
             neighbors_dictionary = download_neighbors_dictionary(
