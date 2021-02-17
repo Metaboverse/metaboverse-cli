@@ -46,14 +46,14 @@ for X in ${SPECIES[@]};
 done
 
 # Run
-parallel $MY_PATH/dist/metaboverse-cli-linux curate -o $SCRDIR/{} -s {} ::: "${SPECIES[@]}"
+parallel $MY_PATH/dist/metaboverse-cli-linux curate --force_new_curation -o $SCRDIR/{} -s {} ::: "${SPECIES[@]}"
 
 printf "+ Processing complete...\n"
 
 printf "+ Outputing metadata\n"
 cp /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-$SLURM_JOBID $SCRDIR
 
-printf "Metadata for bulk Metaboverse .mvdb curation: \n\n" >> $SCRDIR/README.txt
+printf "Metadata for bulk Metaboverse .mvdb curation:\n" >> $SCRDIR/README.txt
 
 printf "\nDate: " >> $SCRDIR/README.txt
 date '+%Y-%m-%d %H:%M:%S' >> $SCRDIR/README.txt
@@ -64,18 +64,30 @@ $MY_PATH/dist/metaboverse-cli-linux -v >> $SCRDIR/README.txt
 printf "\nReactome version: " >> $SCRDIR/README.txt
 curl -X GET --header 'Accept: text/plain' 'https://reactome.org/ContentService/data/database/version' >> $SCRDIR/README.txt
 
-printf "\n\nOrganisms curated: " >> $SCRDIR/README.txt
-for X in ${SPECIES[@]};
-  do printf "\n\t ${X}" >> $SCRDIR/README.txt ;
+printf "\n\nOrganisms curated:" >> $SCRDIR/README.txt
+printf "\nSTART" >> $SCRDIR/README.txt
+
+for X in ${SPECIES[@]}; do
+  if [ -f "$SCRDIR/${X}/${X}.mvrs" ]; then
+    printf "\n ${X}" >> $SCRDIR/README.txt
+    rm $SCRDIR/${X}/${X}.mvrs
+  else
+    rm -rf $SCRDIR/${X}
+  fi
 done
+
+printf "\nEND" >> $SCRDIR/README.txt
 printf "\n"
 
-for X in ${SPECIES[@]};
-  do rm $SCRDIR/${X}.mvrs ;
-done
+
 
 # Afterwards, upload to sourceforge
 # $ cd $SCRDIR
 # $ scp -r */*.mvdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
 # scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
-# scp slurmjob-xxxxxxx j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
+
+# $ scp -r */_template.mvrs j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z-tag
+# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z-tag
+
+# $ scp -r */*.nbdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z-tag
+# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z-tag
