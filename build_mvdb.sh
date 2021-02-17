@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=100:00:00
+#SBATCH --time=7:00:00
 #SBATCH --nodes=1
 #SBATCH -o /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-%j
 #SBATCH --account=rutter-gpu-np
@@ -10,6 +10,7 @@
 # - 40 cores
 # - 192 GB of memory
 # - 4x RTX2080TI GPUs
+# - 168hr max
 
 # Set instance variables
 printf "+ Setting environment...\n"
