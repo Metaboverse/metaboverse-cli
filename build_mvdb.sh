@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=100:00:00
+#SBATCH --time=7:00:00
 #SBATCH --nodes=1
 #SBATCH -o /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-%j
 #SBATCH --account=rutter-gpu-np
@@ -10,6 +10,7 @@
 # - 40 cores
 # - 192 GB of memory
 # - 4x RTX2080TI GPUs
+# - 168hr max
 
 # Set instance variables
 printf "+ Setting environment...\n"
@@ -53,7 +54,7 @@ printf "+ Processing complete...\n"
 printf "+ Outputing metadata\n"
 cp /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-$SLURM_JOBID $SCRDIR
 
-printf "Metadata for bulk Metaboverse .mvdb curation: \n\n" >> $SCRDIR/README.txt
+printf "Metadata for bulk Metaboverse .mvdb curation:\n" >> $SCRDIR/README.txt
 
 printf "\nDate: " >> $SCRDIR/README.txt
 date '+%Y-%m-%d %H:%M:%S' >> $SCRDIR/README.txt
@@ -64,15 +65,21 @@ $MY_PATH/dist/metaboverse-cli-linux -v >> $SCRDIR/README.txt
 printf "\nReactome version: " >> $SCRDIR/README.txt
 curl -X GET --header 'Accept: text/plain' 'https://reactome.org/ContentService/data/database/version' >> $SCRDIR/README.txt
 
-printf "\n\nOrganisms curated: " >> $SCRDIR/README.txt
-for X in ${SPECIES[@]};
-  do printf "\n\t ${X}" >> $SCRDIR/README.txt ;
+printf "\n\nOrganisms curated:" >> $SCRDIR/README.txt
+printf "\nSTART" >> $SCRDIR/README.txt
+
+for X in ${SPECIES[@]}; do
+  if [ -f "$SCRDIR/${X}/${X}.mvrs" ]; then
+    printf "\n ${X}" >> $SCRDIR/README.txt
+    rm $SCRDIR/${X}/${X}.mvrs
+  else
+    rm -rf $SCRDIR/${X}
+  fi
 done
+
+printf "\nEND" >> $SCRDIR/README.txt
 printf "\n"
 
-for X in ${SPECIES[@]};
-  do rm $SCRDIR/${X}.mvrs ;
-done
 
 # Afterwards, upload to sourceforge
 # $ cd $SCRDIR
