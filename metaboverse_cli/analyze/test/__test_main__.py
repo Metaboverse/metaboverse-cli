@@ -40,20 +40,22 @@ args_dict = {
     'database_source': 'reactome',
     'network': os.path.abspath(
         './metaboverse_cli/analyze/test/HSA.mvdb'),
-    'organism_curation': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
     'organism_id': 'HSA',
     'transcriptomics': os.path.abspath(
         './metaboverse_cli/analyze/test/rna_mapping_test.txt'),
     'proteomics': 'none',
     'metabolomics': os.path.abspath(
         './metaboverse_cli/analyze/test/metabolite_mapping_test.txt'),
+    'output': os.path.abspath(
+        './metaboverse_cli/analyze/test'),
     'output_file': os.path.abspath(
         './metaboverse_cli/analyze/test/HSA_test.mvrs'),
     'collapse_with_modifiers': False,
     'broadcast_genes': True,
     'labels': '0',
-    'blocklist': ''
+    'blocklist': '',
+    'organism_curation_file': 'None',
+    'force_new_curation': False
 }
 
 zipped_net = os.path.abspath(
@@ -74,7 +76,7 @@ rna_unmapped = os.path.abspath(
     './metaboverse_cli/analyze/test/rna_mapping_test_unmapped.txt'
 )
 rna = pd.read_csv(rna_unmapped, sep='\t', index_col=0)
-assert len(rna.index.tolist()) == 7029, 'RNA mapping experienced error'
+assert len(rna.index.tolist()) == 7030, 'RNA mapping experienced error'
 os.remove(rna_unmapped)
 
 metabolite_unmapped = os.path.abspath(
@@ -86,5 +88,10 @@ assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS',
 os.remove(metabolite_unmapped)
 
 os.remove(args_dict['output_file'])
+os.remove(args_dict['network'])
+os.remove(os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA_template.mvrs'))
+os.remove(os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA.nbdb'))
 
 print('Tests completed')

@@ -73,25 +73,29 @@ args_chebi = {
     'database_source': 'reactome',
     'network': os.path.abspath(
         './metaboverse_cli/analyze/test/HSA.mvdb'),
-    'organism_curation': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
+    'organism_curation_file': 'None',
     'organism_id': 'HSA',
     'transcriptomics': 'None',
     'proteomics': 'none',
     'metabolomics': metabolomics_url,
+    'output': os.path.abspath(
+        './metaboverse_cli/analyze/test'),
     'output_file': os.path.abspath(
         './metaboverse_cli/analyze/test/HSA_test.mvrs'),
     'collapse_with_modifiers': False,
     'broadcast_genes': True,
     'broadcast_metabolites': True,
     'labels': '0',
-    'blocklist': ''
+    'blocklist': '',
+    'force_new_curation': False
 }
 spec = importlib.util.spec_from_file_location(
     "", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
 __main__ = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(__main__)
 test_modeling = __main__.__main__
+
+# Download
 test_modeling(args_chebi)
 
 with open(args_chebi['output_file']) as f:
@@ -108,16 +112,20 @@ for n in chebi_json['nodes']:
         assert n['values'] == [0.06620505], "Mixed CHEBI mapping failed"
     if n['name'] == 'Glc':
         assert n['values'] == [-0.424362985], "Mixed CHEBI mapping failed"
-    if n['name'] == 'LACT':
-        assert n['values'] == [-0.00015059899999999999], "Mixed CHEBI mapping failed"
     if n['name'] == 'Glc':
         assert n['values'] == [-0.424362985], "Mixed CHEBI mapping failed"
     if n['name'] == 'FUMA':
         assert n['values'] == [-0.200045781], "Mixed CHEBI mapping failed"
     if n['name'] == 'MAL':
         assert n['values'] == [-0.10850223], "Mixed CHEBI mapping failed"
+    if n['name'] == 'LACT':
+        assert n['values'] == [-0.000150599], "Mixed CHEBI mapping failed"
 
 os.remove(args_chebi['output_file'])
 os.remove(args_chebi['network'])
+os.remove(os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA_template.mvrs'))
+os.remove(os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA.nbdb'))
 
 print('Tests completed')
