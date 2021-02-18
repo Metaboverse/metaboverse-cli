@@ -28,7 +28,8 @@ a = Analysis(
               'metaboverse_cli\\mapper\\test\\',
               'metaboverse_cli\\mapper\\__test__.py',
               'metaboverse_cli\\analyze\\test\\',
-              'metaboverse_cli\\analyze\\__test__.py'
+              'metaboverse_cli\\analyze\\__test__.py',
+              'metaboverse_cli\\analyze\\test\\HSA.zip'
              ],
              win_no_prefer_redirects=False,
              win_private_assemblies=False,
