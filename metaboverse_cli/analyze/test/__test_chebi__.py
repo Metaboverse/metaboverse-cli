@@ -71,8 +71,7 @@ gibberish	                -0.110443     ->  N/A
 
 args_chebi = {
     'database_source': 'reactome',
-    'network': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
+    'curation': 'HSA.mvdb',
     'organism_curation_file': 'None',
     'organism_id': 'HSA',
     'transcriptomics': 'None',
@@ -122,10 +121,11 @@ for n in chebi_json['nodes']:
         assert n['values'] == [-0.000150599], "Mixed CHEBI mapping failed"
 
 os.remove(args_chebi['output_file'])
-os.remove(args_chebi['network'])
 os.remove(os.path.abspath(
-    './metaboverse_cli/analyze/test/HSA_template.mvrs'))
+    './metaboverse_cli/analyze/test/HSA.mvdb'))
 os.remove(os.path.abspath(
     './metaboverse_cli/analyze/test/HSA.nbdb'))
+os.remove(os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA_template.mvrs'))
 
 print('Tests completed')

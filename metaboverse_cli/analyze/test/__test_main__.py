@@ -38,8 +38,7 @@ test_modeling = __main__.__main__
 
 args_dict = {
     'database_source': 'reactome',
-    'network': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
+    'curation': 'HSA.mvdb',
     'organism_id': 'HSA',
     'transcriptomics': os.path.abspath(
         './metaboverse_cli/analyze/test/rna_mapping_test.txt'),
@@ -88,10 +87,11 @@ assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS',
 os.remove(metabolite_unmapped)
 
 os.remove(args_dict['output_file'])
-os.remove(args_dict['network'])
 os.remove(os.path.abspath(
-    './metaboverse_cli/analyze/test/HSA_template.mvrs'))
+    './metaboverse_cli/analyze/test/HSA.mvdb'))
 os.remove(os.path.abspath(
     './metaboverse_cli/analyze/test/HSA.nbdb'))
+os.remove(os.path.abspath(
+    './metaboverse_cli/analyze/test/HSA_template.mvrs'))
 
 print('Tests completed')
