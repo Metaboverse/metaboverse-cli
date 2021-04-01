@@ -91,6 +91,7 @@ def update_session_vars(args_dict):
     """
 
     session_file = args_dict['session_data']
+
     update_session(
         session_file=session_file,
         key='organism_id',
@@ -108,13 +109,14 @@ def update_session_vars(args_dict):
 
 
 def read_network(
+        file_path,
         network_url):
     """Read in network from previous curation module
     - was provided as a URL to the file and saved to args_dict['network'] in
     "curate" sub-module
     """
 
-    with open(network_url, 'rb') as network_file:
+    with open(os.path.join(file_path, network_url), 'rb') as network_file:
         network = pickle.load(network_file)
 
     return network
@@ -175,14 +177,12 @@ def safestr(obj):
     return str(obj).encode('ascii', 'ignore').decode('ascii')
 
 
-"""Update session information
-"""
-
-
 def update_session(
         session_file,
         key,
         value):
+    """Update session information
+    """
 
     if os.path.exists(str(session_file)) and str(session_file) != 'None':
 
@@ -216,14 +216,12 @@ def get_session_value(
         return 'unknown'
 
 
-"""JS progress feed
-"""
-
-
 def progress_feed(
         args_dict=None,
-        process=None,
+        process="graph",
         amount=1):
+    """JS progress feed
+    """
 
     if args_dict != None:
         if 'progress_log' in args_dict \
@@ -235,6 +233,8 @@ def progress_feed(
                 with open(feed_file) as json_file:
                     data = json.load(json_file)
                     data[process] += amount
+                    if data[process] >= 100:
+                        data[process] = 100
 
                 with open(feed_file, 'w') as outfile:
                     json.dump(data, outfile)
@@ -242,13 +242,11 @@ def progress_feed(
         print('Could not access local variables during progress_feed() update.')
 
 
-"""Check directory formatting
-"""
-
-
 def check_directories(
         input,
         argument):
+    """Check directory formatting
+    """
 
     # Check that a file wasn't passed in
     if os.path.isdir(input) != True:
@@ -264,13 +262,11 @@ def check_directories(
     return input
 
 
-"""Check file formatting
-"""
-
-
 def check_files(
         input,
         argument):
+    """Check file formatting
+    """
 
     # Check that a file wasn't passed in
     if os.path.isfile(input) != True:
@@ -306,11 +302,17 @@ def check_curate(
 
     if 'organism_curation_file' in args_dict \
     and safestr(args_dict['organism_curation_file']) != 'None' \
-    and safestr(args_dict['organism_curation_file']) != None \
-    and safestr(args_dict['organism_curation_file']).split('.')[-1] != 'mvdb':
-        print('\nIncorrect organism curation file type provided : ' +
-              safestr(args_dict['organism_curation_file']))
-        should_exit = True
+    and safestr(args_dict['organism_curation_file']) != None:
+        if safestr(
+                args_dict['organism_curation_file']).split('.')[-1] == 'mvdb':
+            pass
+        elif safestr(
+                args_dict['organism_curation_file']).split('.')[-1] == 'xml':
+            pass
+        else:
+            print('\nIncorrect organism curation file type provided : ' +
+                  safestr(args_dict['organism_curation_file']))
+            should_exit = True
 
     if 'neighbor_dictionary_file' in args_dict \
     and safestr(args_dict['neighbor_dictionary_file']) != 'None' \

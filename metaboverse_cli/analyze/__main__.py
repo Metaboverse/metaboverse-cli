@@ -158,7 +158,7 @@ def read_template(
         uniprot_metabolites=network['uniprot_metabolites'])
     metabolite_mapper = load_metabolite_synonym_dictionary()
 
-    progress_feed(args_dict, "model", 9)
+    progress_feed(args_dict, "graph", 9)
 
     return graph, args_dict, network, name_reference, \
         degree_dictionary, super_pathways, chebi_dictionary, \
@@ -186,6 +186,7 @@ def download_neighbors_dictionary(
         file = url
 
     neighbors_dictionary = read_network(
+        file_path=args_dict['output'],
         network_url=file)
 
     return neighbors_dictionary
@@ -194,19 +195,18 @@ def download_neighbors_dictionary(
 def make_neighbors_dictionary(
         args_dict,
         graph,
-        reaction_dictionary,
-        reaction_keyword='reaction'):
+        reaction_dictionary):
     """
     """
-    print('Generating Metaboverse neighbors dictionary for organism...')
+    reaction_ids = set(reaction_dictionary.keys())
 
+    print('Generating Metaboverse neighbors dictionary for organism...')
     adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(
         graph.to_undirected()).todense()
     df = pd.DataFrame(
             adj_matrix,
             index=list(graph.nodes()),
             columns=list(graph.nodes())).apply(pd.to_numeric)
-
     col_labels = df.columns.tolist()
 
     neighbors_dictionary = {}
@@ -214,24 +214,26 @@ def make_neighbors_dictionary(
         indices = [i for i, x in enumerate(row) if x == 1]
         neighbors_dictionary[name] = [col_labels[_i] for _i in indices]
 
+    print('Tuning neighbors dictionary...')
     reaction_neighbors_dictionary = {}
     for neighbor in neighbors_dictionary.keys():
-        if reaction_keyword in neighbor.lower():
+        if neighbor in reaction_ids:
             components = neighbors_dictionary[neighbor]
 
             connected_reactions = set()
             for _c in components:
                 for _c_ in neighbors_dictionary[_c]:
-                    if reaction_keyword in _c_:
+                    if _c_ in reaction_ids:
                         connected_reactions.add(_c_)
             connected_reactions = list(connected_reactions)
 
             reaction_neighbors_dictionary[neighbor] = connected_reactions
 
+    print('Writing neighbors dictionary to database file...')
     write_database(
-            output=args_dict['output'],
-            file=args_dict['organism_id'] + '.nbdb',
-            database=reaction_neighbors_dictionary)
+        output=args_dict['output'],
+        file=args_dict['organism_id'] + '.nbdb',
+        database=reaction_neighbors_dictionary)
 
     return reaction_neighbors_dictionary
 
@@ -243,8 +245,9 @@ def __main__(
 
     # Get network curation info
     network = read_network(
-        network_url=args_dict['network'])
-    progress_feed(args_dict, "model", 2)
+        file_path=args_dict['output'],
+        network_url=args_dict['curation'])
+    progress_feed(args_dict, "graph", 2)
 
     if args_dict['organism_curation_file'] != 'None':
         args_dict['organism_id'] = network['organism_id']
@@ -253,7 +256,7 @@ def __main__(
     data, stats, unmapped, flag_data = process_data(
         network=network,
         args_dict=args_dict)
-    progress_feed(args_dict, "model", 3)
+    progress_feed(args_dict, "graph", 3)
 
     # Generate graph template
     this_version = get_metaboverse_cli_version()
@@ -302,6 +305,9 @@ def __main__(
             species_id=args_dict['organism_id'],
             output_file=args_dict['output_file'])
 
+    if len(graph.nodes) == 0 or len(graph.edges) == 0:
+        raise Exception("Unable to generate a reaction-based network based on the input organism template.")
+
     # Generate graph template
     neighbors_url = (
         NEIGHBOR_URL
@@ -309,6 +315,7 @@ def __main__(
         + args_dict['organism_id'] + '.nbdb/download')
     neighbor_response = requests.head(neighbors_url)
 
+    force_neighbors = False
     if (args_dict['force_new_curation'] == False \
     or args_dict['force_new_curation'] == "False") \
     and 'neighbor_dictionary_file' in args_dict \
@@ -320,7 +327,8 @@ def __main__(
                 url=args_dict['neighbor_dictionary_file'],
                 user_provided=True)
         except:
-            neighbors_dictionary = {}
+            force_neighbors = True
+
     elif (args_dict['force_new_curation'] == False \
     or args_dict['force_new_curation'] == "False") \
     and neighbor_response.status_code != 404:
@@ -329,8 +337,11 @@ def __main__(
                 args_dict=args_dict,
                 url=neighbors_url)
         except:
-            neighbors_dictionary = {}
+            force_neighbors = True
     else:
+        force_neighbors = True
+
+    if force_neighbors == True:
         no_defective_reactions = remove_defective_reactions(
             network=network)
         neighbors_dictionary = make_neighbors_dictionary(
@@ -357,15 +368,20 @@ def __main__(
         unmapped=unmapped,
         flag_data=flag_data)
 
-    progress_feed(args_dict, "model", 10)
+    progress_feed(args_dict, "graph", 10)
+    return graph_name
 
 
 def test():
     args_dict = {
         'output': "C:\\Users\\jorda\\Desktop",
-        'url': "C:\\Users\\jorda\\Desktop\\HSA.mvdb",
-        'neighbor_dictionary_file': "C:\\Users\\jorda\\Desktop\\HSA.nbdb",
-        'organism_id': 'HSA'}
+        'curation': "MODEL1604210000.mvdb",
+        'organism_id': 'MODEL1604210000',
+        'output_file': "C:\\Users\\jorda\\Desktop\\MODEL1604210000.mvrs",
+        'labels': "0",
+        'blocklist': "H+",
+        'database_date': "",
+        'curation_date': ""}
     args_dict = {
         'output': "C:\\Users\\u0690617\\Desktop",
         'url': "C:\\Users\\u0690617\\Desktop\\HSA.mvdb",
@@ -373,7 +389,12 @@ def test():
         'organism_id': 'HSA'}
 
     network = read_network(
-        network_url=args_dict['url'])
+        file_path="C:\\Users\\jorda\\Desktop",
+        network_url="MODEL1604210000.mvdb")
+
+    neighbors = read_network(
+        file_path="C:\\Users\\jorda\\Desktop",
+        network_url="MODEL1604210000.nbdb")
 
     neighbors_dictionary = download_neighbors_dictionary(
         args_dict=args_dict,

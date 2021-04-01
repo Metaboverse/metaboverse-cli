@@ -108,7 +108,7 @@ def parse_table(
             reference_dictionary[row[0]]['compartment'] = row[5]
 
         if int(counter % (total / 15)) == 0 and args_dict != None:
-            progress_feed(args_dict, "reactions")
+            progress_feed(args_dict, "graph")
 
         counter += 1
 
@@ -364,10 +364,8 @@ def __main__(
     # Load reactions
     print('Curating reaction network database. Please be patient, this will take several minutes...')
     print('Loading reactions...')
-    progress_feed(args_dict, "curate", 3)
-    pathway_database, reaction_database, species_database, \
-        name_database, compartment_dictionary, \
-        components_database = load_reactions(
+    args_dict, pathway_database, reaction_database, species_database, \
+    name_database, compartment_dictionary, components_database = load_reactions(
             species_id=args_dict['organism_id'],
             output_dir=args_dict['output'],
             database_source=args_dict['database_source'],
@@ -377,42 +375,42 @@ def __main__(
     print('Parsing ChEBI database...')
     chebi_mapper, chebi_synonyms, uniprot_metabolites = parse_chebi_synonyms(
         output_dir=args_dict['output'])
-    progress_feed(args_dict, "curate", 5)
+    progress_feed(args_dict, "graph", 5)
 
     if args_dict['database_source'].lower() == 'reactome':
         print('Loading complex database...')
         complexes_reference = load_complexes(
             output_dir=args_dict['output'])
-        progress_feed(args_dict, "curate", 3)
+        progress_feed(args_dict, "graph", 3)
 
         print('Parsing complex database...')
         complexes_reference['complex_dictionary'] = parse_complexes(
             complexes_reference)
-        progress_feed(args_dict, "curate", 2)
+        progress_feed(args_dict, "graph", 2)
 
         print('Finalizing complex database...')
         complexes_reference['complex_dictionary'] = reference_complex_species(
             reference=complexes_reference['complex_dictionary'],
             name_database=name_database)
-        progress_feed(args_dict, "curate", 2)
+        progress_feed(args_dict, "graph", 2)
 
         print('Parsing Ensembl database...')
         ensembl_reference = parse_ensembl_synonyms(
             output_dir=args_dict['output'],
             species_id=args_dict['organism_id'])
-        progress_feed(args_dict, "curate", 3)
+        progress_feed(args_dict, "graph", 3)
 
         print('Adding gene IDs to name database...')
         name_database = add_genes(
             name_database=name_database,
             ensembl_reference=ensembl_reference)
-        progress_feed(args_dict, "curate", 2)
+        progress_feed(args_dict, "graph", 2)
 
         print('Parsing UniProt database...')
         uniprot_reference = parse_uniprot_synonyms(
             output_dir=args_dict['output'],
             species_id=args_dict['organism_id'])
-        progress_feed(args_dict, "curate", 3)
+        progress_feed(args_dict, "graph", 3)
 
         database_version = str(get_reactome_version() + ' (Reactome)')
         _species_id = args_dict['organism_id']
@@ -423,12 +421,8 @@ def __main__(
         }
         ensembl_reference = {}
         uniprot_reference = {}
-        database_version = get_session_value(
-            args_dict['session_data'],
-            'database_version')
-        _species_id = get_session_value(
-            args_dict['session_data'],
-            'organism_id')
+        database_version = args_dict['database_version']
+        _species_id = args_dict['organism_id']
 
     metaboverse_db = {
         'organism_id': _species_id,
@@ -465,7 +459,7 @@ def __main__(
             database=metaboverse_db)
     else:
         raise Exception('Unable to output database file.')
-    progress_feed(args_dict, "curate", 5)
+    progress_feed(args_dict, "graph", 5)
     print('Metaboverse database curation complete.')
-
+    
     return args_dict

@@ -45,43 +45,43 @@ try:
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "", os.path.abspath("./metaboverse_cli/__init__.py"))
+        "", os.path.abspath(os.path.join(".", "metaboverse_cli", "__init__.py")))
     version = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(version)
     __version__ = version.__version__
 
     spec = importlib.util.spec_from_file_location(
-        "", os.path.abspath("./metaboverse_cli/arguments.py"))
+        "", os.path.abspath(os.path.join(".", "metaboverse_cli", "arguments.py")))
     arguments = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(arguments)
     parse_arguments = arguments.parse_arguments
 
     spec = importlib.util.spec_from_file_location(
-        "__main__", os.path.abspath("./metaboverse_cli/curate/__main__.py"))
+        "__main__", os.path.abspath(os.path.join(".", "metaboverse_cli", "curate/__main__.py")))
     curate = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(curate)
     curate = curate.__main__
 
     spec = importlib.util.spec_from_file_location(
-        "__main__", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
+        "__main__", os.path.abspath(os.path.join(".", "metaboverse_cli", "analyze/__main__.py")))
     analyze = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(analyze)
     analyze = analyze.__main__
 
     spec = importlib.util.spec_from_file_location(
-        "__main__", os.path.abspath("./metaboverse_cli/mapper/__main__.py"))
+        "__main__", os.path.abspath(os.path.join(".", "metaboverse_cli", "mapper/__main__.py")))
     mapper = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mapper)
     mapper = mapper.__main__
 
     spec = importlib.util.spec_from_file_location(
-        "__main__", os.path.abspath("./metaboverse_cli/target/__main__.py"))
+        "__main__", os.path.abspath(os.path.join(".", "metaboverse_cli", "target/__main__.py")))
     target = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(target)
     curate_target = target.__main__
 
     spec = importlib.util.spec_from_file_location(
-        "", os.path.abspath("./metaboverse_cli/utils.py"))
+        "", os.path.abspath(os.path.join(".", "metaboverse_cli", "utils.py")))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
@@ -93,8 +93,10 @@ except:
     update_session_vars = utils.update_session_vars
 
 
+# Set globals
 REFERENCE_URL='https://sourceforge.net/projects/metaboverse/files/mvdb_files/'
 REFERENCE_EXTENSION='.mvdb/download'
+
 
 def get_reference(
         args_dict,
@@ -109,6 +111,7 @@ def get_reference(
 
     return file
 
+
 def main(
         args=None):
     """Run metaboverse-cli
@@ -118,6 +121,7 @@ def main(
     args, args_dict = parse_arguments(
         args,
         __version__)
+    progress_feed(args_dict, "graph", 3)
 
     # Get info on archived database versions available for direct download
     this_version = get_metaboverse_cli_version()
@@ -142,14 +146,16 @@ def main(
         # MVDB file provided by user
         if 'organism_curation_file' in args_dict \
         and safestr(args_dict['organism_curation_file']) != 'None' \
-        and safestr(args_dict['organism_curation_file']) != None:
+        and safestr(args_dict['organism_curation_file']) != None \
+        and safestr(
+                args_dict['organism_curation_file']).split('.')[-1] != 'xml':
             # Update args_dict with path for network model
             args_dict = update_network_vars(args_dict)
             args_dict = update_session_vars(args_dict)
             print('Skipping organism network modeling as one was provided by the user...')
             progress_feed(
                 args_dict=args_dict,
-                process="curate",
+                process="graph",
                 amount=50)
 
         # MVDB file exists in repo
@@ -166,7 +172,7 @@ def main(
                 print('Skipping organism network modeling as one was found...')
                 progress_feed(
                     args_dict=args_dict,
-                    process="curate",
+                    process="graph",
                     amount=50)
 
             except:
@@ -183,13 +189,19 @@ def main(
         # Curate data overlaid on organism network
         print('Curating data onto the network model...')
         if args_dict['cmd'] == 'curate':
-            analyze(args_dict)
+            args_dict['output_file'] = analyze(args_dict)
         elif args_dict['cmd'] == 'electrum':
             curate_target(args_dict)
 
     # Print some error messaging
     else:
         raise Exception('Invalid sub-module selected')
+
+    args_dict = update_session_vars(args_dict)
+    progress_feed(
+        args_dict=args_dict,
+        process="graph",
+        amount=50)
 
 if __name__ == '__main__':
     """Run main

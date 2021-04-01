@@ -1398,7 +1398,7 @@ def load_references(
     protein_dictionary = uniprot_ensembl_reference(
         uniprot_reference=uniprot,
         ensembl_reference=reverse_genes)
-    progress_feed(args_dict, "model", 1)
+    progress_feed(args_dict, "graph", 1)
 
     chebi_dictionary = build_chebi_reference(
         chebi=chebi,
@@ -1457,7 +1457,7 @@ def __template__(
         compartment_reference=network['compartment_dictionary'],
         component_database=network['components_database'])
     # additional_reactions=args_dict['additional_reactions'])
-    progress_feed(args_dict, "model", 9)
+    progress_feed(args_dict, "graph", 9)
 
     # Generate list of super pathways (those with more than 200 reactions)
     print('Compiling super pathways...')
@@ -1479,7 +1479,7 @@ def __template__(
     args_dict["metaboverse-model_version"] = get_metaboverse_cli_version()
     output_graph(
         graph=G,
-        output_name=graph_name,
+        output_name=os.path.join(args_dict['output'], graph_name),
         pathway_dictionary=network['pathway_database'],
         collapsed_pathway_dictionary=network['pathway_database'],
         super_pathways=super_pathways,
@@ -1656,7 +1656,7 @@ def __model__(
     args_dict["metaboverse-model_version"] = get_metaboverse_cli_version()
     output_graph(
         graph=G,
-        output_name=graph_name,
+        output_name=os.path.join(args_dict['output'], graph_name),
         pathway_dictionary=network['pathway_database'],
         collapsed_pathway_dictionary=updated_pathway_dictionary,
         super_pathways=super_pathways,
@@ -1679,4 +1679,4 @@ def __model__(
     print('Graphing complete.')
     progress_feed(args_dict, "graph", 2)
 
-    return graph_name
+    return os.path.join(args_dict['output'], graph_name)

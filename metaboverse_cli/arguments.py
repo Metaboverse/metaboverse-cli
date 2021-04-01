@@ -220,13 +220,13 @@ def parse_arguments(
     # Curate required arguments
     curate_reqs = curate_parser.add_argument_group('required arguments')
     curate_reqs.add_argument(
-        '-o', '--output',
+        '--output',
         help='Path to output directory (default: current working directory)',
         metavar='<path>',
         type=str,
         required=True)
     curate_reqs.add_argument(
-        '-s', '--organism_id',
+        '--organism_id',
         help='Reactome species ID',
         metavar='<organism_id>',
         type=str,
@@ -236,7 +236,7 @@ def parse_arguments(
     # Curate optional arguments
     curate_opts = curate_parser.add_argument_group('optional arguments')
     curate_opts.add_argument(
-        '-h', '--help',
+        '--help',
         action='help',
         help='Show help message and exit')
     curate_opts.add_argument(
@@ -258,27 +258,27 @@ def parse_arguments(
         type=str,
         required=False)
     curate_opts.add_argument(
-        '-f', '--output_file',
+        '--output_file',
         help='Path and name for output database file',
         metavar='<path/filename.mvrs>',
         type=str,
         required=False)
     curate_opts.add_argument(
-        '-t', '--transcriptomics',
+        '--transcriptomics',
         help='Path and filename of RNA-Seq data - refer to documentation for details on formatting and normalization',
         metavar='<path/filename>',
         type=str,
         default='None',
         required=False)
     curate_opts.add_argument(
-        '-p', '--proteomics',
+        '--proteomics',
         help='Path and filename of proteomics data - refer to documentation for details on formatting and normalization',
         metavar='<path/filename>',
         type=str,
         default='None',
         required=False)
     curate_opts.add_argument(
-        '-m', '--metabolomics',
+        '--metabolomics',
         help='Path and filename of metabolomics data - refer to documentation for details on formatting and normalization',
         metavar='<path/filename>',
         type=str,
