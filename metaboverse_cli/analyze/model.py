@@ -89,17 +89,13 @@ def name_graph(
     """
 
     if template == True:
-        graph_name = os.path.join(
-            os.path.dirname(output_file),
-            species_id + '_template.mvrs')
+        graph_name = species_id + '_template.mvrs'
     elif output_file[-5:].lower() == '.mvrs':
         graph_name = output_file
     elif output_file[-5:].lower() == '.eldb':
         graph_name = output_file
     else:
-        graph_name = os.path.join(
-            os.path.dirname(output_file),
-            species_id + '_global_reactions.mvrs')
+        graph_name = species_id + '_global_reactions.mvrs'
 
     return graph_name
 

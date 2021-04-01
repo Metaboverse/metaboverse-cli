@@ -315,7 +315,7 @@ net_test = {
 
 test_args = {
     'output': os.path.abspath("./metaboverse_cli/analyze/test"),
-    'output_file': os.path.abspath("./metaboverse_cli/analyze/test/test.mvrs"),
+    'output_file': "test.mvrs",
     'bad_output_file': os.path.abspath("./metaboverse_cli/analyze/test/"),
     'organism_id': "HSA",
     'network': network_url
@@ -328,14 +328,12 @@ name = name_graph(
     species_id=test_args['organism_id']
 )
 assert name == test_args['output_file'], 'name_graph() failed'
+
 name = name_graph(
     output_file=test_args['bad_output_file'],
     species_id=test_args['organism_id']
 )
-
-assert name == os.path.join(
-    test_args['bad_output_file'],
-    test_args['organism_id'] + '_global_reactions.mvrs'), 'name_graph() failed'
+assert name == test_args['organism_id'] + '_global_reactions.mvrs', 'name_graph() failed'
 
 # build_graph()
 print("Testing build_graph()")
