@@ -70,9 +70,9 @@ args_dict = {
         os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep}
 
 # load_reactions_db.py
-pathway_database, reaction_database, species_database, \
-    name_database, compartment_dictionary, \
-    components_database = load_reactions.__main__(
+args_dict, pathway_database, reaction_database, species_database, \
+name_database, compartment_dictionary, \
+components_database = load_reactions.__main__(
         species_id=args_dict['organism_id'],
         output_dir=args_dict['output'],
         database_source='reactome',
@@ -248,15 +248,14 @@ contents = load_reactions_db.get_database(
     pathway_name=path_list[0])
 assert type(contents) == et.Element, 'get_database() failed'
 
-pathway_database, reaction_database, species_database, \
-    name_database, compartment_database, compartment_dictionary, \
-    components_database = load_reactions_db.process_components(
+args_dict, pathway_database, reaction_database, species_database, \
+name_database, compartment_database, compartment_dictionary, \
+components_database = load_reactions_db.process_components(
         output_dir=args_dict['output'],
         pathways_dir=args_dict['output'],
         pathways_list=path_list,
         species_id=species_id,
-        args_dict=None,
-        sbml_namespace=sbml_namespace,
+        args_dict=args_dict,
         bqbiol_namespace=bqbiol_namespace,
         rdf_namespace=rdf_namespace)
 
@@ -354,15 +353,15 @@ args_dict = {
         os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep,
     'session_data': os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))}
 
-pathway_database, reaction_database, species_database, \
-    name_database, compartment_dictionary, \
-    components_database = load_reactions.__main__(
-        species_id=args_dict['organism_id'],
-        output_dir=args_dict['output'],
-        database_source='biomodels/bigg',
-        sbml_url=os.path.abspath(os.path.join(
-            ".", "metaboverse_cli", "curate", "test", "iIS312.xml")),
-        args_dict=args_dict)
+args_dict, pathway_database, reaction_database, species_database, \
+name_database, compartment_dictionary, \
+components_database = load_reactions.__main__(
+    species_id=args_dict['organism_id'],
+    output_dir=args_dict['output'],
+    database_source='biomodels/bigg',
+    sbml_url=os.path.abspath(os.path.join(
+        ".", "metaboverse_cli", "curate", "test", "iIS312.xml")),
+    args_dict=args_dict)
 
 if 'All' in pathway_database:
     print("Pass")
@@ -393,15 +392,15 @@ args_dict = {
         os.path.join(".", "metaboverse_cli", "curate", "test")) + os.path.sep,
     'session_data': os.path.abspath(os.path.join(".", "metaboverse_cli", "curate", "test", "test_session_data_copy.json"))}
 
-pathway_database, reaction_database, species_database, \
-    name_database, compartment_dictionary, \
-    components_database = load_reactions.__main__(
-        species_id=args_dict['organism_id'],
-        output_dir=args_dict['output'],
-        database_source='biomodels/bigg',
-        sbml_url=os.path.abspath(os.path.join(
-            ".", "metaboverse_cli", "curate", "test", "BMID000000141967_url.xml")),
-        args_dict=args_dict)
+args_dict, pathway_database, reaction_database, species_database, \
+name_database, compartment_dictionary, \
+components_database = load_reactions.__main__(
+    species_id=args_dict['organism_id'],
+    output_dir=args_dict['output'],
+    database_source='biomodels/bigg',
+    sbml_url=os.path.abspath(os.path.join(
+        ".", "metaboverse_cli", "curate", "test", "BMID000000141967_url.xml")),
+    args_dict=args_dict)
 
 if 'All' in pathway_database:
     print("Pass")
