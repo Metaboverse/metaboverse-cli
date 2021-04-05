@@ -36,8 +36,8 @@ try:
     from analyze.model import load_references
     from analyze.model import load_metabolite_synonym_dictionary
     from analyze.utils import remove_defective_reactions
-    from utils import progress_feed, read_network, \
-        get_metaboverse_cli_version, write_database, safestr
+    from utils import progress_feed, track_progress, read_network, \
+                      get_metaboverse_cli_version, write_database, safestr
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -68,6 +68,7 @@ except:
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
+    track_progress = utils.track_progress
     read_network = utils.read_network
     get_metaboverse_cli_version = utils.get_metaboverse_cli_version
     write_database = utils.write_database
@@ -201,22 +202,37 @@ def make_neighbors_dictionary(
     reaction_ids = set(reaction_dictionary.keys())
 
     print('Generating Metaboverse neighbors dictionary for organism...')
+    progress_feed(args_dict, "graph", 1)
     adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(
         graph.to_undirected()).todense()
+    progress_feed(args_dict, "graph", 3)
     df = pd.DataFrame(
             adj_matrix,
             index=list(graph.nodes()),
             columns=list(graph.nodes())).apply(pd.to_numeric)
     col_labels = df.columns.tolist()
+    progress_feed(args_dict, "graph", 1)
 
+    counter = 0
+    df_len = len(df.index.tolist())
     neighbors_dictionary = {}
     for name, row in df.iterrows():
+
         indices = [i for i, x in enumerate(row) if x == 1]
         neighbors_dictionary[name] = [col_labels[_i] for _i in indices]
 
+        counter += 1
+        if counter == int(df_len / 2):
+            progress_feed(args_dict, "graph", 1)
+
+    progress_feed(args_dict, "graph", 1)
+
     print('Tuning neighbors dictionary...')
     reaction_neighbors_dictionary = {}
+    counter = 0
+    neighbors_number = len(list(neighbors_dictionary.keys()))
     for neighbor in neighbors_dictionary.keys():
+        counter = track_progress(args_dict, counter, neighbors_number, 4)
         if neighbor in reaction_ids:
             components = neighbors_dictionary[neighbor]
 
@@ -247,7 +263,7 @@ def __main__(
     network = read_network(
         file_path=args_dict['output'],
         network_url=args_dict['curation'])
-    progress_feed(args_dict, "graph", 2)
+    progress_feed(args_dict, "graph", 1)
 
     if args_dict['organism_curation_file'] != 'None':
         args_dict['organism_id'] = network['organism_id']

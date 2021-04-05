@@ -19,11 +19,11 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-import glob
 import xml.etree.ElementTree as et
 import hashlib
-import time
 import tarfile
+import time
+import glob
 import stat
 import re
 import sys
@@ -32,7 +32,7 @@ import os
 """Import internal dependencies
 """
 try:
-    from utils import progress_feed, update_session, safestr
+    from utils import progress_feed, track_progress, update_session, safestr
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -40,6 +40,7 @@ except:
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
+    track_progress = utils.track_progress
     update_session = utils.update_session
     safestr = utils.safestr
 
@@ -481,8 +482,12 @@ def process_components(
 
     print('Extracting pathway-level reaction data for: ' + str(species_id))
 
+    counter = 0
+    pathway_number = len(pathways_list)
+
     # Cycle through each pathway database and extract  contents
     for pathway in pathways_list:
+        counter = track_progress(args_dict, counter, pathway_number, 7)
 
         db = get_database(
             pathways_dir,
@@ -845,7 +850,7 @@ def __main__(
         pathways_list = get_pathways(
             species_id=species_id,
             pathways_dir=pathways_dir)
-        progress_feed(args_dict, "graph", 7)
+        progress_feed(args_dict, "graph", 5)
 
         # Get list of reaction files to use for populating database
         args_dict, pathway_database, reaction_database, species_database, \
@@ -856,7 +861,6 @@ def __main__(
             pathways_list=pathways_list,
             species_id=species_id,
             args_dict=args_dict)
-        progress_feed(args_dict, "graph", 5)
 
         if 'sbml' in pathways_dir:
             handle_folder_contents(

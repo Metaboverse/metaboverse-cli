@@ -148,7 +148,9 @@ def main(
         and safestr(args_dict['organism_curation_file']) != 'None' \
         and safestr(args_dict['organism_curation_file']) != None \
         and safestr(
-                args_dict['organism_curation_file']).split('.')[-1] != 'xml':
+                args_dict['organism_curation_file']).split('.')[-1] != 'xml' \
+        and safestr(
+                args_dict['organism_curation_file']).split('.')[-1] != 'sbml':
             # Update args_dict with path for network model
             args_dict = update_network_vars(args_dict)
             args_dict = update_session_vars(args_dict)

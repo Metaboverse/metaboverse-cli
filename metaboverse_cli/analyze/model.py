@@ -19,15 +19,15 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-from collections import Counter
 from networkx.readwrite import json_graph
+from collections import Counter
+from datetime import date
 import networkx as nx
+import pandas as pd
+import numpy as np
+import zipfile
 import pickle
 import json
-import numpy as np
-import pandas as pd
-from datetime import date
-import zipfile
 import re
 import os
 
@@ -38,7 +38,7 @@ try:
     from analyze.collapse import generate_updated_dictionary
     from analyze.mpl_colormaps import get_mpl_colormap
     from analyze.utils import convert_rgba, remove_defective_reactions
-    from utils import progress_feed, get_metaboverse_cli_version
+    from utils import progress_feed, track_progress, get_metaboverse_cli_version
 except:
     import importlib.util
     module_path = os.path.abspath(
@@ -73,6 +73,7 @@ except:
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
+    track_progress = utils.track_progress
     get_metaboverse_cli_version = utils.get_metaboverse_cli_version
 
 
@@ -101,6 +102,7 @@ def name_graph(
 
 
 def build_graph(
+        args_dict,
         network,
         pathway_database,
         species_reference,
@@ -123,8 +125,11 @@ def build_graph(
     G = nx.DiGraph()
     key_hash = set()
     remove_keys = []
-    for reactome_id in network.keys():
 
+    counter = 0
+    reaction_number = len(list(network.keys()))
+    for reactome_id in network.keys():
+        counter = track_progress(args_dict, counter, reaction_number, 5)
         G, network, key_hash, remove_keys = process_reactions(
             graph=G,
             reactome_id=reactome_id,
@@ -792,6 +797,7 @@ def prepare_mapping_data(graph, data, stats):
 
 
 def map_attributes(
+        args_dict,
         graph,
         data,
         stats,
@@ -818,8 +824,12 @@ def map_attributes(
 
     mapped_nodes = []
 
+    counter = 0
+    node_number = len(list(graph.nodes()))
+
     # Map values to nodes
     for current_id in list(graph.nodes()):
+        counter = track_progress(args_dict, counter, node_number, 5)
 
         x = current_id
         map_id = graph.nodes()[current_id]['map_id']
@@ -1135,6 +1145,7 @@ def infer_protein_stats(stats, length):
 
 
 def broadcast_values(
+        args_dict,
         graph,
         categories,
         max_value,
@@ -1148,7 +1159,12 @@ def broadcast_values(
     length = len(categories)
 
     if broadcast_genes == True:
+        counter = 0
+        node_number = len(list(graph.nodes()))
+
         for x in graph.nodes():
+            counter = track_progress(args_dict, counter, node_number, 5)
+
             try:
                 graph.nodes()[x]['values']
             except:
@@ -1203,8 +1219,16 @@ def broadcast_values(
 
                         graph.nodes()[x]['inferred'] = 'true'
                         graph.nodes()[x]['stats'] = inferred_stats
+    else:
+        progress_feed(args_dict, "graph", 5)
+
+
+    counter = 0
+    node_number = len(list(graph.nodes()))
 
     for x in graph.nodes():
+        counter = track_progress(args_dict, counter, node_number, 5)
+
         try:
             graph.nodes()[x]['values']
         except:
@@ -1440,6 +1464,7 @@ def __template__(
     # Generate graph and name mapping
     print('Building network...')
     G, network['reaction_database'], network['pathway_database'] = build_graph(
+        args_dict=args_dict,
         network=network['reaction_database'],
         pathway_database=network['pathway_database'],
         species_reference=network['species_database'],
@@ -1453,7 +1478,7 @@ def __template__(
         compartment_reference=network['compartment_dictionary'],
         component_database=network['components_database'])
     # additional_reactions=args_dict['additional_reactions'])
-    progress_feed(args_dict, "graph", 9)
+    progress_feed(args_dict, "graph", 1)
 
     # Generate list of super pathways (those with more than 200 reactions)
     print('Compiling super pathways...')
@@ -1533,6 +1558,7 @@ def __model__(
 
     print('Mapping user data...')
     G, max_value, max_stat, non_mappers = map_attributes(
+        args_dict=args_dict,
         graph=graph,
         data=data,
         stats=stats,
@@ -1542,7 +1568,6 @@ def __model__(
         chebi_synonyms=network['chebi_synonyms'],
         uniprot_mapper=uniprot_mapper,
         metabolite_mapper=metabolite_mapper)
-    progress_feed(args_dict, "graph", 5)
 
     print('Outputting unmapped metabolomics values (if any exist)...')
     if args_dict['metabolomics'].lower() != 'none':
@@ -1576,13 +1601,14 @@ def __model__(
 
     categories = data.columns.tolist()
     G = broadcast_values(
+        args_dict=args_dict,
         graph=G,
         categories=categories,
         max_value=max_value,
         max_stat=max_stat,
         broadcast_genes=broadcast_genes,
         broadcast_metabolites=broadcast_metabolites)
-    progress_feed(args_dict, "graph", 10)
+    progress_feed(args_dict, "graph", 7)
 
     print('Compiling collapsed reaction reference...')
     # Get hub threshold
@@ -1610,20 +1636,21 @@ def __model__(
 
     # Collapse reactions
     G, updated_reactions, changed_reactions, \
-        removed_reaction = collapse_nodes(
-            graph=G,
-            reaction_dictionary=no_defective_reactions,
-            neighbors_dictionary=neighbors_dictionary,
-            degree_dictionary=degree_dictionary,
-            samples=len(categories),
-            collapse_with_modifiers=args_dict['collapse_with_modifiers'],
-            blocklist=blocklist,
-            degree_threshold=degree_threshold)
+    removed_reaction = collapse_nodes(
+        args_dict=args_dict,
+        graph=G,
+        reaction_dictionary=no_defective_reactions,
+        neighbors_dictionary=neighbors_dictionary,
+        degree_dictionary=degree_dictionary,
+        samples=len(categories),
+        collapse_with_modifiers=args_dict['collapse_with_modifiers'],
+        blocklist=blocklist,
+        degree_threshold=degree_threshold)
     updated_pathway_dictionary = generate_updated_dictionary(
         original_database=network['pathway_database'],
         update_dictionary=changed_reactions,
         removed_reaction=removed_reaction)
-    progress_feed(args_dict, "graph", 8)
+    progress_feed(args_dict, "graph", 2)
 
     motif_reaction_dictionary = make_motif_reaction_dictionary(
         network=network,
@@ -1673,6 +1700,6 @@ def __model__(
         curate_version=args_dict["metaboverse-curate_version"],
         model_version=args_dict["metaboverse-model_version"])
     print('Graphing complete.')
-    progress_feed(args_dict, "graph", 2)
+    progress_feed(args_dict, "graph", 1)
 
     return os.path.join(args_dict['output'], graph_name)

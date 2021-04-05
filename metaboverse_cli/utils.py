@@ -19,8 +19,9 @@ You should have received a copy of the GNU General Public License along with
 this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
-import json
 import pickle
+import json
+import math
 import sys
 import os
 import re
@@ -242,6 +243,23 @@ def progress_feed(
         print('Could not access local variables during progress_feed() update.')
 
 
+def track_progress(
+        args_dict,
+        _counter,
+        _number,
+        _total):
+    """Keep track of progress of long collapse step
+    """
+
+    _counter += 1
+
+    if _counter % math.floor(_number / _total) == 0:
+        progress = math.floor(_total * (_counter / _number))
+        progress_feed(args_dict, "graph", min(1, progress))
+
+    return _counter
+
+
 def check_directories(
         input,
         argument):
@@ -307,7 +325,9 @@ def check_curate(
                 args_dict['organism_curation_file']).split('.')[-1] == 'mvdb':
             pass
         elif safestr(
-                args_dict['organism_curation_file']).split('.')[-1] == 'xml':
+                args_dict['organism_curation_file']).split('.')[-1] == 'xml' \
+        or safestr(
+                args_dict['organism_curation_file']).split('.')[-1] == 'sbml':
             pass
         else:
             print('\nIncorrect organism curation file type provided : ' +

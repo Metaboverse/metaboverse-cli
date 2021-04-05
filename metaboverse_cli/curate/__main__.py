@@ -381,30 +381,30 @@ def __main__(
         print('Loading complex database...')
         complexes_reference = load_complexes(
             output_dir=args_dict['output'])
-        progress_feed(args_dict, "graph", 3)
+        progress_feed(args_dict, "graph", 2)
 
         print('Parsing complex database...')
         complexes_reference['complex_dictionary'] = parse_complexes(
             complexes_reference)
-        progress_feed(args_dict, "graph", 2)
+        progress_feed(args_dict, "graph", 1)
 
         print('Finalizing complex database...')
         complexes_reference['complex_dictionary'] = reference_complex_species(
             reference=complexes_reference['complex_dictionary'],
             name_database=name_database)
-        progress_feed(args_dict, "graph", 2)
+        progress_feed(args_dict, "graph", 1)
 
         print('Parsing Ensembl database...')
         ensembl_reference = parse_ensembl_synonyms(
             output_dir=args_dict['output'],
             species_id=args_dict['organism_id'])
-        progress_feed(args_dict, "graph", 3)
+        progress_feed(args_dict, "graph", 7)
 
         print('Adding gene IDs to name database...')
         name_database = add_genes(
             name_database=name_database,
             ensembl_reference=ensembl_reference)
-        progress_feed(args_dict, "graph", 2)
+        progress_feed(args_dict, "graph", 1)
 
         print('Parsing UniProt database...')
         uniprot_reference = parse_uniprot_synonyms(
@@ -461,5 +461,5 @@ def __main__(
         raise Exception('Unable to output database file.')
     progress_feed(args_dict, "graph", 5)
     print('Metaboverse database curation complete.')
-    
+
     return args_dict

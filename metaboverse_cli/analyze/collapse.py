@@ -23,10 +23,18 @@ from __future__ import print_function
 """Import dependencies
 """
 try:
+    from utils import progress_feed, track_progress
     from analyze.utils import convert_rgba
 except:
     import os
     import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "", os.path.abspath(os.path.join(".", "metaboverse_cli", "utils.py")))
+    utils = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(utils)
+    progress_feed = utils.progress_feed
+    track_progress = utils.track_progress
+
     spec = importlib.util.spec_from_file_location(
         "convert_rgba", os.path.abspath("./metaboverse_cli/analyze/utils.py"))
     convert_rgba = importlib.util.module_from_spec(spec)
@@ -382,6 +390,7 @@ def check_neighbors(
 
 
 def collapse_nodes(
+        args_dict,
         graph,
         reaction_dictionary,
         neighbors_dictionary,
@@ -413,7 +422,11 @@ def collapse_nodes(
     removed_reaction = set()  # for reactions that are collapsed, make sure the
     # original reactions are removed from the final reaction dictionary
 
+    counter = 0
+    reaction_number = len(list(reaction_dictionary.keys()))
+
     for rxn in list(reaction_dictionary.keys()):
+        counter = track_progress(args_dict, counter, reaction_number, 10)
 
         # Parse out reaction metadata
         key = rxn
