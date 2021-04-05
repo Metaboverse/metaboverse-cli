@@ -499,6 +499,7 @@ stats[0] = [.1, .3, .5]
 stats.index = ['Alpha', 'Gamma', 'epsilon']
 
 G_mapped, data_max, stats_max, non_mappers = map_attributes(
+    args_dict={},
     graph=G_map,
     data=data,
     stats=stats,
@@ -622,6 +623,7 @@ assert infer_protein_stats(vals, length) == [4], 'infer_protein_stats() failed'
 print("Testing broadcast_values()")
 G_update = G.copy()
 G_update = broadcast_values(
+    args_dict={},
     graph=G_update,
     categories=[0],
     max_value=100,
@@ -653,6 +655,7 @@ G_update.add_edges_from([
     ('Zeta', 'Gamma')])
 
 G_update = broadcast_values(
+    args_dict={},
     graph=G_update,
     categories=[0],
     max_value=100,
@@ -1069,6 +1072,7 @@ collapse_degree_dictionary = {
 print("Testing collapse_nodes()")
 G_coll1 = G_collapse.copy()
 G_coll1, updated_rxns1, changed_rxns1, removed_rxn1 = collapse_nodes(
+    args_dict={},
     graph=G_coll1,
     reaction_dictionary=collapser_database,
     neighbors_dictionary={},
@@ -1096,6 +1100,7 @@ assert list(updated_rxns1.keys()
 
 G_coll2 = G_collapse.copy()
 G_coll2, updated_rxns2, changed_rxns2, removed_rxn2 = collapse_nodes(
+    args_dict={},
     graph=G_coll2,
     reaction_dictionary=collapser_database,
     neighbors_dictionary={},
@@ -1362,6 +1367,7 @@ blocklist_3 = ['N20']
 
 G_coll3 = G_collapse_3.copy()
 G_coll3, updated_rxns3, changed_rxns3, removed_rxn3 = collapse_nodes(
+    args_dict={},
     graph=G_coll3,
     reaction_dictionary=collapser_database_3,
     neighbors_dictionary={},
