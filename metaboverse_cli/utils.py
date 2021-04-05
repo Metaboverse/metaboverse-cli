@@ -253,7 +253,7 @@ def track_progress(
 
     _counter += 1
 
-    if _counter % math.floor(_number / _total) == 0:
+    if _counter % max(1, math.floor(_number / _total)) == 0:
         progress = math.floor(_total * (_counter / _number))
         progress_feed(args_dict, "graph", min(1, progress))
 
