@@ -339,6 +339,7 @@ assert name == test_args['organism_id'] + '_global_reactions.mvrs', 'name_graph(
 print("Testing build_graph()")
 net_copy = net_test.copy()
 gg1, net_copy, pathway_database = build_graph(
+    args_dict=test_args,
     network=net_copy['reaction_database'],
     pathway_database=net_copy['pathway_database'],
     species_reference={},
