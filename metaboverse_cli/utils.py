@@ -78,7 +78,7 @@ def update_network_vars(args_dict):
                     args_dict['output_file'] = args_dict['output'] \
                         + args_dict['organism_id'] \
                         + '.mvrs'
-                args_dict['network'] = args_dict['organism_curation_file']
+                args_dict['curation'] = args_dict['organism_curation_file'].split(os.path.sep)[-1]
             except:
                 print(
                     "Warning: Unable to open organism reference file: " \
@@ -101,6 +101,10 @@ def update_session_vars(args_dict):
         session_file=session_file,
         key='output_file',
         value=args_dict['output_file'])
+    update_session(
+        session_file=session_file,
+        key='curation',
+        value=args_dict['curation'])
     update_session(
         session_file=session_file,
         key='database_url',

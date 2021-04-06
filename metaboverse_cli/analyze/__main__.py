@@ -202,48 +202,42 @@ def make_neighbors_dictionary(
     reaction_ids = set(reaction_dictionary.keys())
 
     print('Generating Metaboverse neighbors dictionary for organism...')
-    progress_feed(args_dict, "graph", 1)
-    adj_matrix = nx.linalg.graphmatrix.adjacency_matrix(
-        graph.to_undirected()).todense()
-    progress_feed(args_dict, "graph", 3)
-    df = pd.DataFrame(
-            adj_matrix,
-            index=list(graph.nodes()),
-            columns=list(graph.nodes())).apply(pd.to_numeric)
-    col_labels = df.columns.tolist()
-    progress_feed(args_dict, "graph", 1)
 
     counter = 0
-    df_len = len(df.index.tolist())
+    edges = list(graph.edges)
+    edge_len = len(edges)
     neighbors_dictionary = {}
-    for name, row in df.iterrows():
-
-        indices = [i for i, x in enumerate(row) if x == 1]
-        neighbors_dictionary[name] = [col_labels[_i] for _i in indices]
-
-        counter += 1
-        if counter == int(df_len / 2):
-            progress_feed(args_dict, "graph", 1)
-
-    progress_feed(args_dict, "graph", 1)
+    for e in edges:
+        one = e[0]
+        two = e[1]
+        if one in neighbors_dictionary.keys():
+            neighbors_dictionary[one].add(two)
+        else:
+            neighbors_dictionary[one] = set()
+            neighbors_dictionary[one].add(two)
+        if two in neighbors_dictionary.keys():
+            neighbors_dictionary[two].add(one)
+        else:
+            neighbors_dictionary[two] = set()
+            neighbors_dictionary[two].add(one)
+        counter = track_progress(args_dict, counter, edge_len, 5)
 
     print('Tuning neighbors dictionary...')
     reaction_neighbors_dictionary = {}
     counter = 0
-    neighbors_number = len(list(neighbors_dictionary.keys()))
-    for neighbor in neighbors_dictionary.keys():
-        counter = track_progress(args_dict, counter, neighbors_number, 4)
+    neighbors = list(neighbors_dictionary.keys())
+    neighbors_number = len(neighbors)
+    for neighbor in neighbors:
         if neighbor in reaction_ids:
             components = neighbors_dictionary[neighbor]
-
             connected_reactions = set()
             for _c in components:
                 for _c_ in neighbors_dictionary[_c]:
                     if _c_ in reaction_ids:
                         connected_reactions.add(_c_)
             connected_reactions = list(connected_reactions)
-
             reaction_neighbors_dictionary[neighbor] = connected_reactions
+        counter = track_progress(args_dict, counter, neighbors_number, 5)
 
     print('Writing neighbors dictionary to database file...')
     write_database(
@@ -399,9 +393,9 @@ def test():
         'database_date': "",
         'curation_date': ""}
     args_dict = {
-        'output': "C:\\Users\\u0690617\\Desktop",
-        'url': "C:\\Users\\u0690617\\Desktop\\HSA.mvdb",
-        'neighbor_dictionary_file': "C:\\Users\\u0690617\\Desktop\\HSA.nbdb",
+        'output': "C:\\Users\\jorda\\Desktop",
+        'curation': "HSA.mvdb",
+        'graph_template_file': "C:\\Users\\jorda\\Desktop\\HSA_template.mvrs",
         'organism_id': 'HSA'}
 
     network = read_network(
