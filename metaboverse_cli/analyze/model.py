@@ -1608,7 +1608,7 @@ def __model__(
         max_stat=max_stat,
         broadcast_genes=broadcast_genes,
         broadcast_metabolites=broadcast_metabolites)
-    progress_feed(args_dict, "graph", 7)
+    progress_feed(args_dict, "graph", 5)
 
     print('Compiling collapsed reaction reference...')
     # Get hub threshold

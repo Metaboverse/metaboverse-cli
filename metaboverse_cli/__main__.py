@@ -121,7 +121,7 @@ def main(
     args, args_dict = parse_arguments(
         args,
         __version__)
-    progress_feed(args_dict, "graph", 3)
+    progress_feed(args_dict, "graph", 2)
 
     # Get info on archived database versions available for direct download
     this_version = get_metaboverse_cli_version()
@@ -158,7 +158,7 @@ def main(
             progress_feed(
                 args_dict=args_dict,
                 process="graph",
-                amount=50)
+                amount=48)
 
         # MVDB file exists in repo
         elif (args_dict['force_new_curation'] == False \

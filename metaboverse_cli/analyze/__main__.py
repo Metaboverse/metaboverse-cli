@@ -220,7 +220,7 @@ def make_neighbors_dictionary(
         else:
             neighbors_dictionary[two] = set()
             neighbors_dictionary[two].add(one)
-        counter = track_progress(args_dict, counter, edge_len, 5)
+        counter = track_progress(args_dict, counter, edge_len, 3)
 
     print('Tuning neighbors dictionary...')
     reaction_neighbors_dictionary = {}
@@ -237,7 +237,7 @@ def make_neighbors_dictionary(
                         connected_reactions.add(_c_)
             connected_reactions = list(connected_reactions)
             reaction_neighbors_dictionary[neighbor] = connected_reactions
-        counter = track_progress(args_dict, counter, neighbors_number, 5)
+        counter = track_progress(args_dict, counter, neighbors_number, 3)
 
     print('Writing neighbors dictionary to database file...')
     write_database(
@@ -266,7 +266,7 @@ def __main__(
     data, stats, unmapped, flag_data = process_data(
         network=network,
         args_dict=args_dict)
-    progress_feed(args_dict, "graph", 3)
+    progress_feed(args_dict, "graph", 2)
 
     # Generate graph template
     this_version = get_metaboverse_cli_version()
@@ -358,6 +358,8 @@ def __main__(
             args_dict=args_dict,
             graph=graph,
             reaction_dictionary=no_defective_reactions)
+    else:
+        progress_feed(args_dict, "graph", 6)
 
     # Overlay data on graph and collapse as able
     graph_name = __model__(
@@ -378,7 +380,6 @@ def __main__(
         unmapped=unmapped,
         flag_data=flag_data)
 
-    progress_feed(args_dict, "graph", 10)
     return graph_name
 
 
