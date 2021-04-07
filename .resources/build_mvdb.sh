@@ -47,7 +47,7 @@ for X in ${SPECIES[@]};
 done
 
 # Run
-parallel $MY_PATH/dist/metaboverse-cli-linux curate --force_new_curation -o $SCRDIR/{} -s {} ::: "${SPECIES[@]}"
+parallel $MY_PATH/dist/metaboverse-cli-linux curate --force_new_curation --output $SCRDIR/{} --organism_id {} ::: "${SPECIES[@]}"
 
 printf "+ Processing complete...\n"
 

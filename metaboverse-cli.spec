@@ -17,7 +17,7 @@ a = Analysis(
   pathex=[
     'metaboverse_cli'
   ],
-  binaries=[
+  datas=[
     (
       os.path.join(
         'metaboverse_cli',
@@ -27,9 +27,7 @@ a = Analysis(
       os.path.join(
         'analyze',
         'data')
-    )
-  ],
-  datas=[
+    ),
     (
       'README.md',
       '.'
@@ -57,6 +55,7 @@ a = Analysis(
   cipher=block_cipher,
   noarchive=False
 )
+
 pyz = PYZ(
   a.pure,
   a.zipped_data,
