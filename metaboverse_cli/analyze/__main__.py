@@ -78,8 +78,9 @@ except:
     update_session_vars = utils.update_session_vars
 
 
-TEMPLATE_URL='https://sourceforge.net/projects/metaboverse/files/mvrs_files/'
-NEIGHBOR_URL='https://sourceforge.net/projects/metaboverse/files/nbdb_files/'
+SOURCE_URL='https://rutter.chpc.utah.edu/Metaboverse/source/'
+NEIGHBOR_DIR='nbdb'
+TEMPLATE_DIR='mvrs'
 
 
 def process_data(
@@ -170,7 +171,7 @@ def read_template(
     args_dict['template_date'] = graph_data['metadata']['template_date']
 
     progress_feed(args_dict, "graph", 9)
-    
+
     return graph, args_dict, network, name_reference, \
         degree_dictionary, super_pathways, chebi_dictionary, \
         uniprot_mapper, metabolite_mapper
@@ -287,9 +288,10 @@ def __main__(
     # Generate graph template
     this_version = get_metaboverse_cli_version()
     test_url = (
-        TEMPLATE_URL
-        + this_version + '/'
-        + args_dict['organism_id'] + '_template.mvrs/download')
+        SOURCE_URL
+        + 'v' + this_version + '/'
+        + TEMPLATE_DIR + '/'
+        + args_dict['organism_id'] + '_template.mvrs')
     url_response = requests.head(test_url)
 
     if (args_dict['force_new_curation'] == False \
@@ -336,9 +338,10 @@ def __main__(
 
     # Generate graph template
     neighbors_url = (
-        NEIGHBOR_URL
-        + this_version + '/'
-        + args_dict['organism_id'] + '.nbdb/download')
+        SOURCE_URL
+        + 'v' + this_version + '/'
+        + NEIGHBOR_DIR + '/'
+        + args_dict['organism_id'] + '.nbdb')
     neighbor_response = requests.head(neighbors_url)
 
     force_neighbors = False

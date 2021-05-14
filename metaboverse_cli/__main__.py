@@ -94,8 +94,8 @@ except:
 
 
 # Set globals
-REFERENCE_URL='https://sourceforge.net/projects/metaboverse/files/mvdb_files/'
-REFERENCE_EXTENSION='.mvdb/download'
+SOURCE_URL='https://rutter.chpc.utah.edu/Metaboverse/source/'
+CURATION_DIR='mvdb'
 
 
 def get_reference(
@@ -126,9 +126,10 @@ def main(
     # Get info on archived database versions available for direct download
     this_version = get_metaboverse_cli_version()
     reference_url = (
-        REFERENCE_URL
-        + this_version + '/'
-        + args_dict['organism_id'] + REFERENCE_EXTENSION)
+        SOURCE_URL
+        + 'v' + this_version + '/'
+        + CURATION_DIR + '/'
+        + args_dict['organism_id'] + '.mvdb')
     url_response = requests.head(reference_url)
 
     if args_dict['cmd'] == 'metaboliteMapper':
