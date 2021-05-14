@@ -55,7 +55,9 @@ args_dict = {
     'blocklist': '',
     'organism_curation_file': 'None',
     'force_new_curation': True,
-    'collapse_threshold': 0.4
+    'collapse_threshold': 0.4,
+    'session_data': os.path.abspath(
+        './metaboverse_cli/analyze/test/session_data.txt'),
 }
 
 zipped_net = os.path.abspath(

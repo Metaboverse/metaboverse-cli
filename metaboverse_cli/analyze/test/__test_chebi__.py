@@ -87,7 +87,9 @@ args_chebi = {
     'labels': '0',
     'blocklist': '',
     'force_new_curation': True,
-    'collapse_threshold': 0.5
+    'collapse_threshold': 0.5,
+    'session_data': os.path.abspath(
+        './metaboverse_cli/analyze/test/session_data.txt'),
 }
 spec = importlib.util.spec_from_file_location(
     "", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
