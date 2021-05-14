@@ -86,7 +86,8 @@ args_chebi = {
     'broadcast_metabolites': True,
     'labels': '0',
     'blocklist': '',
-    'force_new_curation': True
+    'force_new_curation': True,
+    'collapse_threshold': 0.5
 }
 spec = importlib.util.spec_from_file_location(
     "", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
