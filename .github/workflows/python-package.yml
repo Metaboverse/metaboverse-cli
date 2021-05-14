@@ -40,4 +40,5 @@ jobs:
         bash <(curl -s https://codecov.io/bash) -cF python
         coverage run metaboverse_cli/analyze/test/__test_main__.py
         bash <(curl -s https://codecov.io/bash) -cF python
-        # - coverage run metaboverse_cli/mapper/__test__.py # can't run due to travis memory limit
+        coverage run metaboverse_cli/mapper/__test__.py
+        bash <(curl -s https://codecov.io/bash) -cF python

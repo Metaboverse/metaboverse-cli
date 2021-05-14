@@ -85,11 +85,11 @@ printf "\n"
 # Afterwards, upload to sourceforge
 
 # $ cd $SCRDIR
-# $ scp -r */*.mvdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z
-# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z
+# $ scp -r */*.mvdb u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvdb
+# scp README.txt u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvdb
 
-# $ scp -r */*_template.mvrs j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z
-# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z
+# $ scp -r */*_template.mvrs u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvrs
+# scp README.txt u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvrs
 
-# $ scp -r */*.nbdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z
-# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z
+# $ scp -r */*.nbdb u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/nbdb
+# scp README.txt u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/nbdb

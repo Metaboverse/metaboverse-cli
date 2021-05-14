@@ -54,7 +54,7 @@ args_dict = {
     'labels': '0',
     'blocklist': '',
     'organism_curation_file': 'None',
-    'force_new_curation': False
+    'force_new_curation': True
 }
 
 zipped_net = os.path.abspath(
