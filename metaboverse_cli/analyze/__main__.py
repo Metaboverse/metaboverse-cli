@@ -21,6 +21,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import print_function
 import networkx as nx
 import pandas as pd
+from datetime import date
 import requests
 import pickle
 import json
@@ -37,7 +38,8 @@ try:
     from analyze.model import load_metabolite_synonym_dictionary
     from analyze.utils import remove_defective_reactions
     from utils import progress_feed, track_progress, read_network, \
-                      get_metaboverse_cli_version, write_database, safestr
+                      get_metaboverse_cli_version, write_database, safestr, \
+                      update_session_vars
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -73,6 +75,7 @@ except:
     get_metaboverse_cli_version = utils.get_metaboverse_cli_version
     write_database = utils.write_database
     safestr = utils.safestr
+    update_session_vars = utils.update_session_vars
 
 
 TEMPLATE_URL='https://sourceforge.net/projects/metaboverse/files/mvrs_files/'
@@ -159,8 +162,15 @@ def read_template(
         uniprot_metabolites=network['uniprot_metabolites'])
     metabolite_mapper = load_metabolite_synonym_dictionary()
 
-    progress_feed(args_dict, "graph", 9)
+    args_dict["curation_version"] = network["metaboverse-curate_version"]
+    args_dict["curation_date"] = network["curation_date"]
+    args_dict["database_version"] = network["database_version"]
+    args_dict['template_url'] = file
+    args_dict['template_version'] = graph_data['metadata']['template_version']
+    args_dict['template_date'] = graph_data['metadata']['template_date']
 
+    progress_feed(args_dict, "graph", 9)
+    
     return graph, args_dict, network, name_reference, \
         degree_dictionary, super_pathways, chebi_dictionary, \
         uniprot_mapper, metabolite_mapper
@@ -189,6 +199,8 @@ def download_neighbors_dictionary(
     neighbors_dictionary = read_network(
         file_path=args_dict['output'],
         network_url=file)
+
+    neighbors_dictionary['nbdb-Metaboverse-url'] = file
 
     return neighbors_dictionary
 
@@ -238,6 +250,10 @@ def make_neighbors_dictionary(
             connected_reactions = list(connected_reactions)
             reaction_neighbors_dictionary[neighbor] = connected_reactions
         counter = track_progress(args_dict, counter, neighbors_number, 3)
+
+    reaction_neighbors_dictionary['nbdb-Metaboverse-version'] = get_metaboverse_cli_version()
+    reaction_neighbors_dictionary['nbdb-Metaboverse-date'] = date.today().strftime('%Y-%m-%d')
+    reaction_neighbors_dictionary['nbdb-Metaboverse-url'] = os.path.join(args_dict['output'], args_dict['organism_id'] + '.nbdb')
 
     print('Writing neighbors dictionary to database file...')
     write_database(
@@ -379,6 +395,8 @@ def __main__(
         super_pathways=super_pathways,
         unmapped=unmapped,
         flag_data=flag_data)
+
+    args_dict = update_session_vars(args_dict)
 
     return graph_name
 

@@ -96,6 +96,9 @@ def check_arguments(
         input=args_dict['output'],
         argument='output')
 
+    if 'collapse_threshold' in args_dict:
+        args_dict['collapse_threshold'] = float(args_dict['collapse_threshold'])
+
     # Print out user commands to log file
     print('Metaboverse-CLI version: ' + safestr(__version__))
     print('======================\nUser commands summary:\n======================')
@@ -341,6 +344,12 @@ def parse_arguments(
         help='Comma separated list of names for metabolites, etc., to ignore in the analysis and visualization.',
         metavar='H+, H2O, etc...',
         type=str,
+        required=False)
+    curate_opts.add_argument(
+        '--collapse_threshold',
+        help='Percentage of matching nodes between two reactions to collapse (number must be between 0 and 1).',
+        type=str,
+        default="0.3",
         required=False)
     curate_opts.add_argument(
         '--session_data',

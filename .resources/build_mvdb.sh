@@ -51,7 +51,7 @@ parallel $MY_PATH/dist/metaboverse-cli-linux curate --force_new_curation --outpu
 
 printf "+ Processing complete...\n"
 
-printf "+ Outputing metadata\n"
+printf "+ Outputting metadata\n"
 cp /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-$SLURM_JOBID $SCRDIR
 
 printf "Metadata for bulk Metaboverse .mvdb curation:\n" >> $SCRDIR/README.txt
@@ -83,12 +83,13 @@ printf "\n"
 
 
 # Afterwards, upload to sourceforge
+
 # $ cd $SCRDIR
-# $ scp -r */*.mvdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
-# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z-tag
+# $ scp -r */*.mvdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z
+# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvdb_files/x.y.z
 
-# $ scp -r */_template.mvrs j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z-tag
-# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z-tag
+# $ scp -r */*_template.mvrs j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z
+# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/mvrs_files/x.y.z
 
-# $ scp -r */*.nbdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z-tag
-# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z-tag
+# $ scp -r */*.nbdb j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z
+# scp README.txt j-berg@frs.sourceforge.net:/home/frs/project/metaboverse/nbdb_files/x.y.z

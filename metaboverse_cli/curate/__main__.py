@@ -439,8 +439,8 @@ def __main__(
         'compartment_dictionary': compartment_dictionary,
         'components_database': components_database,
         'curation_date': date.today().strftime('%Y-%m-%d'),
+        'metaboverse-curate_version': get_metaboverse_cli_version(),
         'database_version': database_version,
-        'metaboverse-curate_version': get_metaboverse_cli_version()
     }
 
     # Write database to file

@@ -1496,8 +1496,11 @@ def __template__(
     args_dict["max_stat"] = 1
     args_dict["database_date"] = date.today().strftime('%Y-%m-%d')
     args_dict["curation_date"] = network["curation_date"]
-    args_dict["metaboverse-curate_version"] = network["metaboverse-curate_version"]
-    args_dict["metaboverse-model_version"] = get_metaboverse_cli_version()
+    args_dict["curation_version"] = network["metaboverse-curate_version"]
+    args_dict['template_url'] = os.path.join(args_dict['output'], graph_name)
+    args_dict['template_version'] = get_metaboverse_cli_version()
+    args_dict['template_date'] = date.today().strftime('%Y-%m-%d')
+
     output_graph(
         graph=G,
         output_name=os.path.join(args_dict['output'], graph_name),
@@ -1518,8 +1521,8 @@ def __template__(
         curation_date=args_dict["curation_date"],
         metadata=args_dict,
         unmapped=[],
-        curate_version=args_dict["metaboverse-curate_version"],
-        model_version=args_dict["metaboverse-model_version"])
+        curate_version=args_dict["curation_version"],
+        model_version=args_dict["template_version"])
     print('Graphing complete.')
 
     return G, args_dict, network, name_reference, degree_dictionary, \
@@ -1621,6 +1624,7 @@ def __model__(
     else:
         degree_threshold = 0
 
+
     if 'blocklist' in args_dict \
             and isinstance(args_dict['blocklist'], str):
         _blocklist = args_dict['blocklist'].replace(' ', '').split(',')
@@ -1645,7 +1649,8 @@ def __model__(
         samples=len(categories),
         collapse_with_modifiers=args_dict['collapse_with_modifiers'],
         blocklist=blocklist,
-        degree_threshold=degree_threshold)
+        degree_threshold=degree_threshold,
+        collapse_threshold=args_dict['collapse_threshold'])
     updated_pathway_dictionary = generate_updated_dictionary(
         original_database=network['pathway_database'],
         update_dictionary=changed_reactions,
@@ -1673,10 +1678,15 @@ def __model__(
     print('Exporting graph...')
     args_dict["max_value"] = max_value
     args_dict["max_stat"] = max_stat
-    args_dict["database_date"] = date.today().strftime('%Y-%m-%d')
+    args_dict["curation_version"] = network["metaboverse-curate_version"]
     args_dict["curation_date"] = network["curation_date"]
-    args_dict["metaboverse-curate_version"] = network["metaboverse-curate_version"]
-    args_dict["metaboverse-model_version"] = get_metaboverse_cli_version()
+    args_dict["database_version"] = network["database_version"]
+    args_dict["model_version"] = get_metaboverse_cli_version()
+    args_dict["model_date"] = date.today().strftime('%Y-%m-%d')
+    args_dict['neighbors_url'] = neighbors_dictionary['nbdb-Metaboverse-url']
+    args_dict['neighbors_version'] = neighbors_dictionary['nbdb-Metaboverse-version']
+    args_dict['neighbors_date'] = neighbors_dictionary['nbdb-Metaboverse-date']
+
     output_graph(
         graph=G,
         output_name=os.path.join(args_dict['output'], graph_name),
@@ -1697,8 +1707,8 @@ def __model__(
         curation_date=args_dict["curation_date"],
         metadata=args_dict,
         unmapped=non_mappers,
-        curate_version=args_dict["metaboverse-curate_version"],
-        model_version=args_dict["metaboverse-model_version"])
+        curate_version=args_dict["curation_version"],
+        model_version=args_dict["database_version"])
     print('Graphing complete.')
     progress_feed(args_dict, "graph", 1)
 

@@ -89,7 +89,7 @@ def find_values(
         current_inputs,
         collapse_with_modifiers,
         degree_dictionary,
-        match_threshold,
+        collapse_threshold,
         degree_threshold):
     """Are there any values for either side of the reaction?
     - There can only be one side with values for this situation to be valid in
@@ -106,7 +106,7 @@ def find_values(
         side2=reaction_dictionary[neighbor]['reactants'],
         degree_dictionary=degree_dictionary,
         collapse_with_modifiers=collapse_with_modifiers,
-        match_threshold=match_threshold,
+        collapse_threshold=collapse_threshold,
         degree_threshold=degree_threshold)
     if pass_match == True:
         side_key = 'products'
@@ -253,7 +253,7 @@ def get_instructions(
         side2,
         degree_dictionary,
         collapse_with_modifiers,
-        match_threshold,
+        collapse_threshold,
         degree_threshold):
     """See which sides were matching for collapse
     """
@@ -271,7 +271,7 @@ def get_instructions(
         reaction_list=short_side1,
         neighbor_list=short_side2)
 
-    if unity_proportion >= match_threshold:
+    if unity_proportion >= collapse_threshold:
         pass_match = True
     else:
         pass_match = False
@@ -290,7 +290,7 @@ def check_neighbors(
         input_neighbors,
         output_neighbors,
         blocklist,
-        match_threshold,
+        collapse_threshold,
         degree_threshold):
 
     # Parse potential bridge inputs and outputs
@@ -360,26 +360,26 @@ def check_neighbors(
             short_neighbor_reactants + short_neighbor_products \
     and real_modifiers != neighbor_modifiers \
     and neighbor_key != key \
-    and unity_reactants_nnReactants >= match_threshold:
+    and unity_reactants_nnReactants >= collapse_threshold:
         input_neighbors.append(neighbor_key)
     if short_reactants + short_products != \
             short_neighbor_reactants + short_neighbor_products \
     and real_modifiers != neighbor_modifiers \
     and neighbor_key != key \
-    and unity_reactants_nnProducts >= match_threshold:
+    and unity_reactants_nnProducts >= collapse_threshold:
         input_neighbors.append(neighbor_key)
 
     if short_reactants + short_products != \
             short_neighbor_reactants + short_neighbor_products \
     and real_modifiers != neighbor_modifiers \
     and neighbor_key != key \
-    and unity_products_nnReactants >= match_threshold:
+    and unity_products_nnReactants >= collapse_threshold:
         output_neighbors.append(neighbor_key)
     if short_reactants + short_products != \
             short_neighbor_reactants + short_neighbor_products \
     and real_modifiers != neighbor_modifiers \
     and neighbor_key != key \
-    and unity_products_nnProducts >= match_threshold:
+    and unity_products_nnProducts >= collapse_threshold:
         output_neighbors.append(neighbor_key)
 
     # Remove duplicates
@@ -399,7 +399,7 @@ def collapse_nodes(
         collapse_with_modifiers,
         blocklist,
         degree_threshold=50,
-        match_threshold=0.3):
+        collapse_threshold=0.3):
     """After values are broadcast, collapse network by creating new reaction
     dictionary
     Methods:
@@ -415,6 +415,9 @@ def collapse_nodes(
     if both have a distal value, collapse the three reactions together.
     """
 
+    print('Collapse match threshold: ' + str(collapse_threshold))
+    print('Degree threshold for collapsing: ' + str(degree_threshold))
+
     updated_reactions = {}  # Collapsed reaction dictionary for plotting
     changed_reactions = {}  # For mapping collapsed reactions post-processing
     # This makes sure that collapsed reactions are not added twice
@@ -424,6 +427,8 @@ def collapse_nodes(
 
     counter = 0
     reaction_number = len(list(reaction_dictionary.keys()))
+
+    print('Analyzing ' + str(reaction_number) + ' reactions for collapsing...')
 
     for rxn in list(reaction_dictionary.keys()):
         counter = track_progress(args_dict, counter, reaction_number, 10)
@@ -521,7 +526,7 @@ def collapse_nodes(
                             input_neighbors=input_neighbors,
                             output_neighbors=output_neighbors,
                             blocklist=blocklist,
-                            match_threshold=match_threshold,
+                            collapse_threshold=collapse_threshold,
                             degree_threshold=degree_threshold)
             else:
                 for neighbor_key in reaction_dictionary.keys():
@@ -537,7 +542,7 @@ def collapse_nodes(
                             input_neighbors=input_neighbors,
                             output_neighbors=output_neighbors,
                             blocklist=blocklist,
-                            match_threshold=match_threshold,
+                            collapse_threshold=collapse_threshold,
                             degree_threshold=degree_threshold)
 
             # Run one-sided bridging for reactions where inputs exist and
@@ -552,7 +557,7 @@ def collapse_nodes(
                         side2=reaction_dictionary[o]['reactants'],
                         degree_dictionary=degree_dictionary,
                         collapse_with_modifiers=collapse_with_modifiers,
-                        match_threshold=match_threshold,
+                        collapse_threshold=collapse_threshold,
                         degree_threshold=degree_threshold)
                     if pass_match == True:
                         side_key = 'products'
@@ -642,7 +647,7 @@ def collapse_nodes(
                         side2=reaction_dictionary[i]['reactants'],
                         degree_dictionary=degree_dictionary,
                         collapse_with_modifiers=collapse_with_modifiers,
-                        match_threshold=match_threshold,
+                        collapse_threshold=collapse_threshold,
                         degree_threshold=degree_threshold)
                     if pass_match == True:
                         side_key = 'products'
@@ -737,7 +742,7 @@ def collapse_nodes(
                                 current_inputs=reactants,
                                 collapse_with_modifiers=collapse_with_modifiers,
                                 degree_dictionary=degree_dictionary,
-                                match_threshold=match_threshold,
+                                collapse_threshold=collapse_threshold,
                                 degree_threshold=degree_threshold)
                             eval_j = find_values(
                                 graph=graph,
@@ -746,7 +751,7 @@ def collapse_nodes(
                                 current_inputs=products,
                                 collapse_with_modifiers=collapse_with_modifiers,
                                 degree_dictionary=degree_dictionary,
-                                match_threshold=match_threshold,
+                                collapse_threshold=collapse_threshold,
                                 degree_threshold=degree_threshold)
 
                             # If both neighbor reactions have values and the
