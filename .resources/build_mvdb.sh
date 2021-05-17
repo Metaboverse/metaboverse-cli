@@ -12,6 +12,12 @@
 # - 4x RTX2080TI GPUs
 # - 168hr max
 
+
+# Set curation version
+VERSION="0.7.0"
+
+
+
 # Set instance variables
 printf "+ Setting environment...\n"
 MY_PATH=/uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/programs/metaboverse-cli
@@ -20,19 +26,13 @@ mkdir -p $SCRDIR
 cd $SCRDIR
 
 # Activate conda environment
-# source /uufs/chpc.utah.edu/common/home/u0690617/miniconda3/etc/profile.d/conda.sh
-#conda remove -y -n metaboverse_cli
-#conda create -y -n metaboverse_cli
-# source activate metaboverse_cli
-#conda config --add channels bioconda:
-#conda config --add channels conda-forge
-#conda install -y python
-#conda install -y conda
-#conda install -y pyinstaller
-#conda install -y pandas numpy scipy scikit-learn matplotlib networkx requests
+source /uufs/chpc.utah.edu/common/home/u0690617/miniconda3/etc/profile.d/conda.sh
+source activate pyinstaller
+conda update -n base -c defaults conda
+conda update --all
 
 # Build current version of metaboverse-cli
-#pyinstaller $MY_PATH/metaboverse-linux.spec
+pyinstaller $MY_PATH/metaboverse-linux.spec
 
 printf "+ Version info:\n"
 $MY_PATH/dist/metaboverse-cli-linux -v
@@ -80,16 +80,20 @@ done
 printf "\nEND" >> $SCRDIR/README.txt
 printf "\n"
 
+# Afterwards, upload to host
+MKDIR -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvdb
+MKDIR -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvrs
+MKDIR -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/nbdb
 
+cd $SCRDIR
+cp -r */*.mvdb /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvdb
+cp README.txt /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvdb
 
-# Afterwards, upload to sourceforge
+cp -r */*_template.mvrs /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvrs
+cp README.txt /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvrs
 
-# $ cd $SCRDIR
-# $ scp -r */*.mvdb u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvdb
-# scp README.txt u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvdb
+cp -r */*.nbdb /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/nbdb
+cp README.txt /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/nbdb
 
-# $ scp -r */*_template.mvrs u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvrs
-# scp README.txt u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/mvrs
-
-# $ scp -r */*.nbdb u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/nbdb
-# scp README.txt u0690617@notchpeak.chpc.utah.edu:/uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/vX.Y.Z/nbdb
+conda list > build_versions.txt
+cp build_versions.txt /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION
