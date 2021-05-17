@@ -1032,12 +1032,8 @@ def output_graph(
         categories,
         labels,
         blocklist,
-        database_date,
-        curation_date,
         metadata,
-        unmapped,
-        curate_version,
-        model_version):
+        unmapped):
     """Output graph and necessary metadata
     """
 
@@ -1057,10 +1053,6 @@ def output_graph(
     data['blocklist'] = blocklist
     data['metadata'] = metadata
     data['unmapped'] = unmapped
-    data['database_date'] = database_date
-    data['curation_date'] = curation_date
-    data['Metaboverse-cli_curation_version'] = curate_version
-    data['Metaboverse-cli_model_version'] = model_version
 
     with open(output_name, 'w') as f:
         json.dump(data, f, indent=4)  # Parse out as array for javascript
@@ -1494,7 +1486,8 @@ def __template__(
     print('Exporting template...')
     args_dict["max_value"] = 0
     args_dict["max_stat"] = 1
-    args_dict["database_date"] = date.today().strftime('%Y-%m-%d')
+    args_dict["model_version"] = get_metaboverse_cli_version()
+    args_dict["model_date"] = date.today().strftime('%Y-%m-%d')
     args_dict["curation_date"] = network["curation_date"]
     args_dict["curation_version"] = network["metaboverse-curate_version"]
     args_dict['template_url'] = os.path.join(args_dict['output'], graph_name)
@@ -1517,12 +1510,8 @@ def __template__(
         categories=[],
         labels=args_dict['labels'],
         blocklist=args_dict['blocklist'],
-        database_date=args_dict["database_date"],
-        curation_date=args_dict["curation_date"],
         metadata=args_dict,
-        unmapped=[],
-        curate_version=args_dict["curation_version"],
-        model_version=args_dict["template_version"])
+        unmapped=[])
     print('Graphing complete.')
 
     return G, args_dict, network, name_reference, degree_dictionary, \
@@ -1703,12 +1692,8 @@ def __model__(
         categories=categories,
         labels=args_dict['labels'],
         blocklist=args_dict['blocklist'],
-        database_date=args_dict["database_date"],
-        curation_date=args_dict["curation_date"],
         metadata=args_dict,
-        unmapped=non_mappers,
-        curate_version=args_dict["curation_version"],
-        model_version=args_dict["database_version"])
+        unmapped=non_mappers)
     print('Graphing complete.')
     progress_feed(args_dict, "graph", 1)
 

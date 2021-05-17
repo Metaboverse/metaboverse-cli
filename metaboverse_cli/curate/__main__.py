@@ -441,6 +441,7 @@ def __main__(
         'curation_date': date.today().strftime('%Y-%m-%d'),
         'metaboverse-curate_version': get_metaboverse_cli_version(),
         'database_version': database_version,
+        'database_date': date.today().strftime('%Y-%m-%d')
     }
 
     # Write database to file
