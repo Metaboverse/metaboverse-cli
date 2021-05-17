@@ -590,12 +590,8 @@ output_graph(
     categories=[0],
     labels=['OO'],
     blocklist=[],
-    database_date='today',
-    curation_date='today',
     metadata={},
-    unmapped={},
-    curate_version='test',
-    model_version='test')
+    unmapped={})
 if os.path.exists(test_args['output_file']):
     os.remove(str(test_args['output_file']))
 else:
