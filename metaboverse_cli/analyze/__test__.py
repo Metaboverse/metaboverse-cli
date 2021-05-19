@@ -590,6 +590,7 @@ output_graph(
     categories=[0],
     labels=['OO'],
     blocklist=[],
+    species_blocklist=[],
     metadata={},
     unmapped={})
 if os.path.exists(test_args['output_file']):
