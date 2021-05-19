@@ -22,11 +22,13 @@ from __future__ import print_function
 from networkx.readwrite import json_graph
 from collections import Counter
 from datetime import date
+from scipy.stats import gmean
 import networkx as nx
 import pandas as pd
 import numpy as np
 import zipfile
 import pickle
+import math
 import json
 import re
 import os
@@ -80,6 +82,12 @@ except:
 CMAP = get_mpl_colormap('seismic')
 REACTION_COLOR = (0.75, 0.75, 0.75, 1)
 MISSING_COLOR = (1, 1, 1, 1)
+
+
+def median(lst):
+    n = len(lst)
+    s = sorted(lst)
+    return (sum(s[n//2-1:n//2+1])/2.0, s[n//2])[n % 2] if n else None
 
 
 def name_graph(
@@ -1032,6 +1040,7 @@ def output_graph(
         categories,
         labels,
         blocklist,
+        species_blocklist,
         metadata,
         unmapped):
     """Output graph and necessary metadata
@@ -1051,6 +1060,7 @@ def output_graph(
     data['categories'] = categories
     data['labels'] = labels
     data['blocklist'] = blocklist
+    data['species_blocklist'] = species_blocklist
     data['metadata'] = metadata
     data['unmapped'] = unmapped
 
@@ -1114,7 +1124,7 @@ def infer_protein_values(values, length):
             if values[j][i] != None:
                 pos.append(values[j][i])
 
-        protein_vals.append(sum(pos) / len(pos))
+        protein_vals.append(median(pos))
 
     return protein_vals
 
@@ -1131,7 +1141,7 @@ def infer_protein_stats(stats, length):
             if stats[j][i] != None:
                 pos.append(stats[j][i])
 
-        protein_stats.append(max(pos))
+        protein_stats.append((math.e * gmean(pos)))
 
     return protein_stats
 
@@ -1510,6 +1520,7 @@ def __template__(
         categories=[],
         labels=args_dict['labels'],
         blocklist=args_dict['blocklist'],
+        species_blocklist=[],
         metadata=args_dict,
         unmapped=[])
     print('Graphing complete.')
@@ -1616,16 +1627,17 @@ def __model__(
 
     if 'blocklist' in args_dict \
             and isinstance(args_dict['blocklist'], str):
-        _blocklist = args_dict['blocklist'].replace(' ', '').split(',')
-        blocklist = []
-        for b in _blocklist:
-            if b in network['name_database']:
-                blocklist.append(network['name_database'][b])
+        named_blocklist = args_dict['blocklist'].replace(' ', '').split(',')
     elif 'blocklist' in args_dict \
             and isinstance(args_dict['blocklist'], list):
-        blocklist = args_dict['blocklist']
+        named_blocklist = args_dict['blocklist']
     else:
-        blocklist = []
+        named_blocklist = []
+
+    species_blocklist = []
+    for b in named_blocklist:
+        if b in network['name_database']:
+            species_blocklist.append(network['name_database'][b])
 
     # Collapse reactions
     G, updated_reactions, changed_reactions, \
@@ -1637,7 +1649,7 @@ def __model__(
         degree_dictionary=degree_dictionary,
         samples=len(categories),
         collapse_with_modifiers=args_dict['collapse_with_modifiers'],
-        blocklist=blocklist,
+        blocklist=species_blocklist,
         degree_threshold=degree_threshold,
         collapse_threshold=args_dict['collapse_threshold'])
     updated_pathway_dictionary = generate_updated_dictionary(
@@ -1667,6 +1679,9 @@ def __model__(
     print('Exporting graph...')
     args_dict["max_value"] = max_value
     args_dict["max_stat"] = max_stat
+    args_dict["curation_url"] = os.path.join(
+        args_dict['output'],
+        args_dict['curation'])
     args_dict["curation_version"] = network["metaboverse-curate_version"]
     args_dict["curation_date"] = network["curation_date"]
     args_dict["database_version"] = network["database_version"]
@@ -1691,7 +1706,8 @@ def __model__(
         max_stat=max_stat,
         categories=categories,
         labels=args_dict['labels'],
-        blocklist=args_dict['blocklist'],
+        blocklist=named_blocklist,
+        species_blocklist=species_blocklist,
         metadata=args_dict,
         unmapped=non_mappers)
     print('Graphing complete.')
