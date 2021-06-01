@@ -1141,7 +1141,14 @@ def infer_protein_stats(stats, length):
             if stats[j][i] != None:
                 pos.append(stats[j][i])
 
-        protein_stats.append((math.e * gmean(pos)))
+        if len(pos) == 1:
+            this_stat = pos[0]
+        else:
+            this_stat = (math.e * gmean(pos))
+
+        if this_stat > 1.0:
+            this_stat = 1.0
+        protein_stats.append(this_stat)
 
     return protein_stats
 

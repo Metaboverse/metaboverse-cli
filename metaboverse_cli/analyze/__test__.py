@@ -609,12 +609,16 @@ assert remove_nulls(vals2) == [[1, 2, 3]], 'remove_nulls() failed'
 print("Testing infer_protein_values()")
 vals = [[1], [2], [3], [3], [4]]
 length = 1
-assert infer_protein_values(vals, length) == [
-    13 / 5], 'infer_protein_values() failed'
+
+print(vals, length)
+print(infer_protein_values(vals, length))
+
+assert infer_protein_values(vals, length) == [3], 'infer_protein_values() failed'
 
 # infer_protein_stats()
 print("Testing infer_protein_stats()")
-assert infer_protein_stats(vals, length) == [4], 'infer_protein_stats() failed'
+print(infer_protein_stats(vals, length))
+assert infer_protein_stats(vals, length) == [6.393828471521393], 'infer_protein_stats() failed'
 
 # broadcast_values()
 print("Testing broadcast_values()")
@@ -1426,164 +1430,5 @@ assert updated_pathway_dictionary['Re3']['reactions'] == [
     'R14', 'R15', 'R16', 'R17'], 'generate_updated_dictionary() failed'
 
 os.remove(network_url)
-
-"""
-Removed until multiprocessing working
-
-
-# Run full test on data
-print("Testing analyze/__main__.py for modeling data")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
-__main__ = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(__main__)
-test_modeling = __main__.__main__
-
-args_dict = {
-    'database_source': 'reactome',
-    'network': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
-    'organism_curation': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
-    'organism_id': 'HSA',
-    'transcriptomics': os.path.abspath(
-        './metaboverse_cli/analyze/test/rna_mapping_test.txt'),
-    'proteomics': 'none',
-    'metabolomics': os.path.abspath(
-        './metaboverse_cli/analyze/test/metabolite_mapping_test.txt'),
-    'output_file': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA_test.mvrs'),
-    'collapse_with_modifiers': False,
-    'broadcast_genes': True,
-    'labels': '0',
-    'blocklist': ''
-}
-
-import zipfile
-zipped_net = os.path.abspath(
-    './metaboverse_cli/analyze/test/HSA.zip')
-with zipfile.ZipFile(zipped_net, 'r') as zip_file:
-    zip_file.extractall(
-        os.path.abspath(
-            './metaboverse_cli/analyze/test'))
-
-network_url = os.path.abspath(
-    "./metaboverse_cli/analyze/test/HSA.mvdb")
-with open(network_url, 'rb') as network_file:
-    network = pickle.load(network_file)
-
-test_modeling(args_dict)
-
-rna_unmapped = os.path.abspath(
-    './metaboverse_cli/analyze/test/rna_mapping_test_unmapped.txt'
-)
-rna = pd.read_csv(rna_unmapped, sep='\t', index_col=0)
-assert len(rna.index.tolist()) == 7029, 'RNA mapping experienced error'
-os.remove(rna_unmapped)
-
-metabolite_unmapped = os.path.abspath(
-    './metaboverse_cli/analyze/test/metabolite_mapping_test_unmapped.txt'
-)
-met = pd.read_csv(metabolite_unmapped, sep='\t', index_col=0)
-assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS', 'Phenylacetylglycine'], 'Metabolite mapping experienced error'
-os.remove(metabolite_unmapped)
-
-os.remove(args_dict['output_file'])
-os.remove(args_dict['network'])
-
-
-
-print("Testing prepare_data.py")
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/prepare_data.py"))
-prepare_data = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(prepare_data)
-
-import zipfile
-zipped_net = os.path.abspath(
-    './metaboverse_cli/analyze/test/HSA.zip')
-with zipfile.ZipFile(zipped_net, 'r') as zip_file:
-    zip_file.extractall(
-        os.path.abspath(
-            './metaboverse_cli/analyze/test'))
-
-network_url = os.path.abspath(
-    "./metaboverse_cli/analyze/test/HSA.mvdb")
-with open(network_url, 'rb') as network_file:
-    network = pickle.load(network_file)
-
-# CHEBI mapping
-print('Testing analyze/__main__.py for CHEBI mapping...')
-metabolomics_url = os.path.abspath(
-    "./metaboverse_cli/analyze/test/mixed_chebi_ids.txt")
-__main__ = prepare_data.__main__
-data, stats, unmapped = __main__(
-    network=network,
-    transcriptomics_url="None",
-    proteomics_url="None",
-    metabolomics_url=metabolomics_url)
-assert data.shape == (8,1), "Mixed CHEBI ID mapping failed"
-"""
-"""
-CHEBI:57972	                -0.187287     ->  "L-Ala"
-CHEBI:18012	                -0.200046     ->  "FUMA"
-CHEBI:30797	                -0.108502     ->  "MAL"
-D-glucose	                -0.424363     ->  "Glc"
-Fructose-6-phosphate	     0.066205     ->  "Fru(6)P"
-L-LacTic Acid	            -0.000151     ->  "LACT"
-SuCcINic acId	             0.068246     ->  "SUCCA"
-gibberish	                -0.110443     ->  N/A
-"""
-"""
-
-args_chebi = {
-    'database_source': 'reactome',
-    'network': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
-    'organism_curation': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA.mvdb'),
-    'organism_id': 'HSA',
-    'transcriptomics': 'None',
-    'proteomics': 'none',
-    'metabolomics': metabolomics_url,
-    'output_file': os.path.abspath(
-        './metaboverse_cli/analyze/test/HSA_test.mvrs'),
-    'collapse_with_modifiers': False,
-    'broadcast_genes': True,
-    'broadcast_metabolites': True,
-    'labels': '0',
-    'blocklist': ''
-}
-spec = importlib.util.spec_from_file_location("", os.path.abspath("./metaboverse_cli/analyze/__main__.py"))
-__main__ = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(__main__)
-test_modeling = __main__.__main__
-test_modeling(args_chebi)
-
-import json
-with open(args_chebi['output_file']) as f:
-  chebi_json = json.load(f)
-
-for n in chebi_json['nodes']:
-    if n['name'] == 'L-Ala':
-        assert n['values'] == [-0.187286934], "Mixed CHEBI mapping failed"
-    if n['name'] == 'SUCCA':
-        assert n['values'] == [0.068245646], "Mixed CHEBI mapping failed"
-    if n['values'] == [-0.11044283]:
-        raise Exception("Mixed CHEBI mapping failed")
-    if n['name'] == 'Fru(6)P':
-        assert n['values'] == [0.06620505], "Mixed CHEBI mapping failed"
-    if n['name'] == 'Glc':
-        assert n['values'] == [-0.424362985], "Mixed CHEBI mapping failed"
-    if n['name'] == 'LACT':
-        assert n['values'] == [-0.00015059899999999999], "Mixed CHEBI mapping failed"
-    if n['name'] == 'Glc':
-        assert n['values'] == [-0.424362985], "Mixed CHEBI mapping failed"
-    if n['name'] == 'FUMA':
-        assert n['values'] == [-0.200045781], "Mixed CHEBI mapping failed"
-    if n['name'] == 'MAL':
-        assert n['values'] == [-0.10850223], "Mixed CHEBI mapping failed"
-
-os.remove(args_chebi['output_file'])
-os.remove(args_chebi['network'])
-"""
 
 print('Tests completed')
