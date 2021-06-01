@@ -609,16 +609,11 @@ assert remove_nulls(vals2) == [[1, 2, 3]], 'remove_nulls() failed'
 print("Testing infer_protein_values()")
 vals = [[1], [2], [3], [3], [4]]
 length = 1
-
-print(vals, length)
-print(infer_protein_values(vals, length))
-
 assert infer_protein_values(vals, length) == [3], 'infer_protein_values() failed'
 
 # infer_protein_stats()
 print("Testing infer_protein_stats()")
-print(infer_protein_stats(vals, length))
-assert infer_protein_stats(vals, length) == [6.393828471521393], 'infer_protein_stats() failed'
+assert infer_protein_stats(vals, length) == [1.0], 'infer_protein_stats() failed'
 
 # broadcast_values()
 print("Testing broadcast_values()")
