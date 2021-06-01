@@ -422,7 +422,7 @@ def test():
 
     network = read_network(
         file_path="C:\\Users\\jorda\\Desktop",
-        network_url="MODEL1604210000.mvdb")
+        network_url="HSA.mvdb")
 
     neighbors = read_network(
         file_path="C:\\Users\\jorda\\Desktop",
@@ -430,5 +430,13 @@ def test():
 
     neighbors_dictionary = download_neighbors_dictionary(
         args_dict=args_dict,
-        url=args_dict['neighbor_dictionary_file'],
+        url="C:\\Users\\jorda\\Desktop\\HSA.nbdb",
+        user_provided=True)
+
+    graph, args_dict, network, name_reference, \
+    degree_dictionary, super_pathways, chebi_dictionary, \
+        uniprot_mapper, metabolite_mapper = read_template(
+        args_dict=args_dict,
+        network=network,
+        url=args_dict['graph_template_file'],
         user_provided=True)
