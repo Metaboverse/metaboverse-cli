@@ -662,9 +662,10 @@ def uniprot_ensembl_reference(
 def reindex_data(
         data,
         stats):
+    """Fix duplicate labels, etc
+    """
 
     data_renamed = data.copy()
-    #data_renamed = data.rename(index=name_reference)
     data_renamed = data_renamed.loc[data_renamed.dropna(
         axis=0).index.drop_duplicates(False)]
     d_cols = data_renamed.columns
@@ -672,7 +673,6 @@ def reindex_data(
         pd.to_numeric, errors='coerce')
 
     stats_renamed = stats.copy()
-    #stats_renamed = stats.rename(index=name_reference)
     stats_renamed = stats_renamed.loc[stats_renamed.dropna(
         axis=0).index.drop_duplicates(False)]
     s_cols = stats_renamed.columns
@@ -901,6 +901,7 @@ def map_attributes(
         and map_id != 'none' \
         and len(map_id) > 1 \
         and graph.nodes()[x]['type'] != 'metabolite_component':
+            graph.nodes()[x]['user_label'] = map_id
             graph.nodes()[x]['values'] = data_renamed.loc[map_id].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
                 value_array=data_renamed.loc[map_id].tolist(),
@@ -915,6 +916,7 @@ def map_attributes(
         and backup_mapper != 'none' \
         and len(backup_mapper) > 1 \
         and graph.nodes()[x]['type'] != 'metabolite_component':
+            graph.nodes()[x]['user_label'] = backup_mapper
             graph.nodes()[
                 x]['values'] = data_renamed.loc[backup_mapper].tolist()
             graph.nodes()[x]['values_rgba'] = extract_value(
@@ -961,6 +963,7 @@ def map_attributes(
 
             if _idx != None \
             and len(_idx) > 1:
+                graph.nodes()[x]['user_label'] = _idx
                 graph.nodes()[x]['values'] = data_renamed.loc[_idx].tolist()
                 graph.nodes()[x]['values_rgba'] = extract_value(
                     value_array=data_renamed.loc[_idx].tolist(),
@@ -973,6 +976,7 @@ def map_attributes(
             and map_id in set(stats_renamed.index.tolist()) \
             and map_id != 'none' \
             and len(map_id) > 1:
+                graph.nodes()[x]['user_label'] = map_id
                 graph.nodes()[x]['values'] = data_renamed.loc[map_id].tolist()
                 graph.nodes()[x]['values_rgba'] = extract_value(
                     value_array=data_renamed.loc[map_id].tolist(),

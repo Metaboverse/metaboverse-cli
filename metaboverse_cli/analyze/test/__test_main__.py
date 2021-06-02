@@ -85,6 +85,13 @@ metabolite_unmapped = os.path.abspath(
     './metaboverse_cli/analyze/test/metabolite_mapping_test_unmapped.txt'
 )
 met = pd.read_csv(metabolite_unmapped, sep='\t', index_col=0)
+
+print(['bMethyl.2.oxovalerate', 'DSS',
+                              'Phenylacetylglycine'])
+print(met.index.tolist())
+print(met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS',
+                              'Phenylacetylglycine'])
+
 assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS',
                               'Phenylacetylglycine'], 'Metabolite mapping experienced error'
 os.remove(metabolite_unmapped)
