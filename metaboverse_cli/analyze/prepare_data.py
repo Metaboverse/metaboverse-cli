@@ -34,6 +34,8 @@ def read_data(
         url,
         sep=delimiter,
         index_col=0)
+    # handle cases where decimals are marked by commas
+    data = data.stack().str.replace(',', '.').astype('float').unstack()
 
     if len(data.columns.tolist()) % 2 != 0:
         raise Exception('Improperly formatted datatable provided: ', url)
