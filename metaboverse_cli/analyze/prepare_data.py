@@ -21,12 +21,12 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 from __future__ import print_function
 import pandas as pd
 import re
-import sys
-import os
+
 
 def read_data(
         url,
-        delimiter='\t'):
+        delimiter='\t',
+        duplicates=False):
     """Expected to contain an even number of columns for the data type
     """
 
@@ -34,6 +34,19 @@ def read_data(
         url,
         sep=delimiter,
         index_col=0)
+
+    # handle duplicate indices 
+    if len(data.loc[data.index.duplicated()].index.tolist()) != 0:
+        print(
+            'Warning: Input data table contained duplicate row names. ' 
+            + 'Duplicates will be removed.'
+            + '\n\tRemoving '
+                + str(len(data.loc[data.index.duplicated(keep=duplicates)].index.tolist()))
+                + ' rows.'
+            + '\n\tFile: ' 
+                + str(url))
+        data = data.loc[~data.index.duplicated(keep=duplicates)] 
+
     # handle cases where decimals are marked by commas
     data = data.stack().astype('str').str.replace(',', '.').astype('float').unstack()
 
