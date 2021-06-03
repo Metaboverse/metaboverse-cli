@@ -78,20 +78,13 @@ rna_unmapped = os.path.abspath(
     './metaboverse_cli/analyze/test/rna_mapping_test_unmapped.txt'
 )
 rna = pd.read_csv(rna_unmapped, sep='\t', index_col=0)
-assert len(rna.index.tolist()) == 7030, 'RNA mapping experienced error'
+assert len(rna.index.tolist()) == 7028, 'RNA mapping experienced error'
 os.remove(rna_unmapped)
 
 metabolite_unmapped = os.path.abspath(
     './metaboverse_cli/analyze/test/metabolite_mapping_test_unmapped.txt'
 )
 met = pd.read_csv(metabolite_unmapped, sep='\t', index_col=0)
-
-print(['bMethyl.2.oxovalerate', 'DSS',
-                              'Phenylacetylglycine'])
-print(met.index.tolist())
-print(met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS',
-                              'Phenylacetylglycine'])
-
 assert met.index.tolist() == ['bMethyl.2.oxovalerate', 'DSS',
                               'Phenylacetylglycine'], 'Metabolite mapping experienced error'
 os.remove(metabolite_unmapped)
