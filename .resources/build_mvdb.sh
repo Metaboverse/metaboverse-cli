@@ -28,8 +28,8 @@ cd $SCRDIR
 # Activate conda environment
 source /uufs/chpc.utah.edu/common/home/u0690617/miniconda3/etc/profile.d/conda.sh
 source activate pyinstaller
-conda update -n base -c defaults conda
-conda update --all
+conda update -n base -c defaults conda -y
+conda update --all -y
 
 # Build current version of metaboverse-cli
 pyinstaller $MY_PATH/metaboverse-linux.spec
