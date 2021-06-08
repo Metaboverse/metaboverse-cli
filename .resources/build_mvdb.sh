@@ -23,7 +23,6 @@ printf "+ Setting environment...\n"
 MY_PATH=/uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/programs/metaboverse-cli
 SCRDIR=/scratch/general/lustre/$USER/$SLURM_JOBID
 mkdir -p $SCRDIR
-cd $SCRDIR
 
 # Activate conda environment
 source /uufs/chpc.utah.edu/common/home/u0690617/miniconda3/etc/profile.d/conda.sh
@@ -32,7 +31,10 @@ conda update -n base -c defaults conda -y
 conda update --all -y
 
 # Build current version of metaboverse-cli
+cd $MY_PATH
 pyinstaller $MY_PATH/metaboverse-cli.spec
+
+cd $SCRDIR
 
 printf "+ Version info:\n"
 $MY_PATH/dist/metaboverse-cli-linux -v
