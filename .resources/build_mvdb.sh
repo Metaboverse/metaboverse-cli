@@ -83,9 +83,9 @@ printf "\nEND" >> $SCRDIR/README.txt
 printf "\n"
 
 # Afterwards, upload to host
-MKDIR -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvdb
-MKDIR -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvrs
-MKDIR -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/nbdb
+mkdir -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvdb
+mkdir -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvrs
+mkdir -p /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/nbdb
 
 cd $SCRDIR
 cp -r */*.mvdb /uufs/chpc.utah.edu/common/home/rutter-website/html/Metaboverse/source/v$VERSION/mvdb
