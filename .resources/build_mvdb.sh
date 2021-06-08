@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --time=7:00:00
+#SBATCH --time=24:00:00
 #SBATCH --nodes=1
 #SBATCH -o /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-%j
 #SBATCH --account=rutter-gpu-np
@@ -14,7 +14,7 @@
 
 
 # Set curation version
-VERSION="0.7.0"
+VERSION="0.7.1"
 
 
 
