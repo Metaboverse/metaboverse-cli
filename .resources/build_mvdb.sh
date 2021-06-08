@@ -32,7 +32,7 @@ conda update -n base -c defaults conda -y
 conda update --all -y
 
 # Build current version of metaboverse-cli
-pyinstaller $MY_PATH/metaboverse-linux.spec
+pyinstaller $MY_PATH/metaboverse-cli.spec
 
 printf "+ Version info:\n"
 $MY_PATH/dist/metaboverse-cli-linux -v
