@@ -24,7 +24,6 @@ import json
 import math
 import sys
 import os
-import re
 
 try:
     from __init__ import __version__

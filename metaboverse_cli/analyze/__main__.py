@@ -23,9 +23,7 @@ import networkx as nx
 import pandas as pd
 from datetime import date
 import requests
-import pickle
 import json
-import sys
 import os
 
 """Import internal dependencies
@@ -129,6 +127,7 @@ def read_template(
         file = os.path.join(
             args_dict['output'],
             args_dict['organism_id'] + '_template.mvrs')
+        print('Downloading graph template database...', '\n\t', url)
         os.system('curl -L ' + url + ' -o \"' + file + '\"')
         return file
 
@@ -189,6 +188,7 @@ def download_neighbors_dictionary(
         file = os.path.join(
             args_dict['output'],
             args_dict['organism_id'] + '.nbdb')
+        print('Downloading nearest neighbors database...', '\n\t', url)
         os.system('curl -L ' + url + ' -o \"' + file + '\"')
         return file
 
@@ -407,9 +407,9 @@ def __main__(
 def test():
     args_dict = {
         'output': "C:\\Users\\jorda\\Desktop",
-        'curation': "MODEL1604210000.mvdb",
-        'organism_id': 'MODEL1604210000',
-        'output_file': "C:\\Users\\jorda\\Desktop\\MODEL1604210000.mvrs",
+        'curation': "MMU.mvdb",
+        'organism_id': 'MMU',
+        'output_file': "C:\\Users\\jorda\\Desktop\\MMU.mvrs",
         'labels': "0",
         'blocklist': "H+",
         'database_date': "",
@@ -422,7 +422,7 @@ def test():
 
     network = read_network(
         file_path="C:\\Users\\jorda\\Desktop",
-        network_url="HSA.mvdb")
+        network_url="MMU.mvdb")
 
     neighbors = read_network(
         file_path="C:\\Users\\jorda\\Desktop",

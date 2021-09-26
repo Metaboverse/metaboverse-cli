@@ -23,7 +23,7 @@ from __future__ import print_function
 """Import dependencies
 """
 try:
-    from utils import progress_feed, track_progress
+    from utils import track_progress
     from analyze.utils import convert_rgba
 except:
     import os
@@ -32,7 +32,6 @@ except:
         "", os.path.abspath(os.path.join(".", "metaboverse_cli", "utils.py")))
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
-    progress_feed = utils.progress_feed
     track_progress = utils.track_progress
 
     spec = importlib.util.spec_from_file_location(

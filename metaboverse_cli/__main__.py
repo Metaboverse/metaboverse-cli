@@ -107,6 +107,8 @@ def get_reference(
     file = os.path.join(
         args_dict['output'],
         args_dict['organism_id'] + '.mvdb')
+    
+    print('Downloading pre-curated .MVDB database...', '\n\t', reference_url)
     os.system('curl -L ' + reference_url + ' -o \"' + file + '\"')
 
     return file

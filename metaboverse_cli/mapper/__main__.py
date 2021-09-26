@@ -51,7 +51,7 @@ def parse_hmdb_synonyms(
     """
 
     output_file = output_dir + file_name
-    print("Downloading HMDB metabolite reference...")
+    print('Downloading HMDB metabolite reference...', '\n\t', url)
     hmdb_url = requests.get(url)
     if hmdb_url.ok:
         print("Unzipping HMDB metabolite reference...")
