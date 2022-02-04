@@ -20,8 +20,6 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 import pandas as pd
-import json
-import pickle
 from datetime import date
 import requests
 import re
@@ -32,8 +30,8 @@ import os
 try:
     from curate.load_reactions_db import __main__ as load_reactions
     from curate.load_complexes_db import __main__ as load_complexes
-    from utils import progress_feed, get_session_value, prepare_output, \
-    write_database, write_database_json, safestr, get_metaboverse_cli_version
+    from utils import progress_feed, write_database, write_database_json, \
+    safestr, get_metaboverse_cli_version
 except:
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -53,8 +51,6 @@ except:
     utils = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(utils)
     progress_feed = utils.progress_feed
-    get_session_value = utils.get_session_value
-    prepare_output = utils.prepare_output
     write_database = utils.write_database
     write_database_json = utils.write_database_json
     safestr = utils.safestr
@@ -199,7 +195,7 @@ def parse_ensembl_synonyms(
         id_location=0):
     """Retrieve Ensembl gene entity synonyms
     """
-
+    print('Downloading Ensembl synonym database...', '\n\t', url)
     os.system('curl -L ' + url + ' -o \"' + output_dir + file_name + '\"')
     ensembl = pd.read_csv(
         output_dir + file_name,
@@ -228,6 +224,7 @@ def parse_uniprot_synonyms(
     """Retrieve UniProt protein entity synonyms
     """
 
+    print('Downloading UniProt synonym database...', '\n\t', url)
     os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
     uniprot = pd.read_csv(
         output_dir + file_name,
@@ -255,6 +252,7 @@ def parse_chebi_synonyms(
     """Retrieve CHEBI chemical entity synonyms
     """
 
+    print('Downloading ChEBI synonym database...', '\n\t', url)
     os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '.gz"')
     chebi = pd.read_csv(
         output_dir + file_name + '.gz',
@@ -327,6 +325,75 @@ def reference_complex_species(
     return new_dict
 
 
+def supplement_components(
+        species_database,
+        name_database,
+        components_database,
+        compartment_dictionary,
+        species_id,
+        output_dir,
+        url='https://reactome.org/download/current/ChEBI2Reactome_PE_All_Levels.txt',
+        file_name='ChEBI2Reactome_PE_All_Levels.txt',
+        name_string=2,
+        id_string=1,
+        source_string=3):
+    """
+    """
+
+    print('Downloading ChEBI synonym database...', '\n\t', url)
+    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
+    chebi = pd.read_csv(
+        output_dir + file_name,
+        sep='\t',
+        header=None)
+    os.remove(output_dir + file_name)
+
+    chebi = chebi.loc[chebi[source_string].str.contains(species_id)]
+    reversed_compartments = {v:k for k, v in compartment_dictionary.items()}
+
+    for index, row in chebi.iterrows():
+        species_id = 'species_' + row[id_string].split('-')[-1]
+        reactome_id = row[id_string]
+        try:
+            name = row[name_string].split(' [')[0]
+        except:
+            name = row[name_string]
+        
+        try:
+            compartment = row[name_string].split(' [')[1].split(']')[0]
+        except:
+            compartment = None
+        if compartment in reversed_compartments:
+            compartment_id = reversed_compartments[compartment]
+        elif compartment in compartment_dictionary:
+            compartment_id = compartment_dictionary[compartment]
+        else:
+            compartment_id = compartment
+
+        if species_id not in components_database:
+            components_database[species_id] = {
+                'id': species_id, 
+                'reactome_id': reactome_id, 
+                'name': name, 
+                'is': reactome_id, 
+                'isEncodedBy': '', 
+                'hasPart': [], 
+                'type': 'metabolite_component', 
+                'compartment': compartment_id
+            }
+        
+        if species_id not in species_database:
+            species_database[species_id] = name
+        
+        if species_id not in name_database:
+            name_database[species_id] = species_id
+        
+        if name not in name_database:
+            name_database[name] = species_id
+
+    return species_database, name_database, components_database
+
+
 def get_reactome_version():
     """Get most recent Reactome database version at time of curation
     """
@@ -371,6 +438,14 @@ def __main__(
             database_source=args_dict['database_source'],
             sbml_url=args_dict['organism_curation_file'],
             args_dict=args_dict)
+
+    species_database, name_database, components_database = supplement_components(
+        species_database=species_database,
+        name_database=name_database,
+        components_database=components_database,
+        compartment_dictionary=compartment_dictionary,
+        species_id=args_dict['organism_id'],
+        output_dir=args_dict['output'])
 
     print('Parsing ChEBI database...')
     chebi_mapper, chebi_synonyms, uniprot_metabolites = parse_chebi_synonyms(

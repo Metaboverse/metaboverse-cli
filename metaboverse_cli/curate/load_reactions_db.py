@@ -20,13 +20,9 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 import xml.etree.ElementTree as et
-import hashlib
 import tarfile
-import time
 import glob
-import stat
 import re
-import sys
 import os
 
 """Import internal dependencies
@@ -48,10 +44,15 @@ except:
 """
 rdf_namespace = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
 bqbiol_namespace = '{http://biomodels.net/biology-qualifiers/}'
+chebi_split = 'CHEBI:'
+uniprot_split = 'uniprot:'
+reactome_split = 'reactome:'
+gene_split = 'gene='
+other_split = '/'
+
 
 """Functions
 """
-
 
 def test():
 
@@ -98,6 +99,7 @@ def unpack_pathways(
     handle_folder_contents(
         dir=pathways_dir)
 
+    print('Downloading Reactome pathway database...', '\n\t', url)
     os.system('curl -L ' + url + ' -o \"' + file + '\"')
     os.makedirs(pathways_dir)
 
@@ -178,7 +180,7 @@ def get_metadata(
             for _rank in rank.iter(str(rdf_namespace + 'li')):
                 item = _rank.attrib[str(rdf_namespace + 'resource')]
                 if 'reactome' in item.lower():
-                    reactome = item.split('/')[-1]
+                    reactome = item.split(reactome_split)[1]
     except:
         reactome = ''
         print('No notes available for', name)
@@ -240,6 +242,16 @@ def add_reaction_components(
         else:
             items.append(child.attrib['species'])
 
+    if 'species_9733185' in items:
+        print(reaction)
+        print(items)
+    
+    for x in items:
+        if '9733185' in x:
+            print(reaction)
+            print(items)
+
+
     return items
 
 
@@ -285,21 +297,27 @@ def add_names(
 
     for rank in child.iter(str(bqbiol_namespace + search_string)):
         for _rank in rank.iter(str(rdf_namespace + 'li')):
-
             item = _rank.attrib[str(rdf_namespace + 'resource')]
-            _id = item.split('/')[-1]
             if 'chebi' in item.lower():
-                _id = check_chebi(item=_id)
-                _id = _id.split(' ')[0]
-            name_database[_id] = specie
+                _is = item.split(chebi_split)[1]
+                _is = check_chebi(item=_is)
+                _is = _is.split(' ')[0]
+            elif 'uniprot' in item.lower():
+                _is = item.split(uniprot_split)[1]
+            elif 'gene' in item.lower():
+                _is = item.split(gene_split)[1]
+            elif '/' in item.lower():
+                _is = item.split(other_split)[-1]
+                
+            name_database[_is] = specie
             name_database[specie] = specie
 
             # If element has parentheses, remove what's in between as
             # additional key
-            if '(' in _id and ')' in _id:
+            if '(' in _is and ')' in _is:
                 name_database = add_alternative_names(
                     name_database=name_database,
-                    item=_id,
+                    item=_is,
                     specie=specie)
 
     return name_database
@@ -355,11 +373,88 @@ def check_chebi(
         item):
     """Some special formatting handling for CHEBI entries
     """
-
-    item_parsed = item.lower().split('chebi:')[1]
-    item_returned = 'CHEBI:' + item_parsed
+    if chebi_split in item:
+        item = item.lower().split(chebi_split)[1]
+    item_returned = 'CHEBI:' + item
 
     return item_returned
+
+
+def isRank(
+        child,
+        bqbiol_namespace=bqbiol_namespace,
+        rdf_namespace=rdf_namespace):
+
+    _is = None # species ID
+    _id = None # reactome ID
+    _type = None # inferred type 
+    
+    for rank in child.iter(str(bqbiol_namespace + 'is')):
+        for _rank in rank.iter(str(rdf_namespace + 'li')):
+            item = _rank.attrib[str(rdf_namespace + 'resource')]
+            if 'reactome' in item.lower():
+                _id = item.split(reactome_split)[1]
+
+            if 'reactome' not in item.lower():
+                if 'chebi' in item.lower():
+                    _is = item.split(chebi_split)[1]
+                    _type = 'metabolite_component'
+                elif 'uniprot' in item.lower():
+                    _is = item.split(uniprot_split)[1]
+                    _type = 'protein_component'
+                elif 'gene' in item.lower():
+                    _is = item.split(gene_split)[1]
+                    _type = 'gene_component'
+                elif '/' in item.lower():
+                    _is = item.split(other_split)[-1]
+                    _type = 'other'
+                # miRNA are now referenced by a reactome ID in source files (23 June 2021)
+                # elif 'mirbase' in item.lower():
+                #     _id = item.split('acc=')[1]
+                #     components_database[specie]['is'] = _id
+                #     components_database[specie]['type'] = 'mirna_component'
+                else:
+                    _is = _id
+                    _type = 'other'
+            else:
+                _is = _id
+
+    return _is, _id, _type
+
+
+def hasPartRank(
+        child,
+        bqbiol_namespace=bqbiol_namespace,
+        rdf_namespace=rdf_namespace):
+
+    _parts = [] # species ID
+    _type = None # inferred type
+
+    for rank in child.iter(str(bqbiol_namespace + 'hasPart')):
+        for _rank in rank.iter(str(rdf_namespace + 'li')):
+            item = _rank.attrib[str(rdf_namespace + 'resource')]
+            if 'reactome' not in item:
+                _type = 'complex_component'
+                if 'chebi' in item.lower():
+                    _part = item.split(chebi_split)[1]
+                    _parts.append(_part)
+                elif 'uniprot' in item.lower():
+                    _part = item.split(uniprot_split)[1]
+                    _parts.append(_part)
+                elif 'gene' in item.lower():
+                    _part = item.split(gene_split)[1]
+                    _parts.append(_part)
+                elif '/' in item.lower():
+                    _part = item.split(other_split)[-1]
+                    _parts.append(_part)
+                # miRNA are now referenced by a reactome ID in source files (23 June 2021)
+                # elif 'mirbase' in item.lower():
+                #     _id = item.split('acc=')[1]
+                #     components_database[specie]['hasPart'].append(_id)
+                else:
+                    pass
+    
+    return _parts, _type
 
 
 def add_species(
@@ -408,44 +503,25 @@ def add_species(
             'compartment': compartment
         }
 
-        for rank in child.iter(str(bqbiol_namespace + 'is')):
-            for _rank in rank.iter(str(rdf_namespace + 'li')):
-                item = _rank.attrib[str(rdf_namespace + 'resource')]
-                if 'reactome' not in item.lower():
-                    if 'chebi' in item.lower():
-                        _id = item.split('chebiId=')[1]
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'metabolite_component'
-                    elif 'uniprot' in item.lower():
-                        _id = item.split('/')[-1]
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'protein_component'
-                    elif 'mirbase' in item.lower():
-                        _id = item.split('acc=')[1]
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'mirna_component'
-                    else:
-                        components_database[specie]['type'] = 'other'
-                else:
-                    r_id = item.split('/')[-1]
-                    components_database[specie]['reactome_id'] = r_id
+        if specie == 'species_9733185' or '9733185' in specie:
+            print(pathway_record)
+            print(components_database[specie])
 
-        for rank in child.iter(str(bqbiol_namespace + 'hasPart')):
-            for _rank in rank.iter(str(rdf_namespace + 'li')):
-                item = _rank.attrib[str(rdf_namespace + 'resource')]
-                if 'reactome' not in item:
-                    components_database[specie]['type'] = 'complex_component'
-                    if 'chebi' in item.lower():
-                        _id = item.split('chebiId=')[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'uniprot' in item.lower():
-                        _id = item.split('/')[-1]
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'mirbase' in item.lower():
-                        _id = item.split('acc=')[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    else:
-                        pass
+        _is, _id, _type = isRank(
+            child=child)
+        if _is != None:
+            components_database[specie]['is'] = _is
+        if _id != None:
+            components_database[specie]['reactome_id'] = _id
+        if _type != None:
+            components_database[specie]['type'] = _type
+
+        _parts, _type = hasPartRank(
+            child=child)
+        if _parts != []:
+            components_database[specie]['hasPart'] = components_database[specie]['hasPart'] + _parts
+        if _type != None:
+            components_database[specie]['type'] = _type
 
         # Add source ID
         name_database = add_names(
@@ -460,14 +536,84 @@ def add_species(
             components_database)
 
 
+def process_human_components(
+        pathways_dir,
+        pathways_list,
+        species_database,
+        name_database,
+        compartment_dictionary,
+        components_database,
+        species_id='HSA',
+        args_dict=None,
+        bqbiol_namespace=bqbiol_namespace,
+        rdf_namespace=rdf_namespace,
+        counter_amt=3):
+    """
+    """
+
+    print('Extracting supplementary pathway-level reaction data for: ' + str(species_id))
+    counter = 0
+    pathway_number = len(pathways_list)
+
+    # Cycle through each pathway database and extract  contents
+    for pathway in pathways_list:
+        counter = track_progress(args_dict, counter, pathway_number, counter_amt)
+
+        db = get_database(
+            pathways_dir,
+            pathway)
+        sbml_namespace = get_namespace(
+            sbml_tree=db
+        )
+
+        # Check pathway record contains all standard components 
+        # The standardization of these records started having inconsistencies with Reactom v77
+        # Implemented 23 June 2021
+        pathway_record = db.findall(
+            str(sbml_namespace + 'model')
+        )[0]
+        pathway_info = pathway_record.attrib
+        id = pathway_info['id']
+
+        if len(pathway_record.findall(str(sbml_namespace + 'listOfSpecies'))) == 0 \
+        or len(pathway_record.findall(str(sbml_namespace + 'listOfReactions'))) == 0 \
+        or len(pathway_record.findall(str(sbml_namespace + 'listOfCompartments'))) == 0:
+            print("Unable to parse reactions records for", id, "(", pathway, "), skipping...")
+        else:
+
+            # Parse out compartment IDs and names
+            compartments = pathway_record.findall(
+                str(sbml_namespace + 'listOfCompartments')
+            )[0]
+            for c in range(len(compartments)):
+                id = compartments[c].attrib['id']
+                name = compartments[c].attrib['name']
+                compartment_dictionary[id] = name
+
+            # Generate species dict
+            species_database, name_database, compartment_database, \
+            components_database = add_species(
+                species_database=species_database,
+                name_database=name_database,
+                compartment_database=compartment_database,
+                components_database=components_database,
+                pathway_record=pathway_record,
+                sbml_namespace=sbml_namespace,
+                bqbiol_namespace=bqbiol_namespace,
+                rdf_namespace=rdf_namespace)
+
+    return (species_database, name_database, compartment_dictionary,
+            components_database)
+
+
 def process_components(
-        output_dir,
         pathways_dir,
         pathways_list,
         species_id,
         args_dict=None,
         bqbiol_namespace=bqbiol_namespace,
-        rdf_namespace=rdf_namespace):
+        rdf_namespace=rdf_namespace,
+        counter_amt=7):
     """Process species-specific pathways
     """
 
@@ -481,13 +627,12 @@ def process_components(
     components_database = {}
 
     print('Extracting pathway-level reaction data for: ' + str(species_id))
-
     counter = 0
     pathway_number = len(pathways_list)
 
     # Cycle through each pathway database and extract  contents
     for pathway in pathways_list:
-        counter = track_progress(args_dict, counter, pathway_number, 7)
+        counter = track_progress(args_dict, counter, pathway_number, counter_amt)
 
         db = get_database(
             pathways_dir,
@@ -496,83 +641,90 @@ def process_components(
             sbml_tree=db
         )
 
+        # Check pathway record contains all standard components 
+        # The standardization of these records started having inconsistencies with Reactom v77
+        # Implemented 23 June 2021
         pathway_record = db.findall(
             str(sbml_namespace + 'model')
         )[0]
-
         pathway_info = pathway_record.attrib
-
         id = pathway_info['id']
-        pathway_database[pathway] = {
-            'id': id,
-            'reactome': pathway,
-            'name': pathway_info['name'],
-            'reactions': set()
-        }
 
-        # Parse out reactions
-        reactions = pathway_record.findall(
-            str(sbml_namespace + 'listOfReactions')
-        )[0]
-
-        # Parse out compartment IDs and names
-        compartments = pathway_record.findall(
-            str(sbml_namespace + 'listOfCompartments')
-        )[0]
-        for c in range(len(compartments)):
-            id = compartments[c].attrib['id']
-            name = compartments[c].attrib['name']
-            compartment_dictionary[id] = name
-
-        # Extract reactions from pathway
-        for reaction in reactions:
-
-            # Get metadata
-            compartment, id, reactome, name, reversible, notes = get_metadata(
-                reaction=reaction,
-                sbml_namespace=sbml_namespace)
-
-            # Get pathway high-level information (reactions, name, compartment)
-            pathway_database, reaction_id = add_reaction(
-                pathway_database=pathway_database,
-                reaction=reaction,
-                pathway=pathway,
-                bqbiol_namespace=bqbiol_namespace,
-                rdf_namespace=rdf_namespace)
-
-            name_database[name] = reaction_id
-            reaction_database[id] = {
-                'compartment': compartment,
+        if len(pathway_record.findall(str(sbml_namespace + 'listOfSpecies'))) == 0 \
+        or len(pathway_record.findall(str(sbml_namespace + 'listOfReactions'))) == 0 \
+        or len(pathway_record.findall(str(sbml_namespace + 'listOfCompartments'))) == 0:
+            print("Unable to parse reactions records for", id, "(", pathway, "), skipping...")
+        else:
+            pathway_database[pathway] = {
                 'id': id,
-                'reactome': reactome,
-                'name': name,
-                'reversible': reversible,
-                'notes': notes}
+                'reactome': pathway,
+                'name': pathway_info['name'],
+                'reactions': set()
+            }
 
-            # Collect reactants for a given reaction by species ID
-            reaction_database[reaction_id]['reactants'] = add_reaction_components(
-                type='listOfReactants',
-                reaction=reaction,
-                sbml_namespace=sbml_namespace)
+            # Parse out reactions
+            reactions = pathway_record.findall(
+                str(sbml_namespace + 'listOfReactions')
+            )[0]
 
-            # Collect products for a given reaction by species ID
-            reaction_database[reaction_id]['products'] = add_reaction_components(
-                type='listOfProducts',
-                reaction=reaction,
-                sbml_namespace=sbml_namespace)
+            # Parse out compartment IDs and names
+            compartments = pathway_record.findall(
+                str(sbml_namespace + 'listOfCompartments')
+            )[0]
+            for c in range(len(compartments)):
+                id = compartments[c].attrib['id']
+                name = compartments[c].attrib['name']
+                compartment_dictionary[id] = name
 
-            # Collect modifiers for a given reaction by species ID
-            reaction_database[reaction_id]['modifiers'] = add_reaction_components(
-                type='listOfModifiers',
-                reaction=reaction,
-                sbml_namespace=sbml_namespace)
+            # Extract reactions from pathway
+            for reaction in reactions:
 
-        # Convert reaction set for pathway to list
-        pathway_database[pathway]['reactions'] = list(
-            pathway_database[pathway]['reactions'])
+                # Get metadata
+                compartment, id, reactome, name, reversible, notes = get_metadata(
+                    reaction=reaction,
+                    sbml_namespace=sbml_namespace)
 
-        # Generate species dict
-        species_database, name_database, compartment_database, \
+                # Get pathway high-level information (reactions, name, compartment)
+                pathway_database, reaction_id = add_reaction(
+                    pathway_database=pathway_database,
+                    reaction=reaction,
+                    pathway=pathway,
+                    bqbiol_namespace=bqbiol_namespace,
+                    rdf_namespace=rdf_namespace)
+
+                name_database[name] = reaction_id
+                reaction_database[id] = {
+                    'compartment': compartment,
+                    'id': id,
+                    'reactome': reactome,
+                    'name': name,
+                    'reversible': reversible,
+                    'notes': notes}
+
+                # Collect reactants for a given reaction by species ID
+                reaction_database[reaction_id]['reactants'] = add_reaction_components(
+                    type='listOfReactants',
+                    reaction=reaction,
+                    sbml_namespace=sbml_namespace)
+
+                # Collect products for a given reaction by species ID
+                reaction_database[reaction_id]['products'] = add_reaction_components(
+                    type='listOfProducts',
+                    reaction=reaction,
+                    sbml_namespace=sbml_namespace)
+
+                # Collect modifiers for a given reaction by species ID
+                reaction_database[reaction_id]['modifiers'] = add_reaction_components(
+                    type='listOfModifiers',
+                    reaction=reaction,
+                    sbml_namespace=sbml_namespace)
+
+            # Convert reaction set for pathway to list
+            pathway_database[pathway]['reactions'] = list(
+                pathway_database[pathway]['reactions'])
+
+            # Generate species dict
+            species_database, name_database, compartment_database, \
             components_database = add_species(
                 species_database=species_database,
                 name_database=name_database,
@@ -853,14 +1005,37 @@ def __main__(
         progress_feed(args_dict, "graph", 5)
 
         # Get list of reaction files to use for populating database
+        if species_id != 'HSA':
+            counter_amt = 4
+        else:
+            counter_amt = 7
+        
         args_dict, pathway_database, reaction_database, species_database, \
         name_database, compartment_database, compartment_dictionary, \
         components_database = process_components(
-            output_dir=output_dir,
             pathways_dir=pathways_dir,
             pathways_list=pathways_list,
             species_id=species_id,
-            args_dict=args_dict)
+            args_dict=args_dict,
+            counter_amt=counter_amt)
+
+        """
+        if species_id != 'HSA':
+            pathways_list = get_pathways(
+                species_id='HSA',
+                pathways_dir=pathways_dir)
+
+            species_database, name_database, compartment_dictionary, \
+            components_database = process_human_components(
+                pathways_dir=pathways_dir,
+                pathways_list=pathways_list,
+                species_database=species_database,
+                name_database=name_database,
+                compartment_dictionary=compartment_dictionary,
+                components_database=components_database,
+                args_dict=args_dict,
+                counter_amt=3)
+        """
 
         if 'sbml' in pathways_dir:
             handle_folder_contents(

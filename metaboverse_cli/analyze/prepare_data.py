@@ -20,7 +20,30 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from __future__ import print_function
 import pandas as pd
+import ast
 import re
+
+
+def eval_table(table):
+    
+    return table.applymap(lambda x: ast.literal_eval(str(x)))
+    
+    
+# Source: https://www.geeksforgeeks.org/python-program-to-flatten-a-nested-list-using-recursion/
+def flattenList(nestedList):
+ 
+    # check if list is empty
+    if not(bool(nestedList)):
+        return nestedList
+ 
+     # to check instance of list is empty or not
+    if isinstance(nestedList[0], list):
+ 
+        # call function with sublist as argument
+        return flattenList(*nestedList[:1]) + flattenList(nestedList[1:])
+ 
+    # call function with sublist as argument
+    return nestedList[:1] + flattenList(nestedList[1:])
 
 
 def read_data(
@@ -35,6 +58,8 @@ def read_data(
         sep=delimiter,
         index_col=0)
 
+    data = data.dropna(axis=1, how="all")
+    
     # handle duplicate indices 
     if len(data.loc[data.index.duplicated()].index.tolist()) != 0:
         print(
@@ -46,9 +71,6 @@ def read_data(
             + '\n\tFile: ' 
                 + str(url))
         data = data.loc[~data.index.duplicated(keep=duplicates)] 
-
-    # handle cases where decimals are marked by commas
-    data = data.stack().astype('str').str.replace(',', '.').astype('float').unstack()
 
     if len(data.columns.tolist()) % 2 != 0:
         raise Exception('Improperly formatted datatable provided: ', url)
@@ -178,10 +200,17 @@ def catenate_data(
     Return: combined dataframe where indices are species IDs
     """
 
-    combined = pd.concat(array)
+    tables = [eval_table(x) for x in array]
+
+    combined = pd.concat(tables)
     combined = combined.dropna(axis=0)
     combined = combined.sort_index()
 
+    # Check that types are the same (p-values or confidence intervals)
+    if len(set(flattenList(combined.applymap(type).values.tolist()))) != 1:
+        raise Exception("Input data types do not match. Please check that all fold change and statistical value types match between datasets.")
+
+    ### Need to fix
     removers = []  # Remove non-numbers
     for idx, row in combined.iterrows():
         for x in row:
@@ -195,8 +224,9 @@ def catenate_data(
     for col in combined.columns.tolist():
         combined[col] = combined[col].astype(float)
 
-    combined = combined.groupby(combined.index).mean()
-
+    #combined = combined.groupby(combined.index).mean()
+    ### Need to fix
+    
     return combined
 
 

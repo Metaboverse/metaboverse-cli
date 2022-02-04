@@ -238,8 +238,8 @@ def process_reactions(
 
         # Add vanilla element nodes and their edges
         for reactant in reactants:
-
-            if component_database[reactant]['is'] != '':
+            if reactant in component_database \
+            and component_database[reactant]['is'] != '':
                 map_id = component_database[reactant]['is']
             else:
                 map_id = 'none'
