@@ -243,7 +243,7 @@ def process_reactions(
                 map_id = component_database[reactant]['is']
             else:
                 map_id = 'none'
-
+                
             graph = add_node_edge(
                 graph=graph,
                 id=reactant,
@@ -667,21 +667,21 @@ def reindex_data(
 
     data_renamed = data.copy()
     data_renamed = data_renamed.loc[data_renamed.dropna(
-        axis=0).index.drop_duplicates(False)]
+        axis=0).index.drop_duplicates(keep=False)]
     d_cols = data_renamed.columns
     data_renamed[d_cols] = data_renamed[d_cols].apply(
         pd.to_numeric, errors='coerce')
 
     stats_renamed = stats.copy()
     stats_renamed = stats_renamed.loc[stats_renamed.dropna(
-        axis=0).index.drop_duplicates(False)]
+        axis=0).index.drop_duplicates(keep=False)]
     s_cols = stats_renamed.columns
     stats_renamed[s_cols] = stats_renamed[s_cols].apply(
         pd.to_numeric, errors='coerce')
 
     if len(data_renamed.index.tolist()) != len(data.index.tolist()) \
             or len(stats_renamed.index.tolist()) != len(stats.index.tolist()):
-        print('Warning: Duplicate row names were found. All duplicate data was \nremoved from downstream processing. Choose one row per name to \nmaintain the duplicated entity in downstream processing.')
+        print('Warning: Duplicate row names were found. All duplicate data were \nremoved from downstream processing. Choose one row per name to \nmaintain the duplicated entity in downstream processing.')
         merge = list(set(data.index.tolist() + stats.index.tolist()))
         merge_after = list(
             set(data_renamed.index.tolist() + stats_renamed.index.tolist()))
@@ -824,12 +824,15 @@ def map_attributes(
     database
     """
 
+    print("Mapping data onto network...")
+    print("Input data dimensions: " + str(data.shape))
     data_renamed, stats_renamed, data_max, stats_max, n, \
     temp_idx, temp_idx_set, chebi_mapping = prepare_mapping_data(
         graph=graph,
         data=data,
         stats=stats)
-
+    print("Pre-processed data dimensions: " + str(data_renamed.shape))
+    
     mapped_nodes = []
 
     counter = 0
@@ -886,7 +889,7 @@ def map_attributes(
 
         else:
             graph.nodes()[x]['synonyms'] = [x]
-
+            
         if graph.nodes()[x]['sub_type'] == 'reaction':
             graph.nodes()[x]['type'] = 'reaction'
             colors = [REACTION_COLOR for x in range(n)]
@@ -1582,7 +1585,7 @@ def __model__(
         chebi_synonyms=network['chebi_synonyms'],
         uniprot_mapper=uniprot_mapper,
         metabolite_mapper=metabolite_mapper)
-
+    
     print('Outputting unmapped metabolomics values (if any exist)...')
     if args_dict['metabolomics'].lower() != 'none':
         m_data = pd.read_csv(
@@ -1591,6 +1594,7 @@ def __model__(
             index_col=0)
 
         m_non_mapper = m_data[m_data.index.isin(non_mappers)]
+        print("\t- Outputting " + str(len(m_non_mapper.index.tolist())) + " unmapped metabolites for reference.")
         if len(m_non_mapper.index.tolist()) > 0:
             m_non_mapper.to_csv(
                 args_dict['metabolomics'][:-4] + '_unmapped.txt',

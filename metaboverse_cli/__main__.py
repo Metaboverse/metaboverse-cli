@@ -29,6 +29,8 @@ import requests
 import pickle
 import sys
 import os
+# Includes all imports used throughout metaboverse-cli to ensure packaging by pyinstaller
+
 
 """Import internal dependencies
 """
@@ -132,8 +134,16 @@ def main(
         + 'v' + this_version + '/'
         + CURATION_DIR + '/'
         + args_dict['organism_id'] + '.mvdb')
-    url_response = requests.head(reference_url)
-
+    
+    # If unable to access pre-curated network, force new curation
+    try:
+        url_response = requests.head(reference_url)
+    except:
+        print("Unable to access source files from: " + str(reference_url))
+        print("Will force a new curation of source files instead...")
+        args_dict['force_new_curation'] == True
+        url_response = ''
+        
     if args_dict['cmd'] == 'metaboliteMapper':
         print('Generating metabolite mapper...')
         mapper(args_dict)
@@ -166,7 +176,7 @@ def main(
         # MVDB file exists in repo
         elif (args_dict['force_new_curation'] == False \
         or args_dict['force_new_curation'] == "False") \
-        and url_response.status_code != 404:
+        and url_response.status_code != 404 and url_response.status_code != 10054:
             try:
                 file = get_reference(
                     args_dict=args_dict,
@@ -207,6 +217,7 @@ def main(
         args_dict=args_dict,
         process="graph",
         amount=50)
+
 
 if __name__ == '__main__':
     """Run main

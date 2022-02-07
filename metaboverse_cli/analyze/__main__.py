@@ -284,7 +284,8 @@ def __main__(
         network=network,
         args_dict=args_dict)
     progress_feed(args_dict, "graph", 2)
-
+    print("Data processed of dimensions: " + str(data.shape))
+    
     # Generate graph template
     this_version = get_metaboverse_cli_version()
     test_url = (
@@ -292,7 +293,15 @@ def __main__(
         + 'v' + this_version + '/'
         + TEMPLATE_DIR + '/'
         + args_dict['organism_id'] + '_template.mvrs')
-    url_response = requests.head(test_url)
+    
+    # If unable to access pre-curated network, force new curation
+    try:
+        url_response = requests.head(test_url)
+    except:
+        print("Unable to access source files from: " + str(test_url))
+        print("Will force a new curation of source files instead...")
+        args_dict['force_new_curation'] == True
+        url_response = ''
 
     if (args_dict['force_new_curation'] == False \
     or args_dict['force_new_curation'] == "False") \
@@ -335,14 +344,24 @@ def __main__(
 
     if len(graph.nodes) == 0 or len(graph.edges) == 0:
         raise Exception("Unable to generate a reaction-based network based on the input organism template.")
-
+    else:
+        print("Successfully loaded network with " + str(len(graph.nodes)) + " nodes and " + str(len(graph.edges)) + " edges")
+    
     # Generate graph template
     neighbors_url = (
         SOURCE_URL
         + 'v' + this_version + '/'
         + NEIGHBOR_DIR + '/'
         + args_dict['organism_id'] + '.nbdb')
-    neighbor_response = requests.head(neighbors_url)
+    
+    # If unable to access pre-curated network, force new curation
+    try:
+        neighbor_response = requests.head(neighbors_url)
+    except:
+        print("Unable to access source files from: " + str(test_url))
+        print("Will force a new curation of source files instead...")
+        args_dict['force_new_curation'] == True
+        neighbor_response = ''
 
     force_neighbors = False
     if (args_dict['force_new_curation'] == False \
@@ -381,6 +400,7 @@ def __main__(
         progress_feed(args_dict, "graph", 6)
 
     # Overlay data on graph and collapse as able
+    print("Modeling data onto network...")
     graph_name = __model__(
         graph=graph,
         args_dict=args_dict,
