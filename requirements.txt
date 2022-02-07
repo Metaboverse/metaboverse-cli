@@ -1,5 +1,4 @@
-python=3.8
-pyinstaller
+python
 pandas
 numpy>=1.16.5
 scipy
