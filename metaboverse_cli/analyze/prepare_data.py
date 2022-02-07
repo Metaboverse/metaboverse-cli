@@ -69,7 +69,11 @@ def read_data(
                 + str(len(data.loc[data.index.duplicated(keep=duplicates)].index.tolist()))
                 + ' rows.'
             + '\n\tFile: ' 
-                + str(url))
+                + str(url)
+            + '\nEntities removed:' 
+            )
+        for x in data.loc[data.index.duplicated(keep=duplicates)].index.tolist():
+            print("\t- " + str(x))
         data = data.loc[~data.index.duplicated(keep=duplicates)] 
 
     if len(data.columns.tolist()) % 2 != 0:
@@ -192,6 +196,21 @@ def copy_columns(
     return data_c, stats_c
 
 
+def convert_to_float(
+        lists):
+    """Recursively force elements of nested list to float
+    Source: https://stackoverflow.com/a/46549533
+
+    Args:
+        lists (<list>): Nested list
+
+    Returns:
+        [<list>]: Nested list with elements converted to floats
+    """
+    
+    return [float(el) if not isinstance(el, list) else convert_to_float(el) for el in lists]
+                
+                
 def catenate_data(
         array):
     """Combine data
@@ -214,18 +233,18 @@ def catenate_data(
     removers = []  # Remove non-numbers
     for idx, row in combined.iterrows():
         for x in row:
-            try:
-                float(x)
-            except:
-                removers.append(idx)
+            if type(x) == list:
+                try:
+                    x = convert_to_float(x)
+                except:
+                    removers.append(idx)
+            else: 
+                try:
+                    float(x)
+                except:
+                    removers.append(idx)
 
     combined = combined[~combined.index.isin(removers)]
-
-    for col in combined.columns.tolist():
-        combined[col] = combined[col].astype(float)
-
-    #combined = combined.groupby(combined.index).mean()
-    ### Need to fix
     
     return combined
 

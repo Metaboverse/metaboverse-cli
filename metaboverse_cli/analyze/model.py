@@ -676,8 +676,11 @@ def reindex_data(
     stats_renamed = stats_renamed.loc[stats_renamed.dropna(
         axis=0).index.drop_duplicates(keep=False)]
     s_cols = stats_renamed.columns
-    stats_renamed[s_cols] = stats_renamed[s_cols].apply(
-        pd.to_numeric, errors='coerce')
+    
+    # Only force stats to numeric if not list type (list type indicates confidence interval arrays)
+    if type(stats_renamed.iloc[0,0]) != list:
+        stats_renamed[s_cols] = stats_renamed[s_cols].apply(
+            pd.to_numeric, errors='coerce')
 
     if len(data_renamed.index.tolist()) != len(data.index.tolist()) \
             or len(stats_renamed.index.tolist()) != len(stats.index.tolist()):
@@ -778,8 +781,14 @@ def prepare_mapping_data(graph, data, stats):
     # Re-index data and stats
     data_renamed, stats_renamed = reindex_data(data, stats)
     data_max = abs(data_renamed).max().max()
-    stats_logged = -1 * np.log10(stats_renamed + 1e-100)
-    stats_max = abs(stats_logged).max().max()
+    
+    # Allow for lists of stats
+    if type(stats_renamed.iloc[0,0]) == list:
+        stats_logged = -1 
+        stats_max = -1 
+    else:
+        stats_logged = -1 * np.log10(stats_renamed + 1e-100)
+        stats_max = abs(stats_logged).max().max()
 
     # Make data dict with values and whether or not used
     temp_idx = [
@@ -1138,24 +1147,28 @@ def infer_protein_values(values, length):
 
 def infer_protein_stats(stats, length):
 
-    protein_stats = []
-    for i in range(length):
+    # Do not infer confidence intervals
+    if type(stats) == list:
+        protein_stats = [None for x in range(length)]
+    else:
+        protein_stats = []
+        for i in range(length):
 
-        pos = []
+            pos = []
 
-        for j in range(len(stats)):
+            for j in range(len(stats)):
 
-            if stats[j][i] != None:
-                pos.append(stats[j][i])
+                if stats[j][i] != None:
+                    pos.append(stats[j][i])
 
-        if len(pos) == 1:
-            this_stat = pos[0]
-        else:
-            this_stat = (math.e * gmean(pos))
+            if len(pos) == 1:
+                this_stat = pos[0]
+            else:
+                this_stat = (math.e * gmean(pos))
 
-        if this_stat > 1.0:
-            this_stat = 1.0
-        protein_stats.append(this_stat)
+            if this_stat > 1.0:
+                this_stat = 1.0
+            protein_stats.append(this_stat)
 
     return protein_stats
 
