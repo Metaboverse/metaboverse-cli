@@ -1706,7 +1706,11 @@ def __model__(
 
     print('Exporting graph...')
     args_dict["max_value"] = max_value
-    args_dict["max_stat"] = max_stat
+    args_dict["max_stat"] = max_stat 
+    if type(stats.iloc[0,0]) == list:
+        args_dict["stat_type"] = 'array'
+    else:
+        args_dict["stat_type"] = 'float'
     args_dict["curation_url"] = os.path.join(
         args_dict['output'],
         args_dict['curation'])

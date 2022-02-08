@@ -442,8 +442,12 @@ def add_species(
                         components_database[specie]['is'] = _id
                         components_database[specie]['type'] = 'other'
                 else:
-                    r_id = item.split(reactome_split)[1]
-                    components_database[specie]['reactome_id'] = r_id
+                    try:
+                        r_id = item.split(reactome_split)[1]
+                        components_database[specie]['reactome_id'] = r_id
+                    except:
+                        print(item)
+                        components_database[specie]['reactome_id'] = item
 
         for rank in child.iter(str(bqbiol_namespace + 'hasPart')):
             for _rank in rank.iter(str(rdf_namespace + 'li')):
