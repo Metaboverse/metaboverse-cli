@@ -371,6 +371,49 @@ def check_chebi(
     return item_returned
 
 
+def process_item(item):
+    """Extract ID and entity type from "is" tag
+
+    Args:
+        item (xml tag packet): Extracted "is" tag from xml record
+
+    Returns:
+        _id <str>, _type <str>: Extracted ID and entity type
+    """
+                      
+    if 'chebi' in item.lower() and chebi_split.lower() in item.lower():
+        _id = str(chebi_split) + str(item.split(chebi_split)[1])
+        _type = 'metabolite_component'
+    elif 'chebi' in item.lower() and chebi_split.lower() not in item.lower():
+        _id = item.split(other_split)[-1]
+        if 'chebi' not in _id.lower():
+            _id = "CHEBI:" + str(_id)
+        _type = 'metabolite_component'
+    elif 'uniprot' in item.lower() and uniprot_split.lower() in item.lower():
+        _id = item.split(uniprot_split)[1]
+        _type = 'protein_component'
+    elif 'uniprot' in item.lower() and uniprot_split.lower() not in item.lower():
+        _id = item.split(other_split)[-1]
+        _type = 'protein_component'
+    elif 'gene' in item.lower() and gene_split.lower() in item.lower():
+        _id = item.split(gene_split)[1]
+        _type = 'gene_component'
+    elif 'gene' in item.lower() and gene_split.lower() not in item.lower():
+        _id = item.split(other_split)[-1]
+        _type = 'gene_component'
+    elif 'mirbase' in item.lower() and mirbase_split.lower() in item.lower():
+        _id = item.split(mirbase_split)[1]
+        _type = 'mirna_component'
+    elif 'mirbase' in item.lower() and mirbase_split.lower() not in item.lower():
+        _id = item.split(other_split)[-1]
+        _type = 'mirna_component'
+    else:
+        _id = item.split(other_split)[-1]
+        _type = 'other'
+    
+    return _id, _type
+                    
+
 def add_species(
         species_database,
         name_database,
@@ -421,26 +464,9 @@ def add_species(
             for _rank in rank.iter(str(rdf_namespace + 'li')):
                 item = _rank.attrib[str(rdf_namespace + 'resource')]
                 if 'reactome' not in item.lower():
-                    if 'chebi' in item.lower() and chebi_split.lower() in item.lower():
-                        _id = str(chebi_split) + str(item.split(chebi_split)[1])
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'metabolite_component'
-                    elif 'uniprot' in item.lower() and uniprot_split.lower() in item.lower():
-                        _id = item.split(uniprot_split)[1]
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'protein_component'
-                    elif 'gene' in item.lower() and gene_split.lower() in item.lower():
-                        _id = item.split(gene_split)[1]
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'mirna_component'
-                    elif 'mirbase' in item.lower() and mirbase_split.lower() in item.lower():
-                        _id = item.split(mirbase_split)[1]
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'mirna_component'
-                    else:
-                        _id = item.split(other_split)[-1]
-                        components_database[specie]['is'] = _id
-                        components_database[specie]['type'] = 'other'
+                    _id, _type = process_item(item)
+                    components_database[specie]['is'] = _id
+                    components_database[specie]['type'] = _type
                 else:
                     if reactome_split in item.lower():
                         r_id = item.split(reactome_split)[1]
@@ -454,21 +480,8 @@ def add_species(
                 item = _rank.attrib[str(rdf_namespace + 'resource')]
                 if 'reactome' not in item:
                     components_database[specie]['type'] = 'complex_component'
-                    if 'chebi' in item.lower() and chebi_split.lower() in item.lower():
-                        _id = str(chebi_split) + str(item.split(chebi_split)[1])
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'uniprot' in item.lower() and uniprot_split.lower() in item.lower():
-                        _id = item.split(uniprot_split)[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'gene' in item.lower() and gene_split.lower() in item.lower():
-                        _id = item.split(gene_split)[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'mirbase' in item.lower() and mirbase_split.lower() in item.lower():
-                        _id = item.split(mirbase_split)[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    else:
-                        _id = item.split(other_split)[-1]
-                        components_database[specie]['hasPart'].append(_id)
+                    _id, _type = process_item(item)
+                    components_database[specie]['hasPart'].append(_id)
                 else:
                     _id = item.split(other_split)[-1]
                     components_database[specie]['hasPart'].append(_id)

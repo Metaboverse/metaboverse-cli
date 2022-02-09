@@ -8,3 +8,4 @@ metaboverse-linux
 metaboverse-win.exe
 dist
 build
+metaboverse_cli/curate/test/all_species.3.1.sbml/*
