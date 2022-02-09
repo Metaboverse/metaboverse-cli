@@ -446,29 +446,32 @@ def add_species(
                         r_id = item.split(reactome_split)[1]
                         components_database[specie]['reactome_id'] = r_id
                     except:
-                        print(item)
+                        print("Test 1:", item)
                         components_database[specie]['reactome_id'] = item
 
         for rank in child.iter(str(bqbiol_namespace + 'hasPart')):
             for _rank in rank.iter(str(rdf_namespace + 'li')):
                 item = _rank.attrib[str(rdf_namespace + 'resource')]
-                if 'reactome' not in item:
-                    components_database[specie]['type'] = 'complex_component'
-                    if 'chebi' in item.lower():
-                        _id = str(chebi_split) + str(item.split(chebi_split)[1])
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'uniprot' in item.lower():
-                        _id = item.split(uniprot_split)[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'gene' in item.lower():
-                        _id = item.split(gene_split)[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    elif 'mirbase' in item.lower():
-                        _id = item.split(mirbase_split)[1]
-                        components_database[specie]['hasPart'].append(_id)
-                    else:
-                        _id = item.split(other_split)[-1]
-                        components_database[specie]['hasPart'].append(_id)
+                try:
+                    if 'reactome' not in item:
+                        components_database[specie]['type'] = 'complex_component'
+                        if 'chebi' in item.lower():
+                            _id = str(chebi_split) + str(item.split(chebi_split)[1])
+                            components_database[specie]['hasPart'].append(_id)
+                        elif 'uniprot' in item.lower():
+                            _id = item.split(uniprot_split)[1]
+                            components_database[specie]['hasPart'].append(_id)
+                        elif 'gene' in item.lower():
+                            _id = item.split(gene_split)[1]
+                            components_database[specie]['hasPart'].append(_id)
+                        elif 'mirbase' in item.lower():
+                            _id = item.split(mirbase_split)[1]
+                            components_database[specie]['hasPart'].append(_id)
+                        else:
+                            _id = item.split(other_split)[-1]
+                            components_database[specie]['hasPart'].append(_id)
+                except:
+                    print("Test 2:", item)
 
         # Add source ID
         name_database = add_names(
