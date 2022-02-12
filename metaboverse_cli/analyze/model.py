@@ -688,8 +688,9 @@ def reindex_data(
         merge = list(set(data.index.tolist() + stats.index.tolist()))
         merge_after = list(
             set(data_renamed.index.tolist() + stats_renamed.index.tolist()))
+        print("\n Unmapped entities:")
         for x in [y for y in merge if y not in merge_after]:
-            print("-> " + str(x))
+            print("\t-> " + str(x))
 
     return data_renamed, stats_renamed
 
@@ -1145,10 +1146,10 @@ def infer_protein_values(values, length):
     return protein_vals
 
 
-def infer_protein_stats(stats, length):
+def infer_protein_stats(stats, length, stat_type="float"):
 
     # Do not infer confidence intervals
-    if type(stats) == list:
+    if stat_type == "array":
         protein_stats = [None for x in range(length)]
     else:
         protein_stats = []
@@ -1180,7 +1181,8 @@ def broadcast_values(
         max_value,
         max_stat,
         broadcast_genes=True,
-        broadcast_metabolites=True):
+        broadcast_metabolites=True,
+        stat_type="float"):
     """
     """
 
@@ -1244,7 +1246,7 @@ def broadcast_values(
 
                     if gene_stats != []:
                         inferred_stats = infer_protein_stats(
-                            gene_stats, length)
+                            gene_stats, length, stat_type=stat_type)
 
                         graph.nodes()[x]['inferred'] = 'true'
                         graph.nodes()[x]['stats'] = inferred_stats
@@ -1312,7 +1314,8 @@ def broadcast_values(
                         rgba_tuples=graph.nodes()[x]['values_rgba'])
 
                 if gene_stats != []:
-                    inferred_stats = infer_protein_stats(gene_stats, length)
+                    inferred_stats = infer_protein_stats(
+                        gene_stats, length, stat_type=stat_type)
 
                     graph.nodes()[x]['inferred'] = 'true'
                     graph.nodes()[x]['stats'] = inferred_stats
@@ -1631,6 +1634,10 @@ def __model__(
         max_stat = 1
 
     categories = data.columns.tolist()
+    if type(stats.iloc[0,0]) == list:
+        args_dict["stat_type"] = 'array'
+    else:
+        args_dict["stat_type"] = 'float'
     G = broadcast_values(
         args_dict=args_dict,
         graph=G,
@@ -1638,7 +1645,8 @@ def __model__(
         max_value=max_value,
         max_stat=max_stat,
         broadcast_genes=broadcast_genes,
-        broadcast_metabolites=broadcast_metabolites)
+        broadcast_metabolites=broadcast_metabolites, 
+        stat_type=args_dict["stat_type"])
     progress_feed(args_dict, "graph", 5)
 
     print('Compiling collapsed reaction reference...')
@@ -1707,10 +1715,6 @@ def __model__(
     print('Exporting graph...')
     args_dict["max_value"] = max_value
     args_dict["max_stat"] = max_stat 
-    if type(stats.iloc[0,0]) == list:
-        args_dict["stat_type"] = 'array'
-    else:
-        args_dict["stat_type"] = 'float'
     args_dict["curation_url"] = os.path.join(
         args_dict['output'],
         args_dict['curation'])

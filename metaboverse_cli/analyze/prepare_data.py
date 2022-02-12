@@ -226,8 +226,9 @@ def catenate_data(
     combined = combined.sort_index()
 
     # Check that types are the same (p-values or confidence intervals)
-    if len(set(flattenList(combined.applymap(type).values.tolist()))) != 1:
-        raise Exception("Input data types do not match. Please check that all fold change and statistical value types match between datasets.")
+    if type(combined.iloc[0,0]) == list:
+        if len(set(flattenList(combined.applymap(type).values.tolist()))) != 1:
+            raise Exception("Input data types do not match. Please check that all fold change and statistical value types match between datasets.")
 
     ### Need to fix
     removers = []  # Remove non-numbers
