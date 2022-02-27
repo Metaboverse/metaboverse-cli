@@ -68,6 +68,6 @@ def unpack_table(
         output_dir='./'):
 
     file = output_dir + url.split('/')[-1]
-    os.system('curl -L ' + url + ' -o "' + file + '"')
+    os.system('curl -kL ' + url + ' -o "' + file + '"')
 
     return file

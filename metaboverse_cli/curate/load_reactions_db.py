@@ -107,7 +107,7 @@ def unpack_pathways(
     handle_folder_contents(
         dir=pathways_dir)
 
-    os.system('curl -L ' + url + ' -o \"' + file + '\"')
+    os.system('curl -kL ' + url + ' -o \"' + file + '\"')
     os.makedirs(pathways_dir)
 
     tar = tarfile.open(file, "r:gz")

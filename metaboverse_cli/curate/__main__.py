@@ -196,7 +196,7 @@ def parse_ensembl_synonyms(
     """Retrieve Ensembl gene entity synonyms
     """
     print('Downloading Ensembl synonym database...', '\n\t', url)
-    os.system('curl -L ' + url + ' -o \"' + output_dir + file_name + '\"')
+    os.system('curl -kL ' + url + ' -o \"' + output_dir + file_name + '\"')
     ensembl = pd.read_csv(
         output_dir + file_name,
         sep='\t',
@@ -225,7 +225,7 @@ def parse_uniprot_synonyms(
     """
 
     print('Downloading UniProt synonym database...', '\n\t', url)
-    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
+    os.system('curl -kL ' + url + ' -o "' + output_dir + file_name + '"')
     uniprot = pd.read_csv(
         output_dir + file_name,
         sep='\t',
@@ -253,7 +253,7 @@ def parse_chebi_synonyms(
     """
 
     print('Downloading ChEBI synonym database...', '\n\t', url)
-    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '.gz"')
+    os.system('curl -kL ' + url + ' -o "' + output_dir + file_name + '.gz"')
     chebi = pd.read_csv(
         output_dir + file_name + '.gz',
         sep='\t',
@@ -341,7 +341,7 @@ def supplement_components(
     """
 
     print('Downloading ChEBI synonym database...', '\n\t', url)
-    os.system('curl -L ' + url + ' -o "' + output_dir + file_name + '"')
+    os.system('curl -kL ' + url + ' -o "' + output_dir + file_name + '"')
     chebi = pd.read_csv(
         output_dir + file_name,
         sep='\t',

@@ -128,7 +128,7 @@ def read_template(
             args_dict['output'],
             args_dict['organism_id'] + '_template.mvrs')
         print('Downloading graph template database...', '\n\t', url)
-        os.system('curl -L ' + url + ' -o \"' + file + '\"')
+        os.system('curl -kL ' + url + ' -o \"' + file + '\"')
         return file
 
     print('Downloading Metaboverse graph template for organism...')
@@ -189,7 +189,7 @@ def download_neighbors_dictionary(
             args_dict['output'],
             args_dict['organism_id'] + '.nbdb')
         print('Downloading nearest neighbors database...', '\n\t', url)
-        os.system('curl -L ' + url + ' -o \"' + file + '\"')
+        os.system('curl -kL ' + url + ' -o \"' + file + '\"')
         return file
 
     if user_provided == False:
