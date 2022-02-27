@@ -40,8 +40,8 @@ printf "+ Version info:\n"
 $MY_PATH/dist/metaboverse-cli-linux -v
 
 # Get species IDs from Reactome
-REACOME_API="https://reactome.org/ContentService/data/species/all"
-SPECIES=( $( curl -s $REACOME_API | jq -r '.[].abbreviation' ) )
+REACTOME_API="https://reactome.org/ContentService/data/species/all"
+SPECIES=( $( wget -O- $REACTOME_API | jq -r '.[].abbreviation' ) )
 
 printf "Processing database curation for:\n"
 for X in ${SPECIES[@]};
