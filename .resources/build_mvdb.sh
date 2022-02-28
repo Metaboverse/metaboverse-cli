@@ -65,7 +65,7 @@ printf "\nMetaboverse version: " >> $SCRDIR/README.txt
 $MY_PATH/dist/metaboverse-cli-linux -v >> $SCRDIR/README.txt
 
 printf "\nReactome version: " >> $SCRDIR/README.txt
-curl -X GET --header 'Accept: text/plain' 'https://reactome.org/ContentService/data/database/version' >> $SCRDIR/README.txt
+curl -kX GET https://reactome.org/ContentService/data/database/version >> $SCRDIR/README.txt
 
 printf "\n\nOrganisms curated:" >> $SCRDIR/README.txt
 printf "\nSTART" >> $SCRDIR/README.txt
