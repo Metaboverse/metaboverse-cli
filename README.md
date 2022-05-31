@@ -1,7 +1,5 @@
 # ![Metaboverse](https://raw.githubusercontent.com/Metaboverse/Metaboverse/master/docs/content/images/png/metaboverse_banner.png)
 
-![Build Status](https://github.com/Metaboverse/metaboverse-cli/workflows/build/badge.svg)
-[![Documentation Status](https://readthedocs.org/projects/metaboverse/badge/?version=latest)](https://metaboverse.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/Metaboverse/metaboverse-cli/branch/master/graph/badge.svg)](https://codecov.io/gh/Metaboverse/metaboverse-cli)
 [![Github All Releases](https://img.shields.io/github/downloads/Metaboverse/Metaboverse/total.svg)]()
 
