@@ -4,8 +4,7 @@ Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
 https://github.com/Metaboverse/metaboverse-cli/
 alias: metaboverse-cli
 
-Copyright (C) 2019-2021 Jordan A. Berg
-Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
+Copyright (C) Jordan A. Berg
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -99,6 +98,10 @@ def check_arguments(
     if 'collapse_threshold' in args_dict:
         args_dict['collapse_threshold'] = float(args_dict['collapse_threshold'])
 
+    if 'blocklist' in args_dict:
+        if args_dict['blocklist'] == None:
+            args_dict['blocklist'] = ""
+    
     # Print out user commands to log file
     print('Metaboverse-CLI version: ' + safestr(__version__))
     print('======================\nUser commands summary:\n======================')
@@ -175,7 +178,7 @@ def parse_arguments(
         help='Show help message and exit')
     electrum_opts.add_argument(
         '--database_source',
-        help='A string indicating the database source (default: "reactome"; other options: "biomodels/bigg")',
+        help='A string indicating the database source (default: "reactome"; other options: "biomodels/bigg" or "custom")',
         metavar='<source_name>',
         type=str,
         default='reactome',
@@ -289,7 +292,7 @@ def parse_arguments(
         required=False)
     curate_opts.add_argument(
         '--database_source',
-        help='A string indicating the database source (default: "reactome"; other options: "biomodels/bigg")',
+        help='A string indicating the database source (default: "reactome"; other options: "biomodels/bigg" or "custom")',
         metavar='<source_name>',
         type=str,
         default='reactome',

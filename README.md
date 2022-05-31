@@ -21,3 +21,33 @@ A current draft of the manuscript describing Metaboverse can be found [here](htt
 
 ### Other Notes
 - This product includes color specifications and designs developed by Cynthia Brewer (http://colorbrewer.org/).
+
+### Build `metaboverse-cli` for the first time
+```
+conda create -n pyinstaller
+conda activate pyinstaller
+
+conda install python=3.8; conda install pyinstaller 
+conda install pandas numpy scipy scikit-learn networkx requests
+
+pyinstaller metaboverse-cli.spec
+```
+
+### Re-use `metaboverse-cli` build environment
+```
+conda activate pyinstaller
+
+conda install python=3.8; conda update pyinstaller 
+conda update pandas numpy scipy scikit-learn networkx requests
+
+pyinstaller metaboverse-cli.spec
+```
+
+### Utilizing a custom Metaboverse network
+Custom networks are archived at https://github.com/Metaboverse/Custom-Networks/curated_organisms.
+Once a network is curated, input it into the Metaboverse GUI .....
+
+#### Example for building organism network
+```
+metaboverse-cli-windows.exe curate --output . --organism_id M_leprae --database_source custom --force_new_curation --organism_curation_file E:\projects\Custom-Networks\curated_organisms\m_leprae\m_leprae.json
+```

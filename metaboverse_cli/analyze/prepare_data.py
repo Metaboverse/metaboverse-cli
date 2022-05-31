@@ -4,8 +4,7 @@ Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
 https://github.com/Metaboverse/metaboverse-cli/
 alias: metaboverse-cli
 
-Copyright (C) 2019-2021 Jordan A. Berg
-Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
+Copyright (C) Jordan A. Berg
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

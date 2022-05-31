@@ -4,8 +4,7 @@ Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
 https://github.com/Metaboverse/metaboverse-cli/
 alias: metaboverse-cli
 
-Copyright (C) 2019-2021 Jordan A. Berg
-Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
+Copyright (C) Jordan A. Berg
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -295,12 +294,15 @@ def __main__(
         + args_dict['organism_id'] + '_template.mvrs')
     
     # If unable to access pre-curated network, force new curation
-    try:
-        url_response = requests.head(test_url)
-    except:
-        print("Unable to access source files from: " + str(test_url))
-        print("Will force a new curation of source files instead...")
-        args_dict['force_new_curation'] == True
+    if args_dict['force_new_curation'] != True:
+        try:
+            url_response = requests.head(test_url)
+        except:
+            print("Unable to access source files from: " + str(test_url))
+            print("Will force a new curation of source files instead...")
+            args_dict['force_new_curation'] == True
+            url_response = ''
+    else:
         url_response = ''
 
     if (args_dict['force_new_curation'] == False \
@@ -355,12 +357,15 @@ def __main__(
         + args_dict['organism_id'] + '.nbdb')
     
     # If unable to access pre-curated network, force new curation
-    try:
-        neighbor_response = requests.head(neighbors_url)
-    except:
-        print("Unable to access source files from: " + str(test_url))
-        print("Will force a new curation of source files instead...")
-        args_dict['force_new_curation'] == True
+    if args_dict['force_new_curation'] != True:
+        try:
+            neighbor_response = requests.head(neighbors_url)
+        except:
+            print("Unable to access source files from: " + str(test_url))
+            print("Will force a new curation of source files instead...")
+            args_dict['force_new_curation'] == True
+            neighbor_response = ''
+    else:
         neighbor_response = ''
 
     force_neighbors = False

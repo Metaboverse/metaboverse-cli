@@ -4,8 +4,7 @@ Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
 https://github.com/Metaboverse/metaboverse-cli/
 alias: metaboverse-cli
 
-Copyright (C) 2019-2021 Jordan A. Berg
-Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
+Copyright (C) Jordan A. Berg
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -25,6 +24,7 @@ import tarfile
 import time
 import glob
 import stat
+import json
 import re
 import sys
 import os
@@ -642,6 +642,24 @@ def load_sbml(
         parsed_file,
         extension=parsed_extension)
 
+def load_custom_json(
+        sbml_url):
+    """Load custom SBML file for organism network curation
+    """
+    
+    parsed_url = sbml_url.split(os.path.sep)
+    parsed_path = os.path.sep.join(parsed_url[0:-1]) + os.path.sep
+    parsed_file = parsed_url[-1].split('.')[0]
+    parsed_extension = '.' + parsed_url[-1].split('.')[1]
+    
+    if not parsed_path.endswith(os.path.sep):
+        parsed_path = parsed_path + os.path.sep
+    pathway_file = parsed_path + parsed_file + parsed_extension
+    
+    with open(pathway_file) as json_file:
+        data = json.load(json_file)
+    
+    return data
 
 def update_model_metadata(
         sbml_db,
@@ -871,6 +889,161 @@ def process_manual(
     components_database)
 
 
+def update_model_metadata_custom(
+        sbml_url,
+        sbml_db,
+        args_dict):
+    """Get custom model metadata and update session info
+    """
+
+    session_file = args_dict['session_data']
+
+    args_dict['organism_id'] = args_dict['organism'] = sbml_url.split(os.path.sep)[-1].split(".json")[0]
+    update_session(
+        session_file=session_file,
+        key='organism_id',
+        value=args_dict['organism_id'])
+    update_session(
+        session_file=session_file,
+        key='organism',
+        value=args_dict['organism'])
+
+    args_dict['database_version'] = 'N/A'
+    update_session(
+        session_file=session_file,
+        key='database_version',
+        value=args_dict['database_version'])
+    
+    return args_dict
+
+
+def add_names_custom(
+        name_database,
+        metabolite_dictionary,
+        name,
+        specie):
+    
+    name_database[specie] = specie
+    
+    alt_name = name \
+        .replace("_", " ") \
+        .replace("?", "") \
+        .replace("\u00b1", "") \
+        .replace("0.001", "") \
+        .replace("0.999", "") \
+        .replace("2.0", "") \
+        .replace("4.0", "") \
+        .replace("6.0", "")
+        
+    if len(alt_name) > 0:
+        if alt_name[0] == "-":
+            alt_name = alt_name[1:]
+        name_database[alt_name] = specie
+
+        if alt_name[-1] == ")":
+            alt_name2 = alt_name[alt_name.find('('): alt_name.find(')') + 1]
+            name_database[alt_name2] = specie
+
+    if alt_name in metabolite_dictionary:
+        name_database[metabolite_dictionary[alt_name]] = specie
+    
+    return name_database
+
+
+def process_custom(
+        sbml_db,
+        sbml_url,
+        args_dict):
+    """Parse custom network curation elements
+    """
+
+    # Initialize databases
+    pathway_database = {
+        'All': {
+            'id': 'All',
+            'reactome': 'All',
+            'name': 'All',
+            'reactions': set()
+        }
+    }
+    reaction_database = {}
+    name_database = {}
+    compartment_dictionary = {}
+    compartment_database = {}
+    species_database = {}
+    components_database = {}
+
+    # Get model information
+    args_dict = update_model_metadata_custom(
+        sbml_url=sbml_url,
+        sbml_db=sbml_db,
+        args_dict=args_dict
+    )
+
+    # Generate compartment dictionary
+    compartment_dictionary["N/A"] = "N/A"
+
+    # Generate species database
+    for x in sbml_db["species"]:
+        specie = sbml_db["species"][x]["id"]
+        name = sbml_db["species"][x]["name"]
+        species_type = sbml_db["species"][x]["type"]
+        isEncodedBy = ''
+        hasPart = []
+        if species_type == "modifier":
+            isEncodedBy = specie
+            hasPart.append(specie)
+            species_type = "catalyst"
+        else:
+            species_type = "metabolite_component"
+            
+        species_database[specie] = name
+        compartment_database[specie] = "N/A"
+        name_database[name] = specie
+        components_database[specie] = {
+            'id': specie,
+            'reactome_id': specie,
+            'name': name,
+            'is': specie,
+            'isEncodedBy': isEncodedBy,
+            'hasPart': hasPart,
+            'type': species_type,
+            'compartment': "N/A"
+        }
+        
+        # Add source ID
+        name_database = add_names_custom(
+            name_database=name_database,
+            metabolite_dictionary=sbml_db["synonyms"],
+            name=name,
+            specie=specie)
+        
+    # Generate reaction database
+    for x in sbml_db["reactions"]:
+        _id = x
+        _name = sbml_db["reactions"][x]["name"]
+        _reversible = "N/A"
+        reactants = sbml_db["reactions"][x]['reactants']
+        products  = sbml_db["reactions"][x]['products']
+        modifiers = sbml_db["reactions"][x]['modifiers']
+        
+        name_database[_name] = _id
+        pathway_database['All']['reactions'].add(_id)
+        reaction_database[_id] = {
+            'compartment': '',
+            'id': _id,
+            'name': _name,
+            'reversible': _reversible,
+            'notes': ''}
+        reaction_database[_id]['reactants'] = reactants
+        reaction_database[_id]['products']  = products
+        reaction_database[_id]['modifiers'] = modifiers
+        
+    return (args_dict, pathway_database, reaction_database, species_database,
+        name_database, compartment_database, compartment_dictionary,
+        components_database)
+    
+
 def __main__(
         species_id,
         output_dir,
@@ -920,6 +1093,19 @@ def __main__(
                 args_dict=args_dict)
         progress_feed(args_dict, "graph", 13)
 
+    elif database_source.lower() == 'custom' and sbml_url != "None":
+        sbml_db = load_custom_json(
+            sbml_url=sbml_url)
+        progress_feed(args_dict, "graph", 10)
+        
+        args_dict, pathway_database, reaction_database, species_database, \
+        name_database, compartment_database, compartment_dictionary, \
+        components_database = process_custom(
+                sbml_db=sbml_db,
+                sbml_url=sbml_url,
+                args_dict=args_dict)
+        progress_feed(args_dict, "graph", 13)
+        
     else:
         raise Exception('Input database type not supported by Metaboverse. If you would like the database type included, please submit an issue at <https://github.com/Metaboverse/Metaboverse/issues>.')
 

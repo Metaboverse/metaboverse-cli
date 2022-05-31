@@ -4,8 +4,7 @@ Back-end CLI Tool for Curating Metabolic Networks for Metaboverse
 https://github.com/Metaboverse/metaboverse-cli/
 alias: metaboverse-cli
 
-Copyright (C) 2019-2021 Jordan A. Berg
-Email: jordan<dot>berg<at>biochem<dot>utah<dot>edu
+Copyright (C) Jordan A. Berg
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -136,12 +135,15 @@ def main(
         + args_dict['organism_id'] + '.mvdb')
     
     # If unable to access pre-curated network, force new curation
-    try:
-        url_response = requests.head(reference_url)
-    except:
-        print("Unable to access source files from: " + str(reference_url))
-        print("Will force a new curation of source files instead...")
-        args_dict['force_new_curation'] == True
+    if args_dict['force_new_curation'] != True:
+        try:
+            url_response = requests.head(reference_url)
+        except:
+            print("Unable to access source files from: " + str(reference_url))
+            print("Will force a new curation of source files instead...")
+            args_dict['force_new_curation'] = True
+            url_response = ''
+    else:
         url_response = ''
         
     if args_dict['cmd'] == 'metaboliteMapper':
@@ -163,7 +165,9 @@ def main(
         and safestr(
                 args_dict['organism_curation_file']).split('.')[-1] != 'xml' \
         and safestr(
-                args_dict['organism_curation_file']).split('.')[-1] != 'sbml':
+                args_dict['organism_curation_file']).split('.')[-1] != 'sbml' \
+        and safestr(
+                args_dict['organism_curation_file']).split('.')[-1] != 'json':
             # Update args_dict with path for network model
             args_dict = update_network_vars(args_dict)
             args_dict = update_session_vars(args_dict)
@@ -196,6 +200,12 @@ def main(
 
         # Curate MVDB file from scratch
         else:
+            if safestr(
+                    args_dict['organism_curation_file']).split('.')[-1] == 'json' \
+            and safestr(
+                    args_dict['database_source']) == 'custom':
+                args_dict['curation'] = args_dict['organism_curation_file']
+            
             print('Curating network model...')
             args_dict = curate(args_dict)
 
