@@ -24,8 +24,9 @@ A current draft of the manuscript describing Metaboverse can be found [here](htt
 conda create -n pyinstaller
 conda activate pyinstaller
 
-conda install python=3.8; conda install pyinstaller 
-conda install pandas numpy scipy scikit-learn networkx requests
+conda install python=3.8
+pip install pyinstaller 
+pip install pandas numpy scipy scikit-learn networkx requests
 
 pyinstaller metaboverse-cli.spec
 ```
@@ -34,8 +35,9 @@ pyinstaller metaboverse-cli.spec
 ```
 conda activate pyinstaller
 
-conda install python=3.8; conda update pyinstaller 
-conda update pandas numpy scipy scikit-learn networkx requests
+conda install python=3.8
+pip install pyinstaller --upgrade
+pip install pandas numpy scipy scikit-learn networkx requests --upgrade
 
 pyinstaller metaboverse-cli.spec
 ```

@@ -356,6 +356,12 @@ def check_curate(
         print('\nIncorrect graph template file type provided : ' +
               safestr(args_dict['graph_template_file']))
         should_exit = True
+        
+    elif 'graph_template_file' in args_dict \
+    and safestr(args_dict['graph_template_file']) != 'None' \
+    and safestr(args_dict['graph_template_file']) != None \
+    and safestr(args_dict['graph_template_file']).split('.')[-1] == 'mvrs':
+        should_exit = False
 
     if should_exit == True:
         sys.exit(1)
