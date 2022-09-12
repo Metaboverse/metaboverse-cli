@@ -1,21 +1,12 @@
 #!/bin/bash
 #SBATCH --time=24:00:00
 #SBATCH --nodes=1
-#SBATCH -o /uufs/chpc.utah.edu/common/home/rutter-group1/j-berg/slurmjob-logs/slurmjob-%j
-#SBATCH --account=rutter-gpu-np
-#SBATCH --partition=rutter-gpu-np
-#SBATCH --mem=0
-
-# Rutter lab GPU node specs
-# - 40 cores
-# - 192 GB of memory
-# - 4x RTX2080TI GPUs
-# - 168hr max
+#SBATCH -o ~/slurmjob-%j
+#SBATCH --partition=notchpeak
 
 
 # Set curation version
-VERSION="0.9.0"
-
+VERSION="0.10.0"
 
 
 # Set instance variables
