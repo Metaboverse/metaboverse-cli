@@ -35,25 +35,14 @@ A current draft of the manuscript describing Metaboverse can be found [here](htt
 conda create -n pyinstaller
 conda activate pyinstaller
 
-conda install python=3.8
+conda install python
 pip install pyinstaller 
-pip install pandas numpy scipy scikit-learn networkx requests
+pip install -r requirements.txt
 
 pyinstaller metaboverse-cli.spec
 ```
 
-### Re-use `metaboverse-cli` build environment
-```
-conda activate pyinstaller
-
-conda install python=3.8
-pip install pyinstaller --upgrade
-pip install pandas numpy scipy scikit-learn networkx requests --upgrade
-
-pyinstaller metaboverse-cli.spec
-```
-
-### Utilizing a custom Metaboverse network
+### Utilizing a custom Metaboverse network (in progress)
 Custom networks are archived at https://github.com/Metaboverse/Custom-Networks/curated_organisms.
 Once a network is curated, input it into the Metaboverse GUI .....
 

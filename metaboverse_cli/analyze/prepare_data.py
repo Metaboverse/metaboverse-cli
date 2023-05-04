@@ -29,7 +29,9 @@ SOFTWARE.
 """
 from __future__ import print_function
 import pandas as pd
+import numpy as np
 import ast
+import sys
 import re
 
 
@@ -89,6 +91,37 @@ def read_data(
         raise Exception('Improperly formatted datatable provided: ', url)
 
     return data
+
+
+def check_data(data, data_type="unknown"):
+
+    print("{} data conversion errors:".format(data_type))
+    should_exit = False 
+    _count = 0
+
+    # Check cell values
+    for r in data.index:
+        for c in data.columns:
+            try:
+                float(data.at[r, c])
+            except ValueError:
+                print("    Formatting error in data cell at coordinates: {0}, {1}  (row {2})".format(r, c, data.index.get_loc(r)))
+                _count += 1
+                should_exit = True
+    
+    # Check index values
+    for r in data.index:
+        try:
+            str(r.lstrip().rstrip())
+        except AttributeError:
+            print("    Formatting error in index: {0}  (row {1})".format(r, data.index.get_loc(r)))
+            _count += 1
+            should_exit = True
+
+    if _count == 0:
+        print("    None")
+
+    return should_exit
 
 
 def format_data(
@@ -268,32 +301,38 @@ def __main__(
     """Get user data and preprocess
     """
 
+    should_transcriptomics_exit = False
+    should_proteomics_exit = False
+    should_metabolomics_exit = False
+
     # Process transcriptomics
     if transcriptomics_url.lower() != 'none':
 
         transcriptomics = read_data(
             url=transcriptomics_url)
-        e_sym = {}
-        if database_source.lower() == 'reactome':
-            for k, v in network['ensembl_synonyms'].items():
-                if 'phospho-' in v and '-phospho-' not in v:
-                    v = v.replace('phospho-', '')
-                if '(' in v and ')' in v:
-                    v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
-                if '  ' in v:
-                    v = v.replace('  ', ' ')
-                v = v.strip()
-                e_sym[v.upper()] = k
-                e_sym[k.upper()] = k
-            transcriptomics, transcriptomics_unmapped = format_data(
-                data=transcriptomics,
-                reference=e_sym)
-            output_unmapped(
-                data=transcriptomics_unmapped,
-                url=transcriptomics_url)
-        transcriptomics, transcriptomics_stats = extract_data(
-            data=transcriptomics)
-        transcriptomics_length = len(transcriptomics.columns.tolist())
+        should_transcriptomics_exit = check_data(transcriptomics, data_type="Transcriptomics")
+        if not should_transcriptomics_exit:
+            e_sym = {}
+            if database_source.lower() == 'reactome':
+                for k, v in network['ensembl_synonyms'].items():
+                    if 'phospho-' in v and '-phospho-' not in v:
+                        v = v.replace('phospho-', '')
+                    if '(' in v and ')' in v:
+                        v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+                    if '  ' in v:
+                        v = v.replace('  ', ' ')
+                    v = v.strip()
+                    e_sym[v.upper()] = k
+                    e_sym[k.upper()] = k
+                transcriptomics, transcriptomics_unmapped = format_data(
+                    data=transcriptomics,
+                    reference=e_sym)
+                output_unmapped(
+                    data=transcriptomics_unmapped,
+                    url=transcriptomics_url)
+            transcriptomics, transcriptomics_stats = extract_data(
+                data=transcriptomics)
+            transcriptomics_length = len(transcriptomics.columns.tolist())
     else:
         transcriptomics_length = 0
 
@@ -302,27 +341,29 @@ def __main__(
 
         proteomics = read_data(
             url=proteomics_url)
-        u_sym = {}
-        if database_source.lower() == 'reactome':
-            for k, v in network['uniprot_synonyms'].items():
-                if 'phospho-' in v and '-phospho-' not in v:
-                    v = v.replace('phospho-', '')
-                if '(' in v and ')' in v:
-                    v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
-                if '  ' in v:
-                    v = v.replace('  ', ' ')
-                v = v.strip()
-                u_sym[v.upper()] = k
-                u_sym[k.upper()] = k
-            proteomics, proteomics_unmapped = format_data(
-                data=proteomics,
-                reference=u_sym)
-            output_unmapped(
-                data=proteomics_unmapped,
-                url=proteomics_url)
-        proteomics, proteomics_stats = extract_data(
-            data=proteomics)
-        proteomics_length = len(proteomics.columns.tolist())
+        should_proteomics_exit = check_data(proteomics, data_type="Proteomics")
+        if not should_proteomics_exit:
+            u_sym = {}
+            if database_source.lower() == 'reactome':
+                for k, v in network['uniprot_synonyms'].items():
+                    if 'phospho-' in v and '-phospho-' not in v:
+                        v = v.replace('phospho-', '')
+                    if '(' in v and ')' in v:
+                        v = re.sub("[\(\[].[^a-zA-Z]+?[\)\]]", "", v)
+                    if '  ' in v:
+                        v = v.replace('  ', ' ')
+                    v = v.strip()
+                    u_sym[v.upper()] = k
+                    u_sym[k.upper()] = k
+                proteomics, proteomics_unmapped = format_data(
+                    data=proteomics,
+                    reference=u_sym)
+                output_unmapped(
+                    data=proteomics_unmapped,
+                    url=proteomics_url)
+            proteomics, proteomics_stats = extract_data(
+                data=proteomics)
+            proteomics_length = len(proteomics.columns.tolist())
     else:
         proteomics_length = 0
 
@@ -331,11 +372,25 @@ def __main__(
 
         metabolomics = read_data(
             url=metabolomics_url)
-        metabolomics, metabolomics_stats = extract_data(
-            data=metabolomics)
-        metabolomics_length = len(metabolomics.columns.tolist())
+        should_metabolomics_exit = check_data(metabolomics, data_type="Metabolomics")
+        if not should_metabolomics_exit:
+            metabolomics, metabolomics_stats = extract_data(
+                data=metabolomics)
+            metabolomics_length = len(metabolomics.columns.tolist())
     else:
         metabolomics_length = 0
+
+    # Check if should exit if encountered invalid value in input data
+    if should_transcriptomics_exit \
+    or should_proteomics_exit \
+    or should_metabolomics_exit:
+        print("""
+        ----------------------------------------------------------------
+           Formatting/conversion error(s) in data. Please check logs, 
+                   remedy problematic data points, and rerun.            
+        ----------------------------------------------------------------
+        """)
+        sys.exit(1)
 
     # Check for broadcasting
     if proteomics_url.lower() == 'none' \
