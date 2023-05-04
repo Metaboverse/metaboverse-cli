@@ -113,8 +113,8 @@ def check_arguments(
             args_dict['blocklist'] = ""
     
     # Print out user commands to log file
-    print('Metaboverse-CLI version: ' + safestr(__version__))
-    print('======================\nUser commands summary:\n======================')
+    print('\nMetaboverse-CLI version: ' + safestr(__version__))
+    print('\n======================\nUser commands summary:\n======================')
 
     for key, value in args_dict.items():
         print(safestr(key) + ': ' + safestr(value))
